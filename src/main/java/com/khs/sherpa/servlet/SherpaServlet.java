@@ -227,7 +227,7 @@ public class SherpaServlet extends HttpServlet {
 			try {
 				result = Integer.parseInt(s);
 			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + " must be integer ");
+				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" must be integer ");
 			}
 		} else if (type == Float.class || type == float.class) {
 
@@ -235,7 +235,7 @@ public class SherpaServlet extends HttpServlet {
 			try {
 				result = Float.parseFloat(s);
 			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + " must be float ");
+				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" must be float ");
 			}
 
 		} else if (type == Double.class || type == double.class) {
@@ -244,7 +244,7 @@ public class SherpaServlet extends HttpServlet {
 			try {
 				result = Double.parseDouble(s);
 			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + " must be double ");
+				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+"  must be double ");
 			}
 		} else if (type == Date.class) {
 
@@ -257,14 +257,14 @@ public class SherpaServlet extends HttpServlet {
 				DateFormat format = new SimpleDateFormat(fmt);
 				result = format.parseObject(s);
 			} catch (ParseException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + " invalid date format must be " + fmt);
+				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" invalid date format must be " + fmt);
 			}
 
 		} else if (type == Boolean.class || type == boolean.class) {
 
 			String s = request.getParameter(a.value());
 			if (!(s.equalsIgnoreCase("1") || s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("0") || s.equalsIgnoreCase("N"))) {
-				throw new RuntimeException("endpoint parameter " + a.value() + " invalid boolean format must be Y/N or 0/1");
+				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" invalid boolean format must be Y/N or 0/1");
 			}
 			if (s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("1")) {
 				result = new Boolean(true);
