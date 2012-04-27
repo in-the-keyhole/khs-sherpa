@@ -26,6 +26,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.servlet.SherpaServlet;
+import static com.khs.sherpa.util.Defaults.*;
 
 public class JSONService {
 
@@ -70,9 +71,13 @@ public class JSONService {
 	SessionTokenService tokenService = null;
 
 	UserService userService = null;
+	
+	
+	ActivityService activityService = null;
+	
 
 	// session timeout in milliseconds, zero indicates no timeout
-	long sessionTimeout = 0;
+	long sessionTimeout = SESSION_TIMEOUT;
 
 	public SessionToken authenticate(@Param("userid") String userid, @Param("password") String password) {
 
@@ -87,9 +92,11 @@ public class JSONService {
 			token.setUserid(userid);
 			token.setLastActive(System.currentTimeMillis());
 			log("authenticated", userid, "n/a");
+			this.activityService.logActivity(token.getUserid(), "authenticated");
 		} catch (AuthenticationException e) {
 			// this.error(e, out);
 			log("invalid authentication", userid, "n/a");
+			this.activityService.logActivity(token.getUserid(), "invalid authentication attempt");
 		}
 
 		return token;
@@ -181,5 +188,14 @@ public class JSONService {
 	public void setUserService(UserService userService) {
 		this.userService = userService;
 	}
+	
+	public ActivityService getActivityService() {
+		return activityService;
+	}
+
+	public void setActivityService(ActivityService activityService) {
+		this.activityService = activityService;
+	}
+
 
 }

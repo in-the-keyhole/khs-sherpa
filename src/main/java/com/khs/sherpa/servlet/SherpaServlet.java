@@ -17,6 +17,7 @@ package com.khs.sherpa.servlet;
  */
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -24,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,12 +37,15 @@ import javax.servlet.http.HttpServletResponse;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.json.service.AuthenticationException;
+import com.khs.sherpa.json.service.DefaultActivityService;
 import com.khs.sherpa.json.service.DefaultTokenService;
 import com.khs.sherpa.json.service.DefaultUserService;
 import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
 import com.khs.sherpa.json.service.UserService;
+import static com.khs.sherpa.util.Constants.*;
+import static com.khs.sherpa.util.Util.*;
 
 /**
  * Servlet implementation class ImageDisplayServlet
@@ -57,9 +62,8 @@ public class SherpaServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4345668988238038540L;
 	private static final String AUTHENTICATE_ACTION = "authenticate";
-	private String endpointPackage = null;
-
-	private final JSONService service = new JSONService();
+	private Settings settings = new Settings();
+	private JSONService service = new JSONService();
 
 	public SherpaServlet() {
 		super();
@@ -76,7 +80,7 @@ public class SherpaServlet extends HttpServlet {
 
 		} catch (AuthenticationException e) {
 			this.service.error(e, response.getOutputStream());
-			log("invalid authentication", id, "n/a");
+			log(msg("invalid authentication"), id, "n/a");
 		}
 	}
 
@@ -96,7 +100,7 @@ public class SherpaServlet extends HttpServlet {
 		String action = request.getParameter("action");
 		String endpoint = request.getParameter("endpoint");
 
-		if (endpointPackage == null) {
+		if (this.settings.endpointPackage == null) {
 			this.service.error("endpointPackage not specified, configure as SherpaServlet init() parameter...", response.getOutputStream());
 		}
 
@@ -114,10 +118,10 @@ public class SherpaServlet extends HttpServlet {
 		if (!isAuthenticate) {
 
 			try {
-				clazz = Class.forName(endpointPackage + endpoint);
+				clazz = Class.forName(this.settings.endpointPackage + endpoint);
 
 			} catch (ClassNotFoundException e) {
-				service.error("Endpoint " + endpointPackage + endpoint + " not found", response.getOutputStream());
+				this.service.error("Endpoint " + this.settings.endpointPackage + endpoint + " not found", response.getOutputStream());
 			}
 		} else {
 			clazz = this.getClass();
@@ -127,7 +131,7 @@ public class SherpaServlet extends HttpServlet {
 
 		Endpoint ep = (Endpoint) clazz.getAnnotation(Endpoint.class);
 		if (ep == null) {
-			service.error("Endpoint " + clazz + " is not @SherpaEndpoint", response.getOutputStream());
+			this.service.error("Endpoint " + clazz + " is not @SherpaEndpoint", response.getOutputStream());
 		}
 
 		if (action == null) {
@@ -183,8 +187,9 @@ public class SherpaServlet extends HttpServlet {
 					try {
 						Object target = clazz.newInstance();
 						Object result = m.invoke(target, params);
-						service.map(response.getOutputStream(), result);
-
+						this.service.map(response.getOutputStream(), result);
+						this.service.getActivityService().logActivity("anonymous","executed endpoint:"+target.getClass().getName()+" method:"+m.getName()+" parameters:"+params);
+						
 					} catch (Throwable e) {
 						this.service.error("action " + action + " with  parameter types " + types + " failed", response.getOutputStream());
 						throw new RuntimeException(e);
@@ -249,7 +254,7 @@ public class SherpaServlet extends HttpServlet {
 		} else if (type == Date.class) {
 
 			String s = request.getParameter(a.value());
-			String fmt = "MM/dd/yyyy";
+			String fmt = this.settings.dateFormat;
 			try {
 				if (!a.format().isEmpty()) {
 					fmt = a.format();
@@ -275,7 +280,7 @@ public class SherpaServlet extends HttpServlet {
 		} else if (type == Calendar.class) {
 
 			String s = request.getParameter(a.value());
-			String fmt = "MM/dd/yyyy";
+			String fmt = this.settings.dateFormat;
 			try {
 				if (!a.format().isEmpty()) {
 					fmt = a.format();
@@ -297,7 +302,7 @@ public class SherpaServlet extends HttpServlet {
 	}
 
 	private void log(String action, String email, String token) {
-		LOG.info(String.format("Executed - %s,%s,%s ", action, email, token));
+		LOG.info(msg(SHERPA_SERVER+String.format("Executed - %s,%s,%s ", action, email, token)));
 	}
 
 	protected SessionStatus validToken(HttpServletRequest request) {
@@ -334,30 +339,103 @@ public class SherpaServlet extends HttpServlet {
 	}
 
 	private void error(String message) {
-		LOG.log(Level.SEVERE, "SHERPA SERVER NOT STARTED: " + message);
+		LOG.log(Level.SEVERE, msg(SHERPA_SERVER_NOT_STARTED + message));
 
 	}
 
 	@Override
 	public void init() throws ServletException {
 
+		// read default properties
+		Properties properties = null;
+		try {
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream("sherpa.properties");
+		    if (in != null) {
+		      properties = new Properties();
+			  properties.load(in);
+			  LOG.info(msg(SHERPA_SERVER+"sherpa properties loaded"));
+			}
+		} catch (IOException e) {
+         // does'nt exist...
+			   error("sherpa properties not found, defaults applied...");
+		}
+		
+		String value = properties.getProperty("endpoint.package");
+		
 		// Get the value of an initialization parameter
-		String value = getServletConfig().getInitParameter("endpoint-package");
-		String userServiceClazzName = getServletConfig().getInitParameter("user-service");
+		//String value = getServletConfig().getInitParameter("endpoint-package");
+		String userServiceClazzName = properties.getProperty("user.service");
 		if (userServiceClazzName == null) {
 			this.service.setUserService(new DefaultUserService());
 			this.service.setTokenService(new DefaultTokenService());
+			this.service.setActivityService(new DefaultActivityService());
 		} else {
 			initUserService(userServiceClazzName);
 		}
 		if (value != null) {
-			endpointPackage = value;
-			int end = endpointPackage.length();
+			this.settings.endpointPackage = value;
+			int end = this.settings.endpointPackage.length();
 			// add package seperator
-			if (endpointPackage.lastIndexOf('.') != end - 1) {
-				endpointPackage += ".";
+			if (this.settings.endpointPackage.lastIndexOf('.') != end - 1) {
+				this.settings.endpointPackage += ".";
 			}
+		} else {
+			
+			throw new RuntimeException(SHERPA_SERVER_NOT_STARTED+"endpoint package location must be defined in sherpa.properties");
+			
 		}
+		
+		initTimeout(properties);
+		initDataTypes(properties);
+		
 
 	}
+	
+	
+	private void initTimeout(Properties props) {
+		
+		String value = props.getProperty("session.timeout");
+		if (value != null) {
+			try {
+				long timeout = Long.parseLong(value);
+				this.service.setSessionTimeout(timeout);
+				LOG.info(msg(SHERPA_SERVER+"session timeout set to "+timeout+" ms"));
+				
+			} catch(NumberFormatException e) {
+				
+				error("ERROR reading session.timeout value from property file, value must be long");
+				throw new RuntimeException("ERROR reading session.timeout value from property file, value must be long");
+			}
+			
+		}
+		
+		LOG.info(msg(SHERPA_SERVER+"session timeout set to "+this.service.getSessionTimeout()+" ms"));
+		
+		
+		
+	}
+	
+	
+	private void initDataTypes(Properties props) {
+		
+		String value = props.getProperty("date.format");
+		if (value != null) {
+			this.settings.dateFormat = value;		
+		}
+		
+		value = props.getProperty("time.format");
+		if (value != null) {
+			this.settings.timeFormat = value;		
+		}
+		
+		LOG.info(msg(SHERPA_SERVER+"session timeout set to "+this.service.getSessionTimeout()+" ms"));
+		
+		
+		
+	}
+	
+	
+	
+	
+	
 }
