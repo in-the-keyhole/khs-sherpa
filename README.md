@@ -1,19 +1,25 @@
 khs-sherpa
 ==========
 
-JSON remote data service framework for Java
+Remote java object JSON data framework
 
 About
 =====
 Turn Java application servers into a remote JSON data access mechanism for mobile and HTML 5/Java Script applications. 
 
-This lightweight server side JSON endpoints are deined with simple annotations 
+This lightweight server side framework allows Java classes contained inside a JEE application sever
+to become JSON endpoints that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
 
-aMobile applications and HTML5/Javascript applications can use the sherpa framework to access Java application 
-server side objects.
+Many MVC frameworks exist, but Sherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
+also, provides session support for client applications that exist outside of a browser.
 
-
-
+Features include 
+================
+Annotation Based Configuration
+Authentication
+Session Support 
+Plug-gable User Activity Logging
+Works with any JEE application server
 
 Getting Started
 ================
