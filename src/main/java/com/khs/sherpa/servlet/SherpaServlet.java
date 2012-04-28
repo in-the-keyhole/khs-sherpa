@@ -16,6 +16,10 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
+import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
+import static com.khs.sherpa.util.Constants.SHERPA_SERVER_NOT_STARTED;
+import static com.khs.sherpa.util.Util.msg;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -34,7 +38,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.annotation.JsonParam;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.json.service.AuthenticationException;
 import com.khs.sherpa.json.service.DefaultActivityService;
@@ -44,8 +53,6 @@ import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
 import com.khs.sherpa.json.service.UserService;
-import static com.khs.sherpa.util.Constants.*;
-import static com.khs.sherpa.util.Util.*;
 
 /**
  * Servlet implementation class ImageDisplayServlet
@@ -211,6 +218,25 @@ public class SherpaServlet extends HttpServlet {
 		Param a = null;
 		Object result = null;
 
+		if (annotation.annotationType() == JsonParam.class) {
+			
+			JsonParam p = (JsonParam) annotation;
+			String jsonString = new String(request.getParameter(p.value()));
+			// map to json object
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+			 result	= mapper.readValue(jsonString,p.type());
+			} catch (JsonParseException e) {
+				throw new RuntimeException("ERROR parsing JSON parameter "+p.value()+" Exception:"+e);
+			} catch (JsonMappingException e) {
+				throw new RuntimeException("ERROR mapping JSON parameter "+p.value()+" Exception:"+e);
+			} catch (IOException e) {
+				throw new RuntimeException("endpoint JSON parameter error " + p.value() + "cannot deserialize JSON string "+e);
+			}
+			
+			return result;
+		}
+		
 		if (annotation.annotationType() == Param.class) {
 			a = (Param) annotation;
 		}
