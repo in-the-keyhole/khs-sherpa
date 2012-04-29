@@ -221,17 +221,17 @@ public class SherpaServlet extends HttpServlet {
 		if (annotation.annotationType() == JsonParam.class) {
 			
 			JsonParam p = (JsonParam) annotation;
-			String jsonString = new String(request.getParameter(p.value()));
+			String jsonString = new String(request.getParameter(p.name()));
 			// map to json object
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 			 result	= mapper.readValue(jsonString,p.type());
 			} catch (JsonParseException e) {
-				throw new RuntimeException("ERROR parsing JSON parameter "+p.value()+" Exception:"+e);
+				throw new RuntimeException("ERROR parsing JSON parameter "+p.name()+" Exception:"+e);
 			} catch (JsonMappingException e) {
-				throw new RuntimeException("ERROR mapping JSON parameter "+p.value()+" Exception:"+e);
+				throw new RuntimeException("ERROR mapping JSON parameter "+p.name()+" Exception:"+e);
 			} catch (IOException e) {
-				throw new RuntimeException("endpoint JSON parameter error " + p.value() + "cannot deserialize JSON string "+e);
+				throw new RuntimeException("endpoint JSON parameter error " + p.name() + "cannot deserialize JSON string "+e);
 			}
 			
 			return result;
@@ -245,41 +245,41 @@ public class SherpaServlet extends HttpServlet {
 			throw new RuntimeException("endpoint @Param annotation required");
 		}
 
-		if (a.value() == null) {
+		if (a.name() == null) {
 			throw new RuntimeException("parameters required");
 		}
 
 		if (type == String.class) {
 
-			String s = new String(request.getParameter(a.value()));
+			String s = new String(request.getParameter(a.name()));
 			result = s;
 		} else if (type == Integer.class || type == int.class) {
-			String s = request.getParameter(a.value());
+			String s = request.getParameter(a.name());
 			try {
 				result = Integer.parseInt(s);
 			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" must be integer ");
+				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" must be integer ");
 			}
 		} else if (type == Float.class || type == float.class) {
 
-			String s = request.getParameter(a.value());
+			String s = request.getParameter(a.name());
 			try {
 				result = Float.parseFloat(s);
 			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" must be float ");
+				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" must be float ");
 			}
 
 		} else if (type == Double.class || type == double.class) {
 
-			String s = request.getParameter(a.value());
+			String s = request.getParameter(a.name());
 			try {
 				result = Double.parseDouble(s);
 			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+"  must be double ");
+				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+"  must be double ");
 			}
 		} else if (type == Date.class) {
 
-			String s = request.getParameter(a.value());
+			String s = request.getParameter(a.name());
 			String fmt = this.settings.dateFormat;
 			try {
 				if (!a.format().isEmpty()) {
@@ -288,14 +288,14 @@ public class SherpaServlet extends HttpServlet {
 				DateFormat format = new SimpleDateFormat(fmt);
 				result = format.parseObject(s);
 			} catch (ParseException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" invalid date format must be " + fmt);
+				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid date format must be " + fmt);
 			}
 
 		} else if (type == Boolean.class || type == boolean.class) {
 
-			String s = request.getParameter(a.value());
+			String s = request.getParameter(a.name());
 			if (!(s.equalsIgnoreCase("1") || s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("0") || s.equalsIgnoreCase("N"))) {
-				throw new RuntimeException("endpoint parameter " + a.value() + "= "+s+" invalid boolean format must be Y/N or 0/1");
+				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid boolean format must be Y/N or 0/1");
 			}
 			if (s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("1")) {
 				result = new Boolean(true);
@@ -305,7 +305,7 @@ public class SherpaServlet extends HttpServlet {
 
 		} else if (type == Calendar.class) {
 
-			String s = request.getParameter(a.value());
+			String s = request.getParameter(a.name());
 			String fmt = this.settings.dateFormat;
 			try {
 				if (!a.format().isEmpty()) {
@@ -316,7 +316,7 @@ public class SherpaServlet extends HttpServlet {
 				cal.setTime((Date) format.parseObject(s));
 				result = format.parseObject(s);
 			} catch (ParseException e) {
-				throw new RuntimeException("endpoint parameter " + a.value() + " invalid date format must be " + fmt);
+				throw new RuntimeException("endpoint parameter " + a.name() + " invalid date format must be " + fmt);
 			}
 
 		} else {
