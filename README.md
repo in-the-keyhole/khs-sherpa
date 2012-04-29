@@ -13,8 +13,8 @@ to become JSON endpoints that can be consumed via HTTP by native mobile devices 
 Many MVC frameworks exist, but Sherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
 also, provides session support for client applications that exist outside of a browser.
 
-Features include 
-================
+Features  
+========
 Annotation Based Configuration
 Authentication
 Session Support 
