@@ -34,7 +34,7 @@ Using Maven: add this dependency in your 'pom.xml'
    <dependency>
    	<groupId>com.keyholesoftware</groupId>
    	<artifactId>khs-sherpa</artifactId>
-   	<version>1.0-SNAPSHOT</version>
+   	<version>1.0</version>
    </dependency>
    
 Note: This dependency is publicly available via NEXUS Central OSS repository   
