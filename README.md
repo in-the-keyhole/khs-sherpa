@@ -59,12 +59,14 @@ Configuring Sherpa
 Define a sherpa.properties file in your webapps classpath. The only required entry is 
 the endpoint.package entry, which tells sherpa where to find Java Endpoints. 
 
+<code>
 ### 
 # Sherpa server properties
 ###
 
 ## package where endpoints are located
 endpoint.package=com.khs.example.endpoints
+</code>
 
 Test Fixture
 ============
