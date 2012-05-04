@@ -37,7 +37,52 @@ Using Maven: add this dependency in your 'pom.xml'
    	<version>1.0</version>
    </dependency>
    
-Note: This dependency is publicly available via NEXUS Central OSS repository   
+
+Applying to JEE App Server
+==========================
+Add the khs-sherpa framework jar to your classpath/maven dependency list and add the 
+SherpaServlet to the WEB-INF/web.xml as shown below. 
+
+ <servlet>	
+  		<servlet-name>SherpaServlet</servlet-name>
+		<display-name>SherpaServlet</display-name>
+		<servlet-class>com.khs.sherpa.servlet.SherpaServlet</servlet-class>	
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>SherpaServlet</servlet-name>
+		<url-pattern>/SherpaServlet</url-pattern>
+	</servlet-mapping>
+  
+Configuring Sherpa
+===================
+Define a sherpa.properties file in your webapps classpath. The only required entry is 
+the endpoint.package entry, which tells sherpa where to find Java Endpoints. 
+
+### 
+# Sherpa server properties
+###
+
+## package where endpoints are located
+endpoint.package=com.khs.example.endpoints
+
+Test Fixture
+============
+A testing jsp, test-fixture.jsp has been created that will allow testing of sherpa endpoints, copy this 
+file into your web contents web app directory, access the test-fixture.jsp with a browser and you will be able to invoke @Endpoing 
+methods and view JSON results.  
+
+
+
+
+
+
+
+
+
+
+
+
    
 
   

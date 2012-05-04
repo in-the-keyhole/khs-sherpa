@@ -96,7 +96,7 @@ public class JSONService {
 		} catch (AuthenticationException e) {
 			// this.error(e, out);
 			log("invalid authentication", userid, "n/a");
-			this.activityService.logActivity(token.getUserid(), "invalid authentication attempt");
+			this.activityService.logActivity("anynmous", "invalid authentication attempt");
 		}
 
 		return token;

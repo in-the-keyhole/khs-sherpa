@@ -43,7 +43,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.khs.sherpa.annotation.Endpoint;
-import com.khs.sherpa.annotation.JsonParam;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.json.service.AuthenticationException;
 import com.khs.sherpa.json.service.DefaultActivityService;
@@ -218,24 +217,6 @@ public class SherpaServlet extends HttpServlet {
 		Param a = null;
 		Object result = null;
 
-		if (annotation.annotationType() == JsonParam.class) {
-			
-			JsonParam p = (JsonParam) annotation;
-			String jsonString = new String(request.getParameter(p.name()));
-			// map to json object
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-			 result	= mapper.readValue(jsonString,p.type());
-			} catch (JsonParseException e) {
-				throw new RuntimeException("ERROR parsing JSON parameter "+p.name()+" Exception:"+e);
-			} catch (JsonMappingException e) {
-				throw new RuntimeException("ERROR mapping JSON parameter "+p.name()+" Exception:"+e);
-			} catch (IOException e) {
-				throw new RuntimeException("endpoint JSON parameter error " + p.name() + "cannot deserialize JSON string "+e);
-			}
-			
-			return result;
-		}
 		
 		if (annotation.annotationType() == Param.class) {
 			a = (Param) annotation;
@@ -320,7 +301,20 @@ public class SherpaServlet extends HttpServlet {
 			}
 
 		} else {
-			throw new RuntimeException("Type " + type + " not supported...");
+			Param p = (Param) annotation;
+			String jsonString = new String(request.getParameter(p.name()));
+			// map to json object
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+			 result	= mapper.readValue(jsonString,type);
+			} catch (JsonParseException e) {
+				throw new RuntimeException("ERROR parsing JSON parameter "+p.name()+" Exception:"+e);
+			} catch (JsonMappingException e) {
+				throw new RuntimeException("ERROR mapping JSON parameter "+p.name()+" Exception:"+e);
+			} catch (IOException e) {
+				throw new RuntimeException("endpoint JSON parameter error " + p.name() + "cannot deserialize JSON string "+e);
+			}
+			
 		}
 
 		return result;

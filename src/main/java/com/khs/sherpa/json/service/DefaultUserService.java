@@ -17,7 +17,7 @@ package com.khs.sherpa.json.service;
  */
 
 /**
- * Test user service implementation ,everyone is authenticated Override by defining in web.xml or use and IOC mechanism
+ * Test user service implementation ,everyone is authenticated Override by defining in sherpa.properties or use and IOC mechanism
  * 
  * @author dpitt
  * 
@@ -26,8 +26,9 @@ package com.khs.sherpa.json.service;
 public class DefaultUserService implements UserService {
 
 	public void authenticate(String userid, String password) throws AuthenticationException {
-		// TODO Auto-generated method stub
-
+		// Default always fails authentication
+		throw new AuthenticationException();
+		
 	}
 
 }
