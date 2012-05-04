@@ -25,17 +25,17 @@ Getting Started
 ---------------
 To build it clone then use Maven:
 
-  $ git clone ...
+    $ git clone ...
 	$ cd khs-sherpa
 	$ mvn install
 
 Using Maven: add this dependency in your 'pom.xml' 
 
-   <dependency>
-   	<groupId>com.keyholesoftware</groupId>
-   	<artifactId>khs-sherpa</artifactId>
+    <dependency>
+   	 <groupId>com.keyholesoftware</groupId>
+   	 <artifactId>khs-sherpa</artifactId>
    	<version>1.0</version>
-   </dependency>
+    </dependency>
    
 
 Applying to JEE App Server
@@ -43,7 +43,7 @@ Applying to JEE App Server
 Add the khs-sherpa framework jar to your classpath/maven dependency list and add the 
 SherpaServlet to the WEB-INF/web.xml as shown below. 
 
-  <servlet>	
+    <servlet>	
   		<servlet-name>SherpaServlet</servlet-name>
 		<display-name>SherpaServlet</display-name>
 		<servlet-class>com.khs.sherpa.servlet.SherpaServlet</servlet-class>	
