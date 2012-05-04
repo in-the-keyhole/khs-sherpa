@@ -106,6 +106,25 @@ A testing jsp, test-fixture.jsp has been created that will allow testing of sher
 file into your web contents web app directory, access the test-fixture.jsp with a browser and you will be able to invoke @Endpoing 
 methods and view JSON results.  
 
+Steps for testing json endpoints from a web app:
+
+	create a java webapp project
+	
+	copy test-fixure.jsp into web content folder
+	
+	define a java class and annotate with @Endpoint, see above example
+	
+	define endpoint package name in sherpa.properties file
+	
+	start your webapp
+	
+	open text-fixture.jsp with this url 
+	
+		http://<server>/<webapp>/test-fixture.jsp
+		
+	Fill in endpoint simple class name, method name and parameter names and submit	
+
+
 Authentication
 --------------
 Endpoints can be configured to require configuration by setting the authentication attribute to true 
