@@ -81,14 +81,13 @@ The java endpoint below has two methods that can be called remotely.
 
 The @Param annotation is used to specify request parameters for an endpoint method. 
 
-### URL to access the TestService.helloWorld() java method is formatted in this manner 
+### Get/Post URL to access the TestService.helloWorld() java method is formatted in this manner 
 
 	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=helloWorld
 	     
-### URL to access the TestService.add(x,y) java method is formatted in this manner
+### Get/Post URL to access the TestService.add(x,y) java method is formatted in this manner
 
 	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=add&x_value=100&y_value=200
-
   
 Configuring Sherpa
 ------------------
@@ -148,8 +147,8 @@ For timeout values greater than zero, the framework requires a new authenticatio
 authentication mechanism in order to continue to access an authenticated end point. Session timeouts can be set with 
 the sherpa.properties file entry below. 
 
-## Session timeout (ms), default is 0 
-session.timeout=900000 
+	## Session timeout (ms), default is 0 
+	session.timeout=900000 
 
    
 
