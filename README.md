@@ -79,20 +79,20 @@ The java endpoint below has two methods that can be called remotely.
 		}
 	}
 
-The @Param annotation is used to specify request paramters for an endpoint method. 
+The @Param annotation is used to specify request parameters for an endpoint method. 
 
-# URL to access the TestService.helloWorld() java method is formatted in this manner 
+### URL to access the TestService.helloWorld() java method is formatted in this manner 
 
 	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=helloWorld
 	     
-# URL to access the TestService.add(x,y) java method is formatted in this manner
+### URL to access the TestService.add(x,y) java method is formatted in this manner
 
 	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=add&x_value=100&y_value=200
 
   
 Configuring Sherpa
 ------------------
-Define a sherpa.properties file in your webapps classpath. The only required entry is 
+Define a sherpa.properties file in your webapp classpath. The only required entry is 
 the endpoint.package entry, which tells sherpa where to find Java Endpoints. 
 
 
@@ -107,16 +107,49 @@ A testing jsp, test-fixture.jsp has been created that will allow testing of sher
 file into your web contents web app directory, access the test-fixture.jsp with a browser and you will be able to invoke @Endpoing 
 methods and view JSON results.  
 
+Authentication
+--------------
+Endpoints can be configured to require configuration by setting the authentication attribute to true 
+on the @Endpoint annotation. Authenticated endpoints can only be invoked if a valid user id and token
+id is supplied. Valid token ids are obtained by invoking the framework authenticate action with valid 
+credentials. 
 
+An example authentication request URL is shown below. 
 
+	http://<server>/<webapp>/SherpaServlet?endpoint=authenticate&userid=dpitt@keyholesoftware.com&password=password
+         
+If valid credentials, the following JSON token object will be returned. 
 
+	{
+	    "token": "1336103738643",
+	    "timeout": 0,
+	    "active": true,
+	    "userid": "dpitt@keyholesoftware.com",
+	    "lastActive": 1336103738643
+	}	
 
+The token id and userid values are supplied as parameters to @Endpoint method calls.
+Authenticated URL's with token parameters will look like this...
 
+	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=helloWord&userid=dpitt@keyholesoftware.com&token=1336103738643
 
+The default authentication mechanism denies all credenetials. Since various authentication mechanisms exist,
+the framework supplies an interface, com.khs.sherpa.json.service.UserService. Concrete UserService implementations
+are registered by defining the entry below in the sherpa.properties file.  
 
+	## Authentication implementation
+	user.service = com.example.LDAPUserService
 
+Session Timeout
+---------------
 
+An authenticated user token will also define a timeout period in milliseconds. 0 indicates a session will never timeout
+For timeout values greater than zero, the framework requires a new authentication token to be obtained through the 
+authentication mechanism in order to continue to access an authenticated end point. Session timeouts can be set with 
+the sherpa.properties file entry below. 
 
+## Session timeout (ms), default is 0 
+session.timeout=900000 
 
    
 
