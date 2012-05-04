@@ -99,22 +99,6 @@ public class JSONService {
 
 	}
 
-	public void xauthenticate(OutputStream out, String userid, String password) {
-		try {
-			userService.authenticate(userid, password);
-			String tokenId = tokenService.newToken(userid);
-			SessionToken token = new SessionToken();
-			token.setToken(tokenId);
-			token.setActive(true);
-			token.setUserid(userid);
-			map(out, token);
-			log("authenticated", userid, "n/a");
-		} catch (AuthenticationException e) {
-			this.error(e, out);
-			log("invalid authentication", userid, "n/a");
-		}
-
-	}
 
 	public void error(Exception ex, OutputStream out) {
 		String error = ex.getMessage();
@@ -142,13 +126,10 @@ public class JSONService {
 		try {
 			mapper.writeValue(out, object);
 		} catch (JsonGenerationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
