@@ -82,7 +82,7 @@ public class JSONService {
 	public SessionToken authenticate(@Param(name = "userid") String userid, @Param(name = "password") String password) {
 
 		SessionToken token = null;
-		try {
+		
 			userService.authenticate(userid, password);
 			String tokenId = tokenService.newToken(userid);
 			token = new SessionToken();
@@ -93,11 +93,7 @@ public class JSONService {
 			token.setLastActive(System.currentTimeMillis());
 			log("authenticated", userid, "n/a");
 			this.activityService.logActivity(token.getUserid(), "authenticated");
-		} catch (AuthenticationException e) {
-			// this.error(e, out);
-			log("invalid authentication", userid, "n/a");
-			this.activityService.logActivity("anynmous", "invalid authentication attempt");
-		}
+	
 
 		return token;
 

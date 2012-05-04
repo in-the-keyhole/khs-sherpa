@@ -85,7 +85,7 @@ public class SherpaServlet extends HttpServlet {
 			this.service.map(response.getOutputStream(), token);
 
 		} catch (AuthenticationException e) {
-			this.service.error(e, response.getOutputStream());
+			this.service.error("Authentication Error Invalid Credentials", response.getOutputStream());
 			log(msg("invalid authentication"), id, "n/a");
 		}
 	}
