@@ -100,9 +100,9 @@ $(document).ready(function() {
     	value2 =  $("#value2").val();
     	
     	if (param1) {
-    		url = "SherpaServlet?endpoint=" + endpoint + "&action=" + method + "&"+param1+"="+value1;
+    		url = "sherpa?endpoint=" + endpoint + "&action=" + method + "&"+param1+"="+value1;
     	} else {
-    		url = "SherpaServlet?endpoint=" + endpoint + "&action=" + method;
+    		url = "sherpa?endpoint=" + endpoint + "&action=" + method;
     	}
     		
     	if (param2) {

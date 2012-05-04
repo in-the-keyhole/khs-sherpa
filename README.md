@@ -1,4 +1,4 @@
-khs-sherpa
+khsSherpa
 ==========
 
 Remote java object JSON data framework
@@ -10,7 +10,7 @@ Turn Java application servers into a remote JSON data access mechanism for mobil
 This lightweight server side framework allows Java classes contained inside a JEE application sever
 to become JSON endpoints that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
 
-Many MVC frameworks exist, but Sherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
+Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
 also, provides session support for client applications that exist outside of a browser.
 
 Features  
@@ -37,20 +37,26 @@ Using Maven: add this dependency in your 'pom.xml'
    	<version>1.0</version>
     </dependency>
    
+Not using Maven: include following jars in lib class path
+
+    khs-sherpa-x.x.x.jar
+	jackson-mapper-asl-1.8.2.jar
+	jackson-core-asi-1.8.2.jar
+	
 
 Applying to JEE App Server
 --------------------------
-Add the khs-sherpa framework jar to your classpath/maven dependency list and add the 
+Add the khsSherpa framework jar to your classpath/maven dependency list and add the 
 SherpaServlet to the WEB-INF/web.xml as shown below. 
 
     <servlet>	
-  		<servlet-name>SherpaServlet</servlet-name>
-		<display-name>SherpaServlet</display-name>
+  		<servlet-name>sherpa</servlet-name>
+		<display-name>sherpa</display-name>
 		<servlet-class>com.khs.sherpa.servlet.SherpaServlet</servlet-class>	
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>SherpaServlet</servlet-name>
-		<url-pattern>/SherpaServlet</url-pattern>
+		<servlet-name>sherpa</servlet-name>
+		<url-pattern>/sherpa</url-pattern>
 	</servlet-mapping>
 
 Endpoint Example
@@ -83,27 +89,27 @@ The @Param annotation is used to specify request parameters for an endpoint meth
 
 ### Get/Post URL to access the TestService.helloWorld() java method is formatted in this manner 
 
-	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=helloWorld
+	http://<server>/<webapp>/sherpa?endpoint=TestService&action=helloWorld
 	     
 ### Get/Post URL to access the TestService.add(x,y) java method is formatted in this manner
 
-	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=add&x_value=100&y_value=200
+	http://<server>/<webapp>/sherpa?endpoint=TestService&action=add&x_value=100&y_value=200
   
-Configuring Sherpa
-------------------
+Configuring khsSherpa
+---------------------
 Define a sherpa.properties file in your webapp classpath. The only required entry is 
 the endpoint.package entry, which tells sherpa where to find Java Endpoints. 
 
 
-    ##Sherpa server properties
+    ##khsSherpa server properties
 
     #package where endpoints are located
     endpoint.package=com.khs.example.endpoints
 
 Test Fixture
 ------------
-A testing jsp, test-fixture.jsp has been created that will allow testing of sherpa endpoints, copy this 
-file into your web contents web app directory, access the test-fixture.jsp with a browser and you will be able to invoke @Endpoing 
+A testing jsp, test-fixture.jsp has been created that will allow testing of khsSherpa endpoints, copy this 
+file into your web contents web app directory, access the test-fixture.jsp with a browser and you will be able to invoke @Endpoint 
 methods and view JSON results.  
 
 Steps for testing json endpoints from a web app:
@@ -134,7 +140,7 @@ credentials.
 
 An example authentication request URL is shown below. 
 
-	http://<server>/<webapp>/SherpaServlet?endpoint=authenticate&userid=dpitt@keyholesoftware.com&password=password
+	http://<server>/<webapp>/sherpa?endpoint=authenticate&userid=dpitt@keyholesoftware.com&password=password
          
 If valid credentials, the following JSON token object will be returned. 
 
@@ -149,9 +155,9 @@ If valid credentials, the following JSON token object will be returned.
 The token id and userid values are supplied as parameters to @Endpoint method calls.
 Authenticated URL's with token parameters will look like this...
 
-	http://<server>/<webapp>/SherpaServlet?endpoint=TestService&action=helloWord&userid=dpitt@keyholesoftware.com&token=1336103738643
+	http://<server>/<webapp>/sherpa?endpoint=TestService&action=helloWord&userid=dpitt@keyholesoftware.com&token=1336103738643
 
-The default authentication mechanism denies all credenetials. Since various authentication mechanisms exist,
+The default authentication mechanism denies all credentials. Since various authentication mechanisms exist,
 the framework supplies an interface, com.khs.sherpa.json.service.UserService. Concrete UserService implementations
 are registered by defining the entry below in the sherpa.properties file.  
 
