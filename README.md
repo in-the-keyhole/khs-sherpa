@@ -13,6 +13,8 @@ to become JSON endpoints that can be consumed via HTTP by native mobile devices 
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
 also, provides session support for client applications that exist outside of a browser.
 
+Example Web application using khsSherpa can be found on github at (https://github.com/in-the-keyhole/khs-sherpa-example-webapp)
+
 Features  
 --------
  * Annotation Based Configuration
