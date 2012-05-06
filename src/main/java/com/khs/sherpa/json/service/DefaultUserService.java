@@ -27,8 +27,11 @@ public class DefaultUserService implements UserService {
 
 	public void authenticate(String userid, String password) throws AuthenticationException {
 		// Default always fails authentication
-		//throw new AuthenticationException();
-		
+		throw new AuthenticationException();	
+	}
+
+	public void adminAuthenticate(String userid, String password)
+			throws AuthenticationException {	
 	}
 
 }

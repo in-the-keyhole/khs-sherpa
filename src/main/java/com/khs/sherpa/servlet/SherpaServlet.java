@@ -44,6 +44,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.AuthenticationException;
 import com.khs.sherpa.json.service.DefaultActivityService;
 import com.khs.sherpa.json.service.DefaultTokenService;
@@ -357,6 +358,33 @@ public class SherpaServlet extends HttpServlet {
 		}
 
 	}
+	
+	private void initTokenService(String serviceName) {
+
+		
+	}
+	
+	private void initActivityService(String serviceName) {
+
+		try {
+			Class clazz = Class.forName(serviceName);
+			ActivityService service = (ActivityService) clazz.newInstance();
+			this.service.setActivityService(service);
+
+		} catch (ClassNotFoundException e) {
+			error("User service class not found " + serviceName);
+			throw new RuntimeException();
+		} catch (InstantiationException e) {
+			error("User service class could be instantiated " + serviceName);
+			throw new RuntimeException();
+		} catch (IllegalAccessException e) {
+			error("User service class could not be accessed " + serviceName);
+			throw new RuntimeException();
+		}
+
+	}
+	
+	
 
 	private void error(String message) {
 		LOG.log(Level.SEVERE, msg(SHERPA_SERVER_NOT_STARTED + message));
@@ -384,14 +412,25 @@ public class SherpaServlet extends HttpServlet {
 		
 		// Get the value of an initialization parameter
 		//String value = getServletConfig().getInitParameter("endpoint-package");
-		String userServiceClazzName = properties.getProperty("user.service");
-		if (userServiceClazzName == null) {
+		String serviceClazzName = properties.getProperty("user.service");
+		if (serviceClazzName == null) {
 			this.service.setUserService(new DefaultUserService());
+		} else {
+			initUserService(serviceClazzName);
+		}
+		serviceClazzName = properties.getProperty("token.service");
+		if (serviceClazzName == null) {
 			this.service.setTokenService(new DefaultTokenService());
+		} else {
+			initTokenService(serviceClazzName);
+		}
+		serviceClazzName = properties.getProperty("activity.service");
+		if (serviceClazzName == null) {
 			this.service.setActivityService(new DefaultActivityService());
 		} else {
-			initUserService(userServiceClazzName);
+		    initActivityService(serviceClazzName);				
 		}
+		
 		if (value != null) {
 			this.settings.endpointPackage = value;
 			int end = this.settings.endpointPackage.length();

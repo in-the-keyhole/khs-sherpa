@@ -64,7 +64,7 @@ Endpoint Example
 JSON endpoints are defined by annotation a Java class with the @Endpoint annotation. 
 The java endpoint below has two methods that can be called remotely. 
 
-    @Endpoint(authenticated = true)
+    @Endpoint(authenticated = false)
 	public class TestService {
 	
 	// hello world  method
