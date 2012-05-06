@@ -117,7 +117,7 @@ $(document).ready(function() {
 });
 </script>
 
-<H1> Sherpa JSON Remote Data Service Test Page</H1>
+<H1> khsSherpa JSON Remote Data Service Test Page</H1>
 
 </ br>
 
