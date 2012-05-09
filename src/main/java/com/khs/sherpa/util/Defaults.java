@@ -21,8 +21,7 @@ package com.khs.sherpa.util;
 public class Defaults {
 	
 	public final static String DATE_FORMAT = "MM/dd/yyyy";
-	public final static String TIME_FORMAT = "MM/dd/yyyy";
-	public final static String DATE_TIME_FORMAT = "MM/dd/yyyy";
+	public final static String DATE_TIME_FORMAT = "MM/dd/yyyy hh:mm:ss a";
 	public final static long SESSION_TIMEOUT = 0;
 	public final static boolean ENDPOINT_AUTHENTICATION = false;
 	public final static String BOOLEAN_FORMAT = "0";

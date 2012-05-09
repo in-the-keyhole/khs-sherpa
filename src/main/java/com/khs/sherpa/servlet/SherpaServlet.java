@@ -16,8 +16,8 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
+import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
 import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
-import static com.khs.sherpa.util.Constants.SHERPA_SERVER_NOT_STARTED;
 import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
@@ -232,7 +232,6 @@ public class SherpaServlet extends HttpServlet {
 		}
 
 		if (type == String.class) {
-
 			String s = new String(request.getParameter(a.name()));
 			result = s;
 		} else if (type == Integer.class || type == int.class) {
@@ -262,17 +261,48 @@ public class SherpaServlet extends HttpServlet {
 		} else if (type == Date.class) {
 
 			String s = request.getParameter(a.name());
+			if (s == null) {
+				return null;
+			} else {
 			String fmt = this.settings.dateFormat;
+			// annotation format value overrides property format
+			if (a.format() != null) {
+				fmt = a.format();
+			}
 			try {
-				if (!a.format().isEmpty()) {
+			   if (!a.format().isEmpty()) {
 					fmt = a.format();
 				}
 				DateFormat format = new SimpleDateFormat(fmt);
 				result = format.parseObject(s);
-			} catch (ParseException e) {
+			  } catch (ParseException e) {
 				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid date format must be " + fmt);
+			  }
 			}
 
+		} else if (type == Calendar.class) { 
+			
+			String s = request.getParameter(a.name());
+			if (s == null) {
+				return null;
+			} else {
+			String fmt = this.settings.dateTimeFormat;
+	
+			try {
+				// annotation format value overrides property format
+			   if (!a.format().isEmpty()) {
+					fmt = a.format();
+				}
+				DateFormat format = new SimpleDateFormat(fmt);
+				Date date = format.parse(s);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(date);
+				result = cal;
+			  } catch (ParseException e) {
+				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid date/time format must be " + fmt);
+			  }
+			}
+			
 		} else if (type == Boolean.class || type == boolean.class) {
 
 			String s = request.getParameter(a.name());
@@ -290,6 +320,7 @@ public class SherpaServlet extends HttpServlet {
 			String s = request.getParameter(a.name());
 			String fmt = this.settings.dateFormat;
 			try {
+				// annotation format value overrides property format
 				if (!a.format().isEmpty()) {
 					fmt = a.format();
 				}
@@ -387,7 +418,7 @@ public class SherpaServlet extends HttpServlet {
 	
 
 	private void error(String message) {
-		LOG.log(Level.SEVERE, msg(SHERPA_SERVER_NOT_STARTED + message));
+		LOG.log(Level.SEVERE, msg(SHERPA_NOT_INITIALIZED + message));
 
 	}
 
@@ -408,6 +439,11 @@ public class SherpaServlet extends HttpServlet {
 			   error("sherpa properties not found, defaults applied...");
 		}
 		
+		if (properties == null) {			
+			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"property file sherpa.properties must be defined in classpath");
+		}
+		
+
 		String value = properties.getProperty("endpoint.package");
 		
 		// Get the value of an initialization parameter
@@ -440,7 +476,7 @@ public class SherpaServlet extends HttpServlet {
 			}
 		} else {
 			
-			throw new RuntimeException(SHERPA_SERVER_NOT_STARTED+"endpoint package location must be defined in sherpa.properties");
+			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"endpoint package location must be defined in sherpa.properties");
 			
 		}
 		
@@ -482,9 +518,9 @@ public class SherpaServlet extends HttpServlet {
 			this.settings.dateFormat = value;		
 		}
 		
-		value = props.getProperty("time.format");
+		value = props.getProperty("date.time.format");
 		if (value != null) {
-			this.settings.timeFormat = value;		
+			this.settings.dateTimeFormat = value;		
 		}
 		
 		LOG.info(msg(SHERPA_SERVER+"session timeout set to "+this.service.getSessionTimeout()+" ms"));
