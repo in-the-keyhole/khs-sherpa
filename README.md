@@ -31,17 +31,17 @@ To build it clone then use Maven:
 	$ cd khs-sherpa
 	$ mvn install
 
-Using Maven: add this dependency in your 'pom.xml' 
+Using Maven: add this dependency in your 'pom.xml' (available in Maven central repo)
 
     <dependency>
    	 <groupId>com.keyholesoftware</groupId>
    	 <artifactId>khs-sherpa</artifactId>
-   	<version>1.0</version>
+   	<version>1.1</version>
     </dependency>
    
 Not using Maven: include following jars in lib class path
 
-    khs-sherpa-x.x.x.jar
+    khs-sherpa-x.x.jar
 	jackson-mapper-asl-1.8.2.jar
 	jackson-core-asi-1.8.2.jar
 	
