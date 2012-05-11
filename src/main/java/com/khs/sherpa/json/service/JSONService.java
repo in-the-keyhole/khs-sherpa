@@ -72,7 +72,6 @@ public class JSONService {
 
 	UserService userService = null;
 	
-	
 	ActivityService activityService = null;
 	
 
@@ -99,6 +98,9 @@ public class JSONService {
 
 	}
 
+	public void info(String msg,OutputStream out) {
+		map(out, new Result("INFO", msg));
+	}
 
 	public void error(Exception ex, OutputStream out) {
 		String error = ex.getMessage();

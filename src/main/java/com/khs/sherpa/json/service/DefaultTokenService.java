@@ -1,6 +1,8 @@
 package com.khs.sherpa.json.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -50,8 +52,38 @@ public class DefaultTokenService implements SessionTokenService {
 		tokens.put(token.getToken(), token);
 	}
 
-	public void deactivate(String token) {
+	private void deactivate(String token) {
 		tokens.remove(token);
 	}
+	
+	public void deactivateUser(String userid) {
+		
+		 List<String> users = new ArrayList<String>();
+		 List<SessionToken> results = new ArrayList<SessionToken>();
+		 for (SessionToken session : tokens.values()) {
+			 if (session.getUserid().equals(userid)) {
+				 users.add(session.getToken()); 
+			 }
+		  }		 
+		 // deactivate tokens
+		 for (String token : users) {
+			 deactivate(token);
+		 }
+		
+	}
+	
+    public List<SessionToken> sessions() {
+	   
+	   List<SessionToken> results = new ArrayList<SessionToken>();
+	   for (SessionToken token : tokens.values()) {
+		   results.add(token);
+	   }
+	  	   
+	   return results;
+	   
+   }
+	
+	
+	
 
 }

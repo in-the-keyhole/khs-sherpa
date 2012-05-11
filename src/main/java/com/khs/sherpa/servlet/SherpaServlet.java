@@ -16,8 +16,7 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
-import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
-import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
+import static com.khs.sherpa.util.Constants.*;
 import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
@@ -67,8 +66,7 @@ public class SherpaServlet extends HttpServlet {
 
 	private static final String INVALID_TOKEN = "INVALID AUTHENTICATION TOKEN";
 
-	private static final long serialVersionUID = 4345668988238038540L;
-	private static final String AUTHENTICATE_ACTION = "authenticate";
+	private static final long serialVersionUID = 4345668988238038540L;	
 	private Settings settings = new Settings();
 	private JSONService service = new JSONService();
 
@@ -90,6 +88,23 @@ public class SherpaServlet extends HttpServlet {
 			log(msg("invalid authentication"), id, "n/a");
 		}
 	}
+	
+	public void adminAuthenticate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String id = request.getParameter("userid");
+		String password = request.getParameter("password");
+		try {
+			this.service.getUserService().adminAuthenticate(id, password);	
+			log("admin authenticated", id, "n/a");	
+
+		} catch (AuthenticationException e) {
+			this.service.error("Admin Authentication Error Invalid Credentials", response.getOutputStream());
+			log(msg("invalid admin authentication"), id, "n/a");
+		}
+	}
+
+	
+	
+	
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -114,6 +129,13 @@ public class SherpaServlet extends HttpServlet {
 		if (action == null) {
 			this.service.error("action parameter not specified", response.getOutputStream());
 		}
+		
+		// sherpa commands
+		if (isSherpaCommand(action)) {			
+			executeSherpaCommand(request,response,action);
+			return;
+		}
+		
 
 		if (endpoint == null && !action.equals(AUTHENTICATE_ACTION)) {
 			this.service.error("endpoint not specified", response.getOutputStream());
@@ -163,6 +185,35 @@ public class SherpaServlet extends HttpServlet {
 
 		}
 
+	}
+	
+	private boolean isSherpaCommand(String action) {		
+		return action.equals(SESSION_ACTION) || action.equals(DEACTIVATE_USER_ACTION);
+	}
+	
+	private void executeSherpaCommand(HttpServletRequest request,HttpServletResponse response,String action) {	
+		try {
+			adminAuthenticate(request, response);
+			
+			if (action.equals(SESSION_ACTION)) {
+				this.service.map(response.getOutputStream(), this.service.getTokenService().sessions());		
+			} else if (action.equals(DEACTIVATE_USER_ACTION)) {
+				String deactivateId = request.getParameter("deactivate");
+				if (deactivateId == null) {
+					this.service.error("deactivate parameter not specified", response.getOutputStream());
+				}
+				this.service.getTokenService().deactivateUser(deactivateId);
+				this.service.info("user id->"+deactivateId+" has been deactivated",response.getOutputStream());			
+			}
+			
+		} catch (ServletException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	private void executeEndpoint(HttpServletRequest request, HttpServletResponse response, String action, Class clazz) throws IOException {

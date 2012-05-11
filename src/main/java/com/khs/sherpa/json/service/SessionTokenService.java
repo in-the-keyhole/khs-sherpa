@@ -1,5 +1,7 @@
 package com.khs.sherpa.json.service;
 
+import java.util.List;
+
 /*
  * Copyright 2012 the original author or authors.
  *
@@ -24,6 +26,10 @@ public interface SessionTokenService {
 
 	public void activate(String userid, SessionToken token);
 
-	public void deactivate(String userid);
+	public void deactivateUser(String userid);
+	
+	public List<SessionToken> sessions();
+	
+	
 
 }

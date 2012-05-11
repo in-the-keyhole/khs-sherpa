@@ -21,6 +21,10 @@ public class Constants {
 	
 	public final static String SHERPA_NOT_INITIALIZED = "SHERPA_SERVER_NOT_INITIALIZED->";
 	public final static String SHERPA_SERVER = "SHERPA_SERVER->";
-	
+
+	// reserved action names
+	public final static String AUTHENTICATE_ACTION = "sherpaAuthenticate";
+	public final static String SESSION_ACTION = "sherpaSessions";
+	public final static String DEACTIVATE_USER_ACTION = "sherpaDeactivateUser";
 
 }
