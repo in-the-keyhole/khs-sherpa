@@ -234,7 +234,7 @@ public class SherpaServlet extends HttpServlet {
 						int i = 0;
 						for (Annotation[] annotations : parameters) {
 							for (Annotation annotation : annotations) {
-								Object result = map(types[i], request, annotation);
+								Object result = map(clazz.getName(),m.getName(),types[i], request, annotation);
 								params[i] = result;
 								i++;
 							}
@@ -264,7 +264,7 @@ public class SherpaServlet extends HttpServlet {
 		}
 	}
 
-	private Object map(Class type, HttpServletRequest request, Annotation annotation) {
+	private Object map(String endpoint,String action,Class type, HttpServletRequest request, Annotation annotation) {
 
 		Param a = null;
 		Object result = null;
@@ -282,11 +282,18 @@ public class SherpaServlet extends HttpServlet {
 			throw new RuntimeException("parameters required");
 		}
 
+		String parameterName = a.name();
+		String parameterValue = request.getParameter(parameterName);
+		
+		if (parameterValue == null) {
+				throw new RuntimeException("Endpoint = "+endpoint+" Action = "+action+" - Parameter name ("+parameterName+") not found in request");			
+		}
+		
 		if (type == String.class) {
-			String s = new String(request.getParameter(a.name()));
+			String s = new String(parameterValue);
 			result = s;
 		} else if (type == Integer.class || type == int.class) {
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			try {
 				result = Integer.parseInt(s);
 			} catch (NumberFormatException e) {
@@ -294,7 +301,7 @@ public class SherpaServlet extends HttpServlet {
 			}
 		} else if (type == Float.class || type == float.class) {
 
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			try {
 				result = Float.parseFloat(s);
 			} catch (NumberFormatException e) {
@@ -303,7 +310,7 @@ public class SherpaServlet extends HttpServlet {
 
 		} else if (type == Double.class || type == double.class) {
 
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			try {
 				result = Double.parseDouble(s);
 			} catch (NumberFormatException e) {
@@ -311,13 +318,13 @@ public class SherpaServlet extends HttpServlet {
 			}
 		} else if (type == Date.class) {
 
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			if (s == null) {
 				return null;
 			} else {
 			String fmt = this.settings.dateFormat;
 			// annotation format value overrides property format
-			if (a.format() != null) {
+			if (!a.format().isEmpty()) {
 				fmt = a.format();
 			}
 			try {
@@ -333,7 +340,7 @@ public class SherpaServlet extends HttpServlet {
 
 		} else if (type == Calendar.class) { 
 			
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			if (s == null) {
 				return null;
 			} else {
@@ -356,7 +363,7 @@ public class SherpaServlet extends HttpServlet {
 			
 		} else if (type == Boolean.class || type == boolean.class) {
 
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			if (!(s.equalsIgnoreCase("1") || s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("0") || s.equalsIgnoreCase("N"))) {
 				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid boolean format must be Y/N or 0/1");
 			}
@@ -368,7 +375,7 @@ public class SherpaServlet extends HttpServlet {
 
 		} else if (type == Calendar.class) {
 
-			String s = request.getParameter(a.name());
+			String s = parameterValue;
 			String fmt = this.settings.dateFormat;
 			try {
 				// annotation format value overrides property format
