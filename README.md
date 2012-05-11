@@ -187,6 +187,36 @@ timeout periods and as long as the web application is started.
 If this default behavior is not sufficient, it can be replaced with an alternative implementation by implementing the framework 
 supplied TokenService interface and registering it in the sherpa.properties file as shown below. 
 
+Datq Type Mappings
+------------------
+
+khsSherpa maps request parameter types to java method argument types. The following mappings are applied 
+
+	HTTP Request				Java
+	
+	Abc							String
+	1.0							Float/Double/float/double
+	1							Integer/Long/int/long
+	0,1,y,n						Boolean/boolen
+	mm/dd/yyyy					Date
+	mm/dd/yyyy hh:mm:ss am		Calendar
+	JSON String					Java Class Type
+	
+Date/Time format types can be changed framework wide by configuring the date.pattern or datetime.pattern in 
+the sherpa.properties file. An example is shown below. 
+
+	## Date format for date types, default is MM/dd/yyyy
+	date.format=MM/dd/yyyy
+	date.time.format=MM/dd/yyyy hh:mm:ss a
+
+Date/Time  format types on an @Endpoint method level can be changed by specifying the format attribute on on @Param annotation
+as shown below. 
+
+	public Result time(@Param(name="cal", format="hh:mm:ss a") Calendar cal) {
+		return new Result(cal);
+	}
+
+
 Session Management Commands
 ---------------------------
 
