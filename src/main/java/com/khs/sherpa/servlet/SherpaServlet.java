@@ -131,7 +131,7 @@ public class SherpaServlet extends HttpServlet {
 		}
 		
 		// sherpa commands
-		if (isSherpaCommand(action)) {			
+		if (endpoint == null && isSherpaCommand(action)) {			
 			executeSherpaCommand(request,response,action);
 			return;
 		}
