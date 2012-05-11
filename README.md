@@ -187,7 +187,7 @@ timeout periods and as long as the web application is started.
 If this default behavior is not sufficient, it can be replaced with an alternative implementation by implementing the framework 
 supplied TokenService interface and registering it in the sherpa.properties file as shown below. 
 
-Datq Type Mappings
+Data Type Mappings
 ------------------
 
 khsSherpa maps request parameter types to java method argument types. The following mappings are applied 
