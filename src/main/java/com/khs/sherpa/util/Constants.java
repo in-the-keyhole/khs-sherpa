@@ -16,15 +16,17 @@ package com.khs.sherpa.util;
  * limitations under the License.
  */
 
-
 public class Constants {
 	
 	public final static String SHERPA_NOT_INITIALIZED = "SHERPA_SERVER_NOT_INITIALIZED->";
 	public final static String SHERPA_SERVER = "SHERPA_SERVER->";
 
-	// reserved action names
+	// sherpa command names
 	public final static String AUTHENTICATE_ACTION = "authenticate";
 	public final static String SESSION_ACTION = "sessions";
 	public final static String DEACTIVATE_USER_ACTION = "deactivateUser";
+	
+	public static final String SESSION_TIMED_OUT = "SESSION TIMED OUT->";
+	public static final String INVALID_TOKEN = "INVALID AUTHENTICATION TOKEN->";
 
 }

@@ -18,4 +18,6 @@ package com.khs.sherpa.json.service;
 
 public class AuthenticationException extends RuntimeException {
 
+	private static final long serialVersionUID = -6383140887087843852L;
+
 }

@@ -58,8 +58,7 @@ public class DefaultTokenService implements SessionTokenService {
 	
 	public void deactivateUser(String userid) {
 		
-		 List<String> users = new ArrayList<String>();
-		 List<SessionToken> results = new ArrayList<SessionToken>();
+		 List<String> users = new ArrayList<String>();	
 		 for (SessionToken session : tokens.values()) {
 			 if (session.getUserid().equals(userid)) {
 				 users.add(session.getToken()); 

@@ -16,18 +16,19 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
-import static com.khs.sherpa.util.Constants.*;
+import static com.khs.sherpa.util.Constants.AUTHENTICATE_ACTION;
+import static com.khs.sherpa.util.Constants.DEACTIVATE_USER_ACTION;
+import static com.khs.sherpa.util.Constants.INVALID_TOKEN;
+import static com.khs.sherpa.util.Constants.SESSION_ACTION;
+import static com.khs.sherpa.util.Constants.SESSION_TIMED_OUT;
+import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
+import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
 import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,12 +38,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import com.khs.sherpa.annotation.Endpoint;
-import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.AuthenticationException;
 import com.khs.sherpa.json.service.DefaultActivityService;
@@ -51,25 +47,20 @@ import com.khs.sherpa.json.service.DefaultUserService;
 import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
+import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
-
-/**
- * Servlet implementation class ImageDisplayServlet
- */
 
 @Endpoint
 public class SherpaServlet extends HttpServlet {
 
-	private static final String SESSION_TIMED_OUT = "SESSION TIMED OUT";
-
 	Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
-
-	private static final String INVALID_TOKEN = "INVALID AUTHENTICATION TOKEN";
 
 	private static final long serialVersionUID = 4345668988238038540L;	
 	private Settings settings = new Settings();
 	private JSONService service = new JSONService();
-
+	private RequestMapper mapper = null;
+	private ReflectionCache rcache = new ReflectionCache();
+	
 	public SherpaServlet() {
 		super();
 	}
@@ -102,15 +93,9 @@ public class SherpaServlet extends HttpServlet {
 		}
 	}
 
-	
-	
-	
-
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		doGet(request, response);
-
 	}
 
 	/**
@@ -143,12 +128,11 @@ public class SherpaServlet extends HttpServlet {
 
 		boolean isAuthenticate = action.equals(AUTHENTICATE_ACTION);
 
-		Class clazz = null;
+		Class<?> clazz = null;
 		if (!isAuthenticate) {
 
 			try {
-				clazz = Class.forName(this.settings.endpointPackage + endpoint);
-
+				clazz = rcache.getClass(endpoint,this.settings.endpointPackage);
 			} catch (ClassNotFoundException e) {
 				this.service.error("Endpoint " + this.settings.endpointPackage + endpoint + " not found", response.getOutputStream());
 			}
@@ -163,9 +147,9 @@ public class SherpaServlet extends HttpServlet {
 			this.service.error("Endpoint " + clazz + " is not @SherpaEndpoint", response.getOutputStream());
 		}
 
-		if (action == null) {
-			this.service.error("action not specified", response.getOutputStream());
-		}
+//		if (action == null) {
+//			this.service.error("action not specified", response.getOutputStream());
+//		}
 
 		if (isAuthenticate) {
 
@@ -216,15 +200,16 @@ public class SherpaServlet extends HttpServlet {
 		
 	}
 
-	private void executeEndpoint(HttpServletRequest request, HttpServletResponse response, String action, Class clazz) throws IOException {
-		boolean found = false;
+	//@TODO add class and method cache
+	private void executeEndpoint(HttpServletRequest request, HttpServletResponse response, String action, Class<?> clazz) throws IOException {
+		boolean found = false;	
 		try {
 			Method[] methods = clazz.getMethods();
 			for (Method m : methods) {
 				if (m.getName().equals(action)) {
 					found = true;
 
-					Class[] types = m.getParameterTypes();
+					Class<?>[] types = m.getParameterTypes();
 					Object[] params = null;
 					// get parameters
 					if (types.length > 0) {
@@ -264,151 +249,8 @@ public class SherpaServlet extends HttpServlet {
 		}
 	}
 
-	private Object map(String endpoint,String action,Class type, HttpServletRequest request, Annotation annotation) {
-
-		Param a = null;
-		Object result = null;
-
-		
-		if (annotation.annotationType() == Param.class) {
-			a = (Param) annotation;
-		}
-
-		if (a == null) {
-			throw new RuntimeException("endpoint @Param annotation required");
-		}
-
-		if (a.name() == null) {
-			throw new RuntimeException("parameters required");
-		}
-
-		String parameterName = a.name();
-		String parameterValue = request.getParameter(parameterName);
-		
-		if (parameterValue == null) {
-				throw new RuntimeException("Endpoint = "+endpoint+" Action = "+action+" - Parameter name ("+parameterName+") not found in request");			
-		}
-		
-		if (type == String.class) {
-			String s = new String(parameterValue);
-			result = s;
-		} else if (type == Integer.class || type == int.class) {
-			String s = parameterValue;
-			try {
-				result = Integer.parseInt(s);
-			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" must be integer ");
-			}
-		} else if (type == Float.class || type == float.class) {
-
-			String s = parameterValue;
-			try {
-				result = Float.parseFloat(s);
-			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" must be float ");
-			}
-
-		} else if (type == Double.class || type == double.class) {
-
-			String s = parameterValue;
-			try {
-				result = Double.parseDouble(s);
-			} catch (NumberFormatException e) {
-				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+"  must be double ");
-			}
-		} else if (type == Date.class) {
-
-			String s = parameterValue;
-			if (s == null) {
-				return null;
-			} else {
-			String fmt = this.settings.dateFormat;
-			// annotation format value overrides property format
-			if (!a.format().isEmpty()) {
-				fmt = a.format();
-			}
-			try {
-			   if (!a.format().isEmpty()) {
-					fmt = a.format();
-				}
-				DateFormat format = new SimpleDateFormat(fmt);
-				result = format.parseObject(s);
-			  } catch (ParseException e) {
-				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid date format must be " + fmt);
-			  }
-			}
-
-		} else if (type == Calendar.class) { 
-			
-			String s = parameterValue;
-			if (s == null) {
-				return null;
-			} else {
-			String fmt = this.settings.dateTimeFormat;
-	
-			try {
-				// annotation format value overrides property format
-			   if (!a.format().isEmpty()) {
-					fmt = a.format();
-				}
-				DateFormat format = new SimpleDateFormat(fmt);
-				Date date = format.parse(s);
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(date);
-				result = cal;
-			  } catch (ParseException e) {
-				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid date/time format must be " + fmt);
-			  }
-			}
-			
-		} else if (type == Boolean.class || type == boolean.class) {
-
-			String s = parameterValue;
-			if (!(s.equalsIgnoreCase("1") || s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("0") || s.equalsIgnoreCase("N"))) {
-				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid boolean format must be Y/N or 0/1");
-			}
-			if (s.equalsIgnoreCase("Y") || s.equalsIgnoreCase("1")) {
-				result = new Boolean(true);
-			} else {
-				result = new Boolean(false);
-			}
-
-		} else if (type == Calendar.class) {
-
-			String s = parameterValue;
-			String fmt = this.settings.dateFormat;
-			try {
-				// annotation format value overrides property format
-				if (!a.format().isEmpty()) {
-					fmt = a.format();
-				}
-				DateFormat format = new SimpleDateFormat(fmt);
-				Calendar cal = Calendar.getInstance();
-				cal.setTime((Date) format.parseObject(s));
-				result = format.parseObject(s);
-			} catch (ParseException e) {
-				throw new RuntimeException("endpoint parameter " + a.name() + " invalid date format must be " + fmt);
-			}
-
-		} else {
-			Param p = (Param) annotation;
-			String jsonString = new String(request.getParameter(p.name()));
-			// map to json object
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-			 result	= mapper.readValue(jsonString,type);
-			} catch (JsonParseException e) {
-				throw new RuntimeException("ERROR parsing JSON parameter "+p.name()+" Exception:"+e);
-			} catch (JsonMappingException e) {
-				throw new RuntimeException("ERROR mapping JSON parameter "+p.name()+" Exception:"+e);
-			} catch (IOException e) {
-				throw new RuntimeException("endpoint JSON parameter error " + p.name() + "cannot deserialize JSON string "+e);
-			}
-			
-		}
-
-		return result;
-
+	private Object map(String endpoint,String action,Class<?> type, HttpServletRequest request, Annotation annotation) {
+		return mapper.map(endpoint,action,type,request,annotation);
 	}
 
 	private void log(String action, String email, String token) {
@@ -431,7 +273,7 @@ public class SherpaServlet extends HttpServlet {
 	private void initUserService(String serviceName) {
 
 		try {
-			Class clazz = Class.forName(serviceName);
+			Class<?> clazz = Class.forName(serviceName);
 			UserService service = (UserService) clazz.newInstance();
 			this.service.setUserService(service);
 
@@ -449,6 +291,21 @@ public class SherpaServlet extends HttpServlet {
 	}
 	
 	private void initTokenService(String serviceName) {
+		try {
+			Class<?> clazz = Class.forName(serviceName);
+			SessionTokenService service = (SessionTokenService) clazz.newInstance();
+			this.service.setTokenService(service);
+
+		} catch (ClassNotFoundException e) {
+			error("Token service class not found " + serviceName);
+			throw new RuntimeException();
+		} catch (InstantiationException e) {
+			error("Token service class could be instantiated " + serviceName);
+			throw new RuntimeException();
+		} catch (IllegalAccessException e) {
+			error("Token service class could not be accessed " + serviceName);
+			throw new RuntimeException();
+		}
 
 		
 	}
@@ -456,7 +313,7 @@ public class SherpaServlet extends HttpServlet {
 	private void initActivityService(String serviceName) {
 
 		try {
-			Class clazz = Class.forName(serviceName);
+			Class<?> clazz = Class.forName(serviceName);
 			ActivityService service = (ActivityService) clazz.newInstance();
 			this.service.setActivityService(service);
 
@@ -482,7 +339,7 @@ public class SherpaServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-
+		
 		// read default properties
 		Properties properties = null;
 		try {
@@ -501,7 +358,6 @@ public class SherpaServlet extends HttpServlet {
 			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"property file sherpa.properties must be defined in classpath");
 		}
 		
-
 		String value = properties.getProperty("endpoint.package");
 		
 		// Get the value of an initialization parameter
@@ -540,7 +396,9 @@ public class SherpaServlet extends HttpServlet {
 		
 		initTimeout(properties);
 		initDataTypes(properties);
-		
+		// request mapper
+		this.mapper = new RequestMapper(this.settings);
+
 
 	}
 	
