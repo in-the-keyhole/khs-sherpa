@@ -59,7 +59,7 @@ public class SherpaServlet extends HttpServlet {
 	private Settings settings = new Settings();
 	private JSONService service = new JSONService();
 	private RequestMapper mapper = null;
-	private ReflectionCache rcache = new ReflectionCache();
+	
 	
 	public SherpaServlet() {
 		super();
@@ -132,7 +132,7 @@ public class SherpaServlet extends HttpServlet {
 		if (!isAuthenticate) {
 
 			try {
-				clazz = rcache.getClass(endpoint,this.settings.endpointPackage);
+				clazz = ReflectionCache.getClass(endpoint,this.settings.endpointPackage);
 			} catch (ClassNotFoundException e) {
 				this.service.error("Endpoint " + this.settings.endpointPackage + endpoint + " not found", response.getOutputStream());
 			}
@@ -398,6 +398,9 @@ public class SherpaServlet extends HttpServlet {
 		initDataTypes(properties);
 		// request mapper
 		this.mapper = new RequestMapper(this.settings);
+		// initialize endpoints
+		EndpointScanner scanner = new EndpointScanner();
+		scanner.classPathScan(this.settings.endpointPackage);
 
 
 	}
