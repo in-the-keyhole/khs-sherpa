@@ -34,15 +34,12 @@ static Map<String,Method> methodCache = new HashMap<String,Method>();
 	   typeCache.put(className,clazz);
    }
 	
-	public static Class<?> getClass(String className,String pkg) throws ClassNotFoundException{
+	public static Class<?> getClass(String className,String pkg) throws ClassNotFoundException {
 		String name = pkg+className;
 		Class<?> clazz = typeCache.get(name);
-//		if (clazz == null) {
-//				clazz = Class.forName(name);
-//				typeCache.put(name, clazz);		
-//				LOG.info("Sherpa->Endpoint "+name+" not in cache, adding...");
-//		}
-		
+		if (clazz == null) {
+			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
+		}
 		return clazz;
 	}
 		
