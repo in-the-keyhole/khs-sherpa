@@ -1,4 +1,4 @@
-package com.khs.example.endpoints;
+package com.khs.example.endpoint;
 
 
 import org.junit.Test;

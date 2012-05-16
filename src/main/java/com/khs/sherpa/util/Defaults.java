@@ -25,6 +25,7 @@ public class Defaults {
 	public final static long SESSION_TIMEOUT = 0;
 	public final static boolean ENDPOINT_AUTHENTICATION = false;
 	public final static String BOOLEAN_FORMAT = "0";
+	public final static boolean ACTIVITY_LOG = true;
 	
 
 }

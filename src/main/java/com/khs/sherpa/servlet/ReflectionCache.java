@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import static com.khs.sherpa.util.Util.*;
 
 public class ReflectionCache {
 	
@@ -52,7 +53,7 @@ static Map<String,Method> methodCache = new HashMap<String,Method>();
 						method = m;
 					}				
 					methodCache.put(methodName,m);
-					LOG.info("Sherpa->Method "+methodName+" not in cache, adding...");
+					LOG.info(msg("Method "+methodName+" not in cache, adding..."));
 				}			
 		}
 		

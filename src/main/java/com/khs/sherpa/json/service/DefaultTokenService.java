@@ -36,13 +36,15 @@ public class DefaultTokenService implements SessionTokenService {
 			return SessionStatus.NOT_AUTHENTICATED;
 		}
 
-		if (token.getToken().equals(tokenId)) {
+		if (token.getToken().equals(tokenId) && token.getUserid().equals(userid)) {
 
 			// validate timeout
 			long current = System.currentTimeMillis();
 			if (token.getTimeout() > 0 && current - token.getLastActive() > token.getTimeout()) {
 				return SessionStatus.TIMED_OUT;
-			}
+			}			
+		} else {
+			return SessionStatus.INVALID_TOKEN;
 		}
 
 		return SessionStatus.AUTHENTICATED;

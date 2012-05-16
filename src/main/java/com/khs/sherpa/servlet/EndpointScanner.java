@@ -21,7 +21,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.logging.Logger;
 import static com.khs.sherpa.util.Constants.*;
-
+import static com.khs.sherpa.util.Util.*;
 import com.khs.sherpa.annotation.Endpoint;
 
 public class EndpointScanner {
@@ -32,8 +32,22 @@ public void classPathScan(String pckg) {
 
 	String separator = File.separator;
 	URL url = this.getClass().getResource(separator + "sherpa.properties");
+	
 	if (url == null) {
-		LOG.severe("sherpa->ERROR sherpa.properties not found in classpath, it is required ");
+		url = this.getClass().getResource("sherpa.properties");
+	}
+	
+	if (url == null) {
+		url = this.getClass().getClassLoader().getResource("sherpa.properties");
+	}
+	
+	if (url == null) {
+		url = this.getClass().getClassLoader().getResource(separator+"sherpa.properties");
+	}
+	
+
+	if (url == null) {	
+		LOG.severe(errmsg("ERROR sherpa.properties not found in classpath, it is required "));
 		throw new RuntimeException(SHERPA_NOT_INITIALIZED);
 	}  
 	
@@ -58,7 +72,7 @@ public void scanPackage(String pckg)
 }	
 private void scanPath(String classPath,String dir,String pckg) {	
 	
-	LOG.info("sherpa->scanning for @Endpoints in "+dir);
+	LOG.info(msg("scanning for @Endpoints in "+dir));
 	File root=new File(dir);
 	String [] files=root.list();
 	if (files == null) {return;}
@@ -78,18 +92,17 @@ private void scanPath(String classPath,String dir,String pckg) {
 				Class<?> clazz = null;
 				try {								
 					String qualified = file.getAbsolutePath();
-					int begin = qualified.indexOf(classPath);
 					int end = qualified.indexOf(pckg);
 					String className = qualified.substring(end);
 					clazz = Class.forName(className.replace(File.separatorChar,'.').replace(".class",""));
 					// check for endpoint...
 					if (clazz.isAnnotationPresent(Endpoint.class)) {
-						LOG.info("sherpa->@Endpoint found "+clazz.getName());
+						LOG.info(msg("@Endpoint found "+clazz.getName()));
 						ReflectionCache.put(clazz.getName(),clazz);		
 					}
 				
 				} catch (ClassNotFoundException e) {
-					LOG.severe("sherpa->ERROR loading @Endpoint "+file.getName());
+					LOG.severe(errmsg("ERROR loading @Endpoint "+file.getName()));
 					throw new RuntimeException(SHERPA_NOT_INITIALIZED+e);
 				
 				}	

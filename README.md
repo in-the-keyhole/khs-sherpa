@@ -36,7 +36,7 @@ Using Maven: add this dependency in your 'pom.xml' (available in Maven central r
     <dependency>
    	 <groupId>com.keyholesoftware</groupId>
    	 <artifactId>khs-sherpa</artifactId>
-   	<version>1.1</version>
+   	<version>1.1.1</version>
     </dependency>
    
 Not using Maven: include following jars in lib class path
@@ -216,6 +216,19 @@ as shown below.
 		return new Result(cal);
 	}
 
+Activity Logging
+----------------
+
+By default endpoint execution will be logged via the java.util.logging.Logger. This can be turned off by setting 
+the property below in sherpa.properties file. 
+
+	acitivity.logging=false
+	
+An alternative logging implementation can be supplied and configured by implementing the com.khs.sherpa.ActivityService  
+interface and registering in the sherpa.properties file as shown below. 
+
+	activity.service.impl = <<qualified class name that implements com.khs.sherpa.service.ActivityService>>
+ 
 
 Session Management Commands
 ---------------------------

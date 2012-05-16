@@ -1,4 +1,7 @@
 package com.khs.sherpa.util;
+
+import static com.khs.sherpa.util.Constants.*;
+
 /*
  * Copyright 2012 the original author or authors.
  *
@@ -18,8 +21,13 @@ package com.khs.sherpa.util;
 public class Util {
 
 	public static String msg(String msg) {
-		return msg;
-		
+		return SHERPA_SERVER+msg;	
 	}
+	
+	public static String errmsg(String msg) {
+		return SHERPA_NOT_INITIALIZED+msg;	
+	}
+	
+	
 	
 }

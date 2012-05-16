@@ -18,6 +18,7 @@ package com.khs.sherpa.json.service;
 
 
 import java.util.logging.Logger;
+import static com.khs.sherpa.util.Util.*;
 
 public class DefaultActivityService implements ActivityService {
 	
@@ -25,7 +26,7 @@ public class DefaultActivityService implements ActivityService {
 
 	public void logActivity(String userid, String activity) {
 	
-		LOG.info("sherpa->"+userid+":"+activity);
+		LOG.info(msg(userid+":"+activity));
 		
 	}
 
