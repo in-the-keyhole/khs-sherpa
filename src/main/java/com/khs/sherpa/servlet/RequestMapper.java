@@ -24,9 +24,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.annotation.Param;
 
 public class RequestMapper {
@@ -63,6 +67,11 @@ public class RequestMapper {
 		
 		if (type == String.class) {
 			String s = new String(parameterValue);
+			if (a.format().length() > 0 ) {
+				s = applyEncoding(s,a.format());
+			} else if (this.settings.encode != null) {
+				s = applyEncoding(s,this.settings.encode);
+			}
 			result = s;
 		} else if (type == Integer.class || type == int.class) {
 			String s = parameterValue;
@@ -183,6 +192,18 @@ public class RequestMapper {
 
 	}
 	
+	private String applyEncoding(String value,String format) {
+		String result = value;
+		if (format.equals(Encode.XML)) {
+			result = StringEscapeUtils.escapeXml(value);		
+		} else if (format.equals(Encode.HTML)) {
+			result = StringEscapeUtils.escapeHtml4(value);		
+		} else if (format.equals(Encode.CSV)) {
+			result = StringEscapeUtils.escapeCsv(value);
+		}
+		  
+		return result;
+	}
 	
 	
 

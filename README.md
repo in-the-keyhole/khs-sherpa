@@ -21,6 +21,8 @@ Features
  * Authentication
  * Session Support 
  * Plug-gable User Activity Logging
+ * Type mapping
+ * XSS prevention support
  * Works with any JEE application server
 
 Getting Started
@@ -215,6 +217,25 @@ as shown below.
 	public Result time(@Param(name="cal", format="hh:mm:ss a") Calendar cal) {
 		return new Result(cal);
 	}
+
+Encoding/XSS protection
+-----------------------
+
+End points with String parameter types can be automatically encoded to XML,HTML,or CSV formats. Encoding helps 
+prevent XSS attacks from browser based clients. 
+
+Encoding format for all String parameters can be enabled by setting the encode.format property in the 
+sherpa.properties file as shown below. 
+
+	encode.format = <possible values: HTML,XML,CSV>
+	
+Encoding can be applied at an end point action level by specifying the encoding format type in the
+@Param annotation an example is shown below. 
+
+	public Result encode(@Param(name="value",format=Encode.HTML) String value) {
+		return new Result(value);	
+	}
+	
 
 Activity Logging
 ----------------

@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.AuthenticationException;
@@ -221,11 +222,11 @@ public class SherpaServlet extends HttpServlet {
 					if (types.length > 0) {
 						Annotation[][] parameters = m.getParameterAnnotations();
 						// Annotation[] annotations = parameters[0];
-						params = new Object[types.length];
+						params = new Object[types.length];					
 						int i = 0;
 						for (Annotation[] annotations : parameters) {
 							for (Annotation annotation : annotations) {
-								Object result = map(clazz.getName(),m.getName(),types[i], request, annotation);
+								Object result = map(clazz.getName(),m.getName(),types[i], request, annotation);					
 								params[i] = result;
 								i++;
 							}
@@ -238,7 +239,7 @@ public class SherpaServlet extends HttpServlet {
 						Object result = m.invoke(target, params);
 						this.service.map(response.getOutputStream(), result);
 						if (this.settings.activityLogging) {
-							this.service.getActivityService().logActivity(userid==null?"anonymous":userid,"executed endpoint:"+target.getClass().getName()+" method:"+m.getName()+" parameters:"+params);
+							this.service.getActivityService().logActivity(userid==null?"anonymous":userid,"executed endpoint:"+target.getClass().getName()+" action:"+m.getName());
 						}
 						
 					} catch (Throwable e) {
@@ -256,6 +257,7 @@ public class SherpaServlet extends HttpServlet {
 			this.service.error("Action " + action + " not found...", response.getOutputStream());
 		}
 	}
+	
 
 	private Object map(String endpoint,String action,Class<?> type, HttpServletRequest request, Annotation annotation) {
 		return mapper.map(endpoint,action,type,request,annotation);
@@ -411,6 +413,7 @@ public class SherpaServlet extends HttpServlet {
 		initTimeout(properties);
 		initDataTypes(properties);
 		initLogging(properties);
+		initEncoding(properties);
 		// request mapper
 		this.mapper = new RequestMapper(this.settings);
 		// initialize endpoints
@@ -429,6 +432,20 @@ public class SherpaServlet extends HttpServlet {
 		} 
 		
 	}
+	
+	private void initEncoding(Properties props) {
+		
+	    String value = props.getProperty("encode.format");
+		if (value != null) {
+			value = value.toUpperCase();
+			if (value.equals(Encode.CSV) || value.equals(Encode.XML) || value.equals(Encode.HTML)) {
+				this.settings.encode = value;
+			}		
+		} 
+		
+	}
+	
+	
 	
 	private void initTimeout(Properties props) {
 		
