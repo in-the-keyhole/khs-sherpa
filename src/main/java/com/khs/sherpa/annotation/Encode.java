@@ -1,6 +1,4 @@
-package com.khs.sherpa.util;
-
-import static com.khs.sherpa.util.Constants.*;
+package com.khs.sherpa.annotation;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -18,16 +16,10 @@ import static com.khs.sherpa.util.Constants.*;
  * limitations under the License.
  */
 
-public class Util {
+public class Encode {
+	
+	public static final String XML = "XML";
+	public static final String HTML = "HTML";
+	public static final String CSV = "CSV";
 
-	public static String msg(String msg) {
-		return SHERPA_SERVER+msg;	
-	}
-	
-	public static String errmsg(String msg) {
-		return SHERPA_NOT_INITIALIZED+msg;	
-	}
-	
-	
-	
 }

@@ -22,8 +22,7 @@ import static com.khs.sherpa.util.Constants.INVALID_TOKEN;
 import static com.khs.sherpa.util.Constants.SESSION_ACTION;
 import static com.khs.sherpa.util.Constants.SESSION_TIMED_OUT;
 import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
-import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
-import static com.khs.sherpa.util.Util.msg;
+import static com.khs.sherpa.util.Util.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +37,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.AuthenticationException;
@@ -71,9 +71,8 @@ public class SherpaServlet extends HttpServlet {
 		try {
 			SessionToken token = this.service.authenticate(id, password);
 			this.service.getTokenService().activate(id, token);
-			log("authenticated", id, "n/a");
+			log(msg("authenticated"), id, "n/a");
 			this.service.map(response.getOutputStream(), token);
-
 		} catch (AuthenticationException e) {
 			this.service.error("Authentication Error Invalid Credentials", response.getOutputStream());
 			log(msg("invalid authentication"), id, "n/a");
@@ -85,7 +84,7 @@ public class SherpaServlet extends HttpServlet {
 		String password = request.getParameter("password");
 		try {
 			this.service.getUserService().adminAuthenticate(id, password);	
-			log("admin authenticated", id, "n/a");	
+			log(msg("admin authenticated"), id, "n/a");	
 
 		} catch (AuthenticationException e) {
 			this.service.error("Admin Authentication Error Invalid Credentials", response.getOutputStream());
@@ -147,22 +146,30 @@ public class SherpaServlet extends HttpServlet {
 			this.service.error("Endpoint " + clazz + " is not @SherpaEndpoint", response.getOutputStream());
 		}
 
-//		if (action == null) {
-//			this.service.error("action not specified", response.getOutputStream());
-//		}
-
 		if (isAuthenticate) {
 
 			authenticate(request, response);
 
 		} else {
 
+			boolean log = this.settings.activityLogging;
 			// // validate session token, if authenticated endpoint
 			SessionStatus status = validToken(request);
 			if (ep.authenticated() && status == SessionStatus.NOT_AUTHENTICATED) {
 				this.service.error(INVALID_TOKEN, response.getOutputStream());
+				if (log) {
+					this.service.getActivityService().logActivity("anonymous","INVALID TOKEN");
+				}
 			} else if (ep.authenticated() && status == SessionStatus.TIMED_OUT) {
 				this.service.error(SESSION_TIMED_OUT, response.getOutputStream());
+				if (log) {
+					this.service.getActivityService().logActivity("anonymous","SESSION TIMED OUT");
+				}
+			} else if (ep.authenticated() && status == SessionStatus.INVALID_TOKEN) {
+				this.service.error(INVALID_TOKEN,response.getOutputStream());
+				if (log) {
+					this.service.getActivityService().logActivity("anonymous","INVALID TOKEN");
+				}
 			} else {
 				executeEndpoint(request, response, action, clazz);
 			}
@@ -191,18 +198,18 @@ public class SherpaServlet extends HttpServlet {
 			}
 			
 		} catch (ServletException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			error("Executing sherpa command");
+            throw new RuntimeException(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			error("Executing sherpa command");
+			throw new RuntimeException(e);
 		}
 		
 	}
 
-	//@TODO add class and method cache
 	private void executeEndpoint(HttpServletRequest request, HttpServletResponse response, String action, Class<?> clazz) throws IOException {
 		boolean found = false;	
+		String userid = userid(request);
 		try {
 			Method[] methods = clazz.getMethods();
 			for (Method m : methods) {
@@ -215,11 +222,11 @@ public class SherpaServlet extends HttpServlet {
 					if (types.length > 0) {
 						Annotation[][] parameters = m.getParameterAnnotations();
 						// Annotation[] annotations = parameters[0];
-						params = new Object[types.length];
+						params = new Object[types.length];					
 						int i = 0;
 						for (Annotation[] annotations : parameters) {
 							for (Annotation annotation : annotations) {
-								Object result = map(clazz.getName(),m.getName(),types[i], request, annotation);
+								Object result = map(clazz.getName(),m.getName(),types[i], request, annotation);					
 								params[i] = result;
 								i++;
 							}
@@ -231,7 +238,9 @@ public class SherpaServlet extends HttpServlet {
 						Object target = clazz.newInstance();
 						Object result = m.invoke(target, params);
 						this.service.map(response.getOutputStream(), result);
-						this.service.getActivityService().logActivity("anonymous","executed endpoint:"+target.getClass().getName()+" method:"+m.getName()+" parameters:"+params);
+						if (this.settings.activityLogging) {
+							this.service.getActivityService().logActivity(userid==null?"anonymous":userid,"executed endpoint:"+target.getClass().getName()+" action:"+m.getName());
+						}
 						
 					} catch (Throwable e) {
 						this.service.error("action " + action + " with  parameter types " + types + " failed", response.getOutputStream());
@@ -248,18 +257,27 @@ public class SherpaServlet extends HttpServlet {
 			this.service.error("Action " + action + " not found...", response.getOutputStream());
 		}
 	}
+	
 
 	private Object map(String endpoint,String action,Class<?> type, HttpServletRequest request, Annotation annotation) {
 		return mapper.map(endpoint,action,type,request,annotation);
 	}
 
 	private void log(String action, String email, String token) {
-		LOG.info(msg(SHERPA_SERVER+String.format("Executed - %s,%s,%s ", action, email, token)));
+		LOG.info(msg(String.format("Executed - %s,%s,%s ", action, email, token)));
 	}
 
+	protected String userid(HttpServletRequest request) {
+		return request.getParameter("userid");
+	}
+	
+	protected String token(HttpServletRequest request) {
+		return request.getParameter("token");
+	}
+	
 	protected SessionStatus validToken(HttpServletRequest request) {
-		String userid = request.getParameter("userid");
-		String token = request.getParameter("token");
+		String userid = userid(request);
+		String token = token(request);
 		return validToken(token, userid);
 	}
 
@@ -333,7 +351,7 @@ public class SherpaServlet extends HttpServlet {
 	
 
 	private void error(String message) {
-		LOG.log(Level.SEVERE, msg(SHERPA_NOT_INITIALIZED + message));
+		LOG.log(Level.SEVERE, errmsg(message));
 
 	}
 
@@ -347,7 +365,7 @@ public class SherpaServlet extends HttpServlet {
 		    if (in != null) {
 		      properties = new Properties();
 			  properties.load(in);
-			  LOG.info(msg(SHERPA_SERVER+"sherpa properties loaded"));
+			  LOG.info(msg("sherpa properties loaded"));
 			}
 		} catch (IOException e) {
          // does'nt exist...
@@ -384,26 +402,49 @@ public class SherpaServlet extends HttpServlet {
 		if (value != null) {
 			this.settings.endpointPackage = value;
 			int end = this.settings.endpointPackage.length();
-			// add package seperator
+			// add package separator
 			if (this.settings.endpointPackage.lastIndexOf('.') != end - 1) {
 				this.settings.endpointPackage += ".";
 			}
-		} else {
-			
-			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"endpoint package location must be defined in sherpa.properties");
-			
+		} else {			
+			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"endpoint package location must be defined in sherpa.properties");		
 		}
 		
 		initTimeout(properties);
 		initDataTypes(properties);
+		initLogging(properties);
+		initEncoding(properties);
 		// request mapper
 		this.mapper = new RequestMapper(this.settings);
 		// initialize endpoints
 		EndpointScanner scanner = new EndpointScanner();
 		scanner.classPathScan(this.settings.endpointPackage);
-
-
 	}
+	
+	private void initLogging(Properties props) {
+		
+	    String value = props.getProperty("activity.logging");
+		if (value != null) {
+			value = value.toUpperCase();
+			if (value.equals("N") || value.equals("NO") || value.equals("FALSE")) {
+				this.settings.activityLogging = false;
+			}		
+		} 
+		
+	}
+	
+	private void initEncoding(Properties props) {
+		
+	    String value = props.getProperty("encode.format");
+		if (value != null) {
+			value = value.toUpperCase();
+			if (value.equals(Encode.CSV) || value.equals(Encode.XML) || value.equals(Encode.HTML)) {
+				this.settings.encode = value;
+			}		
+		} 
+		
+	}
+	
 	
 	
 	private void initTimeout(Properties props) {
@@ -413,7 +454,7 @@ public class SherpaServlet extends HttpServlet {
 			try {
 				long timeout = Long.parseLong(value);
 				this.service.setSessionTimeout(timeout);
-				LOG.info(msg(SHERPA_SERVER+"session timeout set to "+timeout+" ms"));
+				LOG.info(msg("session timeout set to "+timeout+" ms"));
 				
 			} catch(NumberFormatException e) {
 				
@@ -423,7 +464,7 @@ public class SherpaServlet extends HttpServlet {
 			
 		}
 		
-		LOG.info(msg(SHERPA_SERVER+"session timeout set to "+this.service.getSessionTimeout()+" ms"));
+		LOG.info(msg("session timeout set to "+this.service.getSessionTimeout()+" ms"));
 		
 		
 		
@@ -442,14 +483,8 @@ public class SherpaServlet extends HttpServlet {
 			this.settings.dateTimeFormat = value;		
 		}
 		
-		LOG.info(msg(SHERPA_SERVER+"session timeout set to "+this.service.getSessionTimeout()+" ms"));
-		
-		
+		LOG.info(msg("session timeout set to "+this.service.getSessionTimeout()+" ms"));
 		
 	}
-	
-	
-	
-	
 	
 }

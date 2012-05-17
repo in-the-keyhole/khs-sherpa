@@ -9,5 +9,7 @@ public class Settings {
 	public long sessionTimeout = SESSION_TIMEOUT;
 	public boolean endPointAuthentication = ENDPOINT_AUTHENTICATION;
 	public String endpointPackage = null;
+	public boolean activityLogging = ACTIVITY_LOG;
+	public String encode = null;
 	
 }

@@ -27,6 +27,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.servlet.SherpaServlet;
 import static com.khs.sherpa.util.Defaults.*;
+import static com.khs.sherpa.util.Util.*;
 
 public class JSONService {
 
@@ -149,7 +150,7 @@ public class JSONService {
 	}
 
 	private void log(String action, String email, String token) {
-		LOG.info(String.format("Executed - %s,%s,%s ", action, email, token));
+		LOG.info(msg(String.format("Executed - %s,%s,%s ", action, email, token)));
 	}
 
 	public SessionTokenService getTokenService() {
