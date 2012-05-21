@@ -16,48 +16,65 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
-import static com.khs.sherpa.util.Util.*;
+
+import com.khs.sherpa.annotation.Endpoint;
 
 public class ReflectionCache {
 	
 	private ReflectionCache() { }
 	
-static Logger LOG = Logger.getLogger(ReflectionCache.class.getName());	
-	
-static Map<String,Class<?>> typeCache = new HashMap<String,Class<?>>();
-static Map<String,Method> methodCache = new HashMap<String,Method>();
+	static Logger LOG = Logger.getLogger(ReflectionCache.class.getName());	
+		
+	static Map<String,Object> typeCache = new HashMap<String, Object>();
 
-   public static void put(String className,Class<?> clazz) {
-	   typeCache.put(className,clazz);
-   }
+	// TODO: MD - work on this class. Clean this up
+	public static void addTypes(Map<String, Class<?>> endpointClasses) {
+		for(Entry<String, Class<?>> entry: endpointClasses.entrySet()) {
+			try {
+				ReflectionCache.addObject(entry.getKey(), entry.getValue().newInstance());
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void addObjects(Map<String, Object> endpointClasses) {
+		for(Entry<String, Object> entry: endpointClasses.entrySet()) {
+			ReflectionCache.addObject(entry.getKey(), entry.getValue());
+		}
+	}
+	
+	public static void addObject(String name, Object endpoint) {
+		if(endpoint.getClass().isAnnotationPresent(Endpoint.class)) {
+			if(endpoint.getClass().getAnnotation(Endpoint.class).value().length() > 0) {
+				name = endpoint.getClass().getAnnotation(Endpoint.class).value();
+			}
+			System.out.println("Adding class ["+ endpoint.getClass().getCanonicalName()+"] with name ["+name+"]");
+			typeCache.put(name, endpoint);
+		}
+	}
+	
+	public static Object getObject(String className) throws ClassNotFoundException {
+		String name = className;
+		Object obj = typeCache.get(name);
+		if (obj == null) {
+			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
+		}
+		return obj;
+	}
 	
 	public static Class<?> getClass(String className,String pkg) throws ClassNotFoundException {
 		String name = pkg+className;
-		Class<?> clazz = typeCache.get(name);
+		Class<?> clazz = typeCache.get(name).getClass();
 		if (clazz == null) {
 			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
 		}
 		return clazz;
 	}
-		
-	public static Method getMethod(Class<?> clazz,String methodName) {
-	
-		Method method = methodCache.get(methodName);
-		if (method == null) {
-				for (Method m: clazz.getMethods()) {
-					if (methodName.equals(m.getName())) {
-						method = m;
-					}				
-					methodCache.put(methodName,m);
-					LOG.info(msg("Method "+methodName+" not in cache, adding..."));
-				}			
-		}
-		
-		return method;
-	}
-	
 }
