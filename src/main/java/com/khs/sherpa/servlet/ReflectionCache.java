@@ -50,6 +50,18 @@ public class ReflectionCache {
 		}
 	}
 	
+	public static void addObject(String name, Class<?> endpoint) {
+		try {
+			ReflectionCache.addObject(name, endpoint.newInstance());
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void addObject(String name, Object endpoint) {
 		if(endpoint.getClass().isAnnotationPresent(Endpoint.class)) {
 			if(endpoint.getClass().getAnnotation(Endpoint.class).value().length() > 0) {

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.endpoint.SherpaEndpoint;
 import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.util.SettingsLoader;
@@ -122,5 +123,8 @@ public class SherpaServlet extends HttpServlet {
 //		// initialize endpoints
 		EndpointScanner scanner = new EndpointScanner();
 		scanner.classPathScan(this.settings.endpointPackage);
+		
+		// hard code sherpa endpoint
+		ReflectionCache.addObject("sherpa", SherpaEndpoint.class);
 	}
 }
