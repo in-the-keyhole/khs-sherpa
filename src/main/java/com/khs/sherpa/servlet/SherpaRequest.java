@@ -107,7 +107,7 @@ class SherpaRequest {
 	
 	private boolean isAuthRequest(HttpServletRequest request) {
 		String endpoint = request.getParameter("endpoint");
-		if(endpoint.equals("null")) {
+		if(endpoint != null && endpoint.equals("null")) {
 			endpoint =  null;
 		}
 		
@@ -196,9 +196,7 @@ class SherpaRequest {
 			
 			return;
 		} else {
-			String token = servletRequest.getHeader("token");
-			String userid = servletRequest.getHeader("userid");
-			sessionStatus = this.service.validToken(token, userid);
+			sessionStatus = this.service.validToken(getToken(), getUserId());
 		}
 		
 		if(target == null) {
@@ -214,6 +212,22 @@ class SherpaRequest {
 			throw e;
 		}
 		
+	}
+	
+	private String getUserId() {
+		String userid = servletRequest.getHeader("userid");
+		if(userid == null) {
+			userid = servletRequest.getParameter("userid");
+		}
+		return userid;
+	}
+	
+	private String getToken() {
+		String token = servletRequest.getHeader("token");
+		if(token == null) {
+			token = servletRequest.getParameter("token");
+		}
+		return token;
 	}
 	
 	private void log(String action, String email, String token) {
