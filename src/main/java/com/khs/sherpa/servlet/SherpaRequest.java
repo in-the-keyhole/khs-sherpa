@@ -40,7 +40,7 @@ class SherpaRequest {
 	private JSONService service;
 	private Settings settings;
 	
-	private String[] roles = null;
+	private String[] roles = {};
 	
 	public String getEndpoint() {
 		return endpoint;
@@ -74,7 +74,7 @@ class SherpaRequest {
 		this.sessionStatus = sessionStatus;
 	}
 
-	public void setRoles(String[] roles) {
+	public void setRoles(String... roles) {
 		this.roles = roles;
 	}
 
