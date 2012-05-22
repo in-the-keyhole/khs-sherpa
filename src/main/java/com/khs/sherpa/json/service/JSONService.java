@@ -83,9 +83,10 @@ public class JSONService {
 
 		SessionToken token = null;
 		
-			userService.authenticate(userid, password);
+			String[] roles = userService.authenticate(userid, password);
 			String tokenId = tokenService.newToken(userid);
 			token = new SessionToken();
+			token.setRoles(roles);
 			token.setToken(tokenId);
 			token.setTimeout(sessionTimeout);
 			token.setActive(true);
@@ -94,7 +95,6 @@ public class JSONService {
 			log("authenticated", userid, "n/a");
 			this.activityService.logActivity(token.getUserid(), "authenticated");
 	
-
 		return token;
 
 	}

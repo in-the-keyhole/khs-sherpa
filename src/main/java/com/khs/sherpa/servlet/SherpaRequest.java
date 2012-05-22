@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.annotation.security.DenyAll;
@@ -40,7 +41,8 @@ class SherpaRequest {
 	private JSONService service;
 	private Settings settings;
 	
-	private String[] roles = {};
+	private String userid;
+	private String token;
 	
 	public String getEndpoint() {
 		return endpoint;
@@ -72,10 +74,6 @@ class SherpaRequest {
 
 	public void setSessionStatus(SessionStatus sessionStatus) {
 		this.sessionStatus = sessionStatus;
-	}
-
-	public void setRoles(String... roles) {
-		this.roles = roles;
 	}
 
 	public void setService(JSONService service) {
@@ -128,10 +126,8 @@ class SherpaRequest {
 				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"] has `@DenyAll` annotation" );
 			} else if(method.isAnnotationPresent(RolesAllowed.class)) {
 				for(String role: method.getAnnotation(RolesAllowed.class).value()) {
-					for(String r: roles) {
-						if(role.equals(r)) {
-							return;
-						}
+					if(service.getTokenService().hasRole(userid, token, role)) {
+						return ;
 					}
 				}
 				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"] has `@RolesAllowed` annotation" );
@@ -179,6 +175,13 @@ class SherpaRequest {
 		throw new SherpaActionNotFoundException("no method found ["+name+"] in class ["+target.getClass().getCanonicalName()+"]");
 	}
 	
+	static <T> T[] append(T[] arr, T element) {
+	    final int N = arr.length;
+	    arr = Arrays.copyOf(arr, N + 1);
+	    arr[N] = element;
+	    return arr;
+	}
+	
 	public void run() {
 		
 		if(isAuthRequest(servletRequest)) {
@@ -187,6 +190,13 @@ class SherpaRequest {
 			try {
 				SessionToken token = this.service.authenticate(userid, password);
 				this.service.getTokenService().activate(userid, token);
+				
+				// load the sherpa admin user
+				if(this.service.getTokenService().hasRole(userid, token.getToken(), settings.sherpaAdmin)) {
+					String[] roles = token.getRoles();
+					token.setRoles(append(roles, "SHERPA_ADMIN"));
+				}
+				
 				log(msg("authenticated"), userid, "*****");
 				this.service.map(this.getResponseOutputStream(), token);
 			} catch (AuthenticationException e) {
@@ -197,6 +207,7 @@ class SherpaRequest {
 			return;
 		} else {
 			sessionStatus = this.service.validToken(getToken(), getUserId());
+			
 		}
 		
 		if(target == null) {
@@ -219,6 +230,7 @@ class SherpaRequest {
 		if(userid == null) {
 			userid = servletRequest.getParameter("userid");
 		}
+		this.userid = userid;
 		return userid;
 	}
 	
@@ -227,6 +239,7 @@ class SherpaRequest {
 		if(token == null) {
 			token = servletRequest.getParameter("token");
 		}
+		this.token = token;
 		return token;
 	}
 	

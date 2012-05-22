@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.khs.sherpa.annotation.Encode;
-import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.DefaultActivityService;
 import com.khs.sherpa.json.service.DefaultTokenService;
@@ -42,28 +41,12 @@ import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
 
-@Endpoint
 public class SherpaServlet extends HttpServlet {
 
 	private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 	private static final long serialVersionUID = 4345668988238038540L;	
 	private JSONService service = new JSONService();
 	private Settings settings = new Settings();
-	
-//	private RequestMapper mapper = null;
-	
-//	public void adminAuthenticate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		String id = request.getParameter("userid");
-//		String password = request.getParameter("password");
-//		try {
-//			this.service.getUserService().adminAuthenticate(id, password);	
-//			log(msg("admin authenticated"), id, "n/a");	
-//
-//		} catch (AuthenticationException e) {
-//			this.service.error("Admin Authentication Error Invalid Credentials", response.getOutputStream());
-//			log(msg("invalid admin authentication"), id, "n/a");
-//		}
-//	}
 
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SessionStatus sessionStatus = null;
@@ -98,75 +81,8 @@ public class SherpaServlet extends HttpServlet {
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
-
-//		// sherpa commands
-//		if (endpoint == null && isSherpaCommand(action)) {			
-//			executeSherpaCommand(request,response,action);
-//			return;
-//		}
-//		
-//
-//		if (endpoint == null && !action.equals(AUTHENTICATE_ACTION)) {
-//			this.service.error("endpoint not specified", response.getOutputStream());
-//		}
-//
-//		boolean isAuthenticate = action.equals(AUTHENTICATE_ACTION);
-//
-//		Class<?> clazz = null;
-//		if (!isAuthenticate) {
-//
-//			try {
-//				clazz = ReflectionCache.getClass(endpoint,this.settings.endpointPackage);
-//			} catch (ClassNotFoundException e) {
-//				this.service.error("Endpoint " + this.settings.endpointPackage + endpoint + " not found", response.getOutputStream());
-//			}
-//		} else {
-//			clazz = this.getClass();
-//		}
-//
-//		// make sure endpoint is a sherpa endpoint
-//
-//		Endpoint ep = (Endpoint) clazz.getAnnotation(Endpoint.class);
-//		if (ep == null) {
-//			this.service.error("Endpoint " + clazz + " is not @SherpaEndpoint", response.getOutputStream());
-//		}
-//
-//		if (isAuthenticate) {
-//
-//			authenticate(request, response);
-//
-//		} else {
-//
-//			boolean log = this.settings.activityLogging;
-//			// // validate session token, if authenticated endpoint
-//			SessionStatus status = validToken(request);
-//			if (ep.authenticated() && status == SessionStatus.NOT_AUTHENTICATED) {
-//				this.service.error(INVALID_TOKEN, response.getOutputStream());
-//				if (log) {
-//					this.service.getActivityService().logActivity("anonymous","INVALID TOKEN");
-//				}
-//			} else if (ep.authenticated() && status == SessionStatus.TIMED_OUT) {
-//				this.service.error(SESSION_TIMED_OUT, response.getOutputStream());
-//				if (log) {
-//					this.service.getActivityService().logActivity("anonymous","SESSION TIMED OUT");
-//				}
-//			} else if (ep.authenticated() && status == SessionStatus.INVALID_TOKEN) {
-//				this.service.error(INVALID_TOKEN,response.getOutputStream());
-//				if (log) {
-//					this.service.getActivityService().logActivity("anonymous","INVALID TOKEN");
-//				}
-//			} else {
-//				executeEndpoint(request, response, action, clazz);
-//			}
-//
-//		}
-
 	}
-	
-//	private boolean isSherpaCommand(String action) {		
-//		return action.equals(SESSION_ACTION) || action.equals(DEACTIVATE_USER_ACTION);
-//	}
-//	
+
 //	private void executeSherpaCommand(HttpServletRequest request,HttpServletResponse response,String action) {	
 //		try {
 //			adminAuthenticate(request, response);
@@ -262,12 +178,21 @@ public class SherpaServlet extends HttpServlet {
 		initDataTypes(properties);
 		initLogging(properties);
 		initEncoding(properties);
+		initSherpaAdmin(properties);
 		
 //		// initialize endpoints
 		EndpointScanner scanner = new EndpointScanner();
 		scanner.classPathScan(this.settings.endpointPackage);
 	}
-	
+
+	private void initSherpaAdmin(Properties props) {
+	    String value = props.getProperty("sherpa.role");
+		if (value != null) {
+			this.settings.sherpaAdmin = value;
+		} 
+		
+	}
+
 	private void initEndpoint(Properties prop) {
 		String endpoint = prop.getProperty("endpoint.package");
 		if (endpoint != null) {

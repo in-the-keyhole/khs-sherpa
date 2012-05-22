@@ -30,6 +30,6 @@ public interface SessionTokenService {
 	
 	public List<SessionToken> sessions();
 	
-	
+	public boolean hasRole(String userid, String token, String role);
 
 }

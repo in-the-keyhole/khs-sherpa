@@ -18,10 +18,14 @@ package com.khs.sherpa.json.service;
 
 public interface UserService {
 
-	// user credential authentication
-	public void authenticate(String userid, String password) throws AuthenticationException;
 	
-    // admin credential authentication
-	public void adminAuthenticate(String userid,String password) throws AuthenticationException;
+	/**
+	 * @param userid
+	 * @param password
+	 * @return String Array of Roles
+	 *  example: {ROLE_USER,ROLE_ADMIN}
+	 * @throws AuthenticationException
+	 */
+	public String[] authenticate(String userid, String password) throws AuthenticationException;
 
 }

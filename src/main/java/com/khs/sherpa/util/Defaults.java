@@ -27,6 +27,7 @@ public class Defaults {
 	public final static String BOOLEAN_FORMAT = "0";
 	public final static boolean ACTIVITY_LOG = true;
 	public final static String ENCODE = null;
+	public final static String SHERPA_ADMIN = "ROLE_ADMIN";
 	
 
 }

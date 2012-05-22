@@ -23,7 +23,8 @@ public class SessionToken {
 	private long timeout;
 	private boolean active;
 	private long lastActive;
-
+	private String[] roles;
+	
 	public long getTimeout() {
 		return timeout;
 	}
@@ -62,5 +63,13 @@ public class SessionToken {
 
 	public void setUserid(String userid) {
 		this.userid = userid;
+	}
+
+	public String[] getRoles() {
+		return roles;
+	}
+
+	public void setRoles(String[] roles) {
+		this.roles = roles;
 	}
 }

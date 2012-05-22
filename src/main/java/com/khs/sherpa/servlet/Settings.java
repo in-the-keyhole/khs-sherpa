@@ -11,5 +11,6 @@ public class Settings {
 	public String endpointPackage = null;
 	public boolean activityLogging = ACTIVITY_LOG;
 	public String encode = null;
+	public String sherpaAdmin = SHERPA_ADMIN;
 	
 }
