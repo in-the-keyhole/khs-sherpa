@@ -89,10 +89,11 @@ public class DefaultTokenService implements SessionTokenService {
 		if (token == null) {
 			return false;
 		}
-		
-		for(String r: token.getRoles()) {
-			if(r.equals(role) == true) {
-				return true;
+		if(token.getRoles() != null) {
+			for(String r: token.getRoles()) {
+				if(r.equals(role) == true) {
+					return true;
+				}
 			}
 		}
 		
