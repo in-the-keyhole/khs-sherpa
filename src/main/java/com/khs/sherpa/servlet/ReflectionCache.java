@@ -63,9 +63,12 @@ public class ReflectionCache {
 	public static Object getObject(String className) throws ClassNotFoundException {
 		String name = className;
 		Object obj = typeCache.get(name);
-		if (obj == null) {
-			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
-		}
+		
+		// allow to return null. will check later in process if null
+		
+//		if (obj == null) {
+//			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
+//		}
 		return obj;
 	}
 	

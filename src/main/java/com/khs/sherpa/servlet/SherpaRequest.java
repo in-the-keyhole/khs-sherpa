@@ -1,20 +1,32 @@
 package com.khs.sherpa.servlet;
 
+import static com.khs.sherpa.util.Util.msg;
+
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.logging.Logger;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
 import com.khs.sherpa.exception.SherpaPermissionExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.json.service.AuthenticationException;
+import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
+import com.khs.sherpa.json.service.SessionToken;
+import com.khs.sherpa.util.Constants;
 
 class SherpaRequest {
 
+	private static Logger LOG = Logger.getLogger(SherpaRequest.class.getName());
+	
 	private String endpoint;
 	private String action;
 	
@@ -22,9 +34,13 @@ class SherpaRequest {
 	private Object responseData;
 	
 	private HttpServletRequest servletRequest;
+	private HttpServletResponse servletResponse;
 	
 	private SessionStatus sessionStatus = null;
+	private JSONService service;
+	private Settings settings;
 	
+	private String[] roles = null;
 	
 	public String getEndpoint() {
 		return endpoint;
@@ -58,10 +74,50 @@ class SherpaRequest {
 		this.sessionStatus = sessionStatus;
 	}
 
-	public void loadRequest(HttpServletRequest request) {
+	public void setRoles(String[] roles) {
+		this.roles = roles;
+	}
+
+	public void setService(JSONService service) {
+		this.service = service;
+	}
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public void setSettings(Settings settings) {
+		this.settings = settings;
+	}
+
+	public HttpServletResponse getServletResponse() {
+		return servletResponse;
+	}
+
+	public void setServletResponse(HttpServletResponse servletResponse) {
+		this.servletResponse = servletResponse;
+	}
+
+	public void loadRequest(HttpServletRequest request, HttpServletResponse response) {
 		this.setEndpoint(request.getParameter("endpoint"));
 		this.setAction(request.getParameter("action"));
 		this.setServletRequest(request);
+		this.setServletResponse(response);
+	}
+	
+	private boolean isAuthRequest(HttpServletRequest request) {
+		String endpoint = request.getParameter("endpoint");
+		if(endpoint.equals("null")) {
+			endpoint =  null;
+		}
+		
+		String action = request.getParameter("action");
+		
+		if(endpoint == null && action.equals(Constants.AUTHENTICATE_ACTION)) {
+			return true;
+		}
+		return false;
+		
 	}
 	
 	private void validateMethod(Method method) throws SherpaRuntimeException {
@@ -71,10 +127,13 @@ class SherpaRequest {
 			} else if(method.isAnnotationPresent(DenyAll.class)) {
 				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"] has `@DenyAll` annotation" );
 			} else if(method.isAnnotationPresent(RolesAllowed.class)) {
-				String[] roles = method.getAnnotation(RolesAllowed.class).value(); 
-				System.out.println("check roles "+ roles);
-				// TODO do a real check
-				// throw excpetion
+				for(String role: method.getAnnotation(RolesAllowed.class).value()) {
+					for(String r: roles) {
+						if(role.equals(r)) {
+							return;
+						}
+					}
+				}
 				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"] has `@RolesAllowed` annotation" );
 			}
 		}
@@ -89,7 +148,7 @@ class SherpaRequest {
 	}
 	
 	private Object[] getParams(Method method) {
-		RequestMapper map = new RequestMapper(new Settings());
+		RequestMapper map = new RequestMapper(settings);
 		Class<?>[] types = method.getParameterTypes();
 		Object[] params = null;
 		// get parameters
@@ -122,14 +181,50 @@ class SherpaRequest {
 	
 	public void run() {
 		
+		if(isAuthRequest(servletRequest)) {
+			String userid = servletRequest.getParameter("userid");
+			String password = servletRequest.getParameter("password");
+			try {
+				SessionToken token = this.service.authenticate(userid, password);
+				this.service.getTokenService().activate(userid, token);
+				log(msg("authenticated"), userid, "*****");
+				this.service.map(this.getResponseOutputStream(), token);
+			} catch (AuthenticationException e) {
+				this.service.error("Authentication Error Invalid Credentials", this.getResponseOutputStream());
+				log(msg("invalid authentication"), userid, "*****");
+			}
+			
+			return;
+		} else {
+			String token = servletRequest.getHeader("token");
+			String userid = servletRequest.getHeader("userid");
+			sessionStatus = this.service.validToken(token, userid);
+		}
+		
+		if(target == null) {
+			throw new SherpaRuntimeException("@Endpoint not found initialized");
+		}
+		
 		Method method = this.findMethod(action);
 
 		try {
 			this.validateMethod(method);
-			this.invokeMethod(method);
+			this.service.map(this.getResponseOutputStream(), this.invokeMethod(method));
 		} catch (SherpaRuntimeException e) {
 			throw e;
 		}
 		
+	}
+	
+	private void log(String action, String email, String token) {
+		LOG.info(msg(String.format("Executed - %s,%s,%s ", action, email, token)));
+	}
+	
+	private OutputStream getResponseOutputStream() {
+		try {
+			return servletResponse.getOutputStream();
+		} catch (IOException e) {
+			return null;
+		}
 	}
 }

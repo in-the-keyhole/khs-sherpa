@@ -106,7 +106,7 @@ public class EndpointScanner {
 					// check for endpoint...
 					if (clazz.isAnnotationPresent(Endpoint.class)) {
 						LOG.info(msg("@Endpoint found " + clazz.getName()));
-						endpointClasses.put(clazz.getName(), clazz);
+						endpointClasses.put(clazz.getSimpleName(), clazz);
 					}
 
 				} catch (ClassNotFoundException e) {
