@@ -1,4 +1,4 @@
-package com.khs.sherpa.json.service;
+package com.khs.sherpa.endpoint;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -16,17 +16,17 @@ package com.khs.sherpa.json.service;
  * limitations under the License.
  */
 
-/**
- * Test user service implementation ,everyone is authenticated Override by defining in sherpa.properties or use and IOC mechanism
- * 
- * @author dpitt
- * 
- */
+import javax.annotation.security.RolesAllowed;
 
-public class DefaultUserService implements UserService {
+import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.json.service.SessionTokenService;
 
-	public String[] authenticate(String userid, String password) throws AuthenticationException {
-		// Default always fails authentication
-		throw new AuthenticationException();	
+@Endpoint(value = "sherpa", authenticated = true)
+public class SherpaEndpoint {
+
+	@RolesAllowed("SHERPA_ADMIN")
+	public Object sessions(SessionTokenService service) {
+		return service.sessions();
 	}
+	
 }

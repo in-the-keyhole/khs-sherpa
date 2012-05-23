@@ -1,6 +1,11 @@
 package com.khs.sherpa.servlet;
 
-import static com.khs.sherpa.util.Defaults.*;
+import static com.khs.sherpa.util.Defaults.ACTIVITY_LOG;
+import static com.khs.sherpa.util.Defaults.DATE_FORMAT;
+import static com.khs.sherpa.util.Defaults.DATE_TIME_FORMAT;
+import static com.khs.sherpa.util.Defaults.ENDPOINT_AUTHENTICATION;
+import static com.khs.sherpa.util.Defaults.SESSION_TIMEOUT;
+import static com.khs.sherpa.util.Defaults.SHERPA_ADMIN;
 
 public class Settings {
 	
@@ -11,5 +16,6 @@ public class Settings {
 	public String endpointPackage = null;
 	public boolean activityLogging = ACTIVITY_LOG;
 	public String encode = null;
+	public String sherpaAdmin = SHERPA_ADMIN;
 	
 }

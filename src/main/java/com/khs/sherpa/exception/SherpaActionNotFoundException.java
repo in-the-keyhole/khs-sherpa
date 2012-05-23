@@ -1,4 +1,4 @@
-package com.khs.sherpa.json.service;
+package com.khs.sherpa.exception;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -16,17 +16,24 @@ package com.khs.sherpa.json.service;
  * limitations under the License.
  */
 
-/**
- * Test user service implementation ,everyone is authenticated Override by defining in sherpa.properties or use and IOC mechanism
- * 
- * @author dpitt
- * 
- */
+public class SherpaActionNotFoundException extends SherpaRuntimeException {
 
-public class DefaultUserService implements UserService {
+	private static final long serialVersionUID = 9003606273103576947L;
 
-	public String[] authenticate(String userid, String password) throws AuthenticationException {
-		// Default always fails authentication
-		throw new AuthenticationException();	
+	public SherpaActionNotFoundException() {
+		super();
 	}
+
+	public SherpaActionNotFoundException(String arg0, Throwable arg1) {
+		super(arg0, arg1);
+	}
+
+	public SherpaActionNotFoundException(String arg0) {
+		super(arg0);
+	}
+
+	public SherpaActionNotFoundException(Throwable arg0) {
+		super(arg0);
+	}
+
 }

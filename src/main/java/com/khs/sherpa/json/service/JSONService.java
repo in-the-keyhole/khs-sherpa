@@ -16,8 +16,12 @@ package com.khs.sherpa.json.service;
  * limitations under the License.
  */
 
+import static com.khs.sherpa.util.Defaults.SESSION_TIMEOUT;
+import static com.khs.sherpa.util.Util.msg;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -25,9 +29,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.servlet.SherpaServlet;
-import static com.khs.sherpa.util.Defaults.*;
-import static com.khs.sherpa.util.Util.*;
 
 public class JSONService {
 
@@ -75,7 +78,8 @@ public class JSONService {
 	
 	ActivityService activityService = null;
 	
-
+	List<ParamParser<?>> parsers;
+	
 	// session timeout in milliseconds, zero indicates no timeout
 	long sessionTimeout = SESSION_TIMEOUT;
 
@@ -83,9 +87,10 @@ public class JSONService {
 
 		SessionToken token = null;
 		
-			userService.authenticate(userid, password);
+			String[] roles = userService.authenticate(userid, password);
 			String tokenId = tokenService.newToken(userid);
 			token = new SessionToken();
+			token.setRoles(roles);
 			token.setToken(tokenId);
 			token.setTimeout(sessionTimeout);
 			token.setActive(true);
@@ -94,7 +99,6 @@ public class JSONService {
 			log("authenticated", userid, "n/a");
 			this.activityService.logActivity(token.getUserid(), "authenticated");
 	
-
 		return token;
 
 	}
@@ -177,5 +181,11 @@ public class JSONService {
 		this.activityService = activityService;
 	}
 
+	public List<ParamParser<?>> getParsers() {
+		return parsers;
+	}
 
+	public void setParsers(List<ParamParser<?>> parsers) {
+		this.parsers = parsers;
+	}
 }

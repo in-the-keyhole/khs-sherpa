@@ -83,6 +83,22 @@ public class DefaultTokenService implements SessionTokenService {
 	   return results;
 	   
    }
+
+	public boolean hasRole(String userid, String tokenId, String role) {
+		SessionToken token = tokens.get(tokenId);
+		if (token == null) {
+			return false;
+		}
+		if(token.getRoles() != null) {
+			for(String r: token.getRoles()) {
+				if(r.equals(role) == true) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 	
 	
 	
