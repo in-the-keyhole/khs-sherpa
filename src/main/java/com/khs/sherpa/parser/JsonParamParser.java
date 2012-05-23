@@ -11,7 +11,7 @@ import com.khs.sherpa.annotation.Param;
 public class JsonParamParser implements ParamParser<Object> {
 
 	public boolean isValid(Class<?> clazz) {
-		return false;
+		return clazz.isAssignableFrom(Object.class);
 	}
 
 	public Object parse(String value, Param annotation, Class<?> clazz) {
