@@ -44,14 +44,12 @@ public class SherpaServlet extends HttpServlet {
 //	private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 	private static final long serialVersionUID = 4345668988238038540L;	
 	private JSONService service = new JSONService();
-//	private Settings settings = new Settings();
 
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SessionStatus sessionStatus = null;
 		
 		SherpaRequest sherpa = new SherpaRequest();
 		sherpa.setService(service);
-//		sherpa.setSettings(settings);
 		sherpa.setSessionStatus(sessionStatus);
 		sherpa.loadRequest(request, response);
 	
@@ -81,32 +79,6 @@ public class SherpaServlet extends HttpServlet {
 		}
 	}
 
-//	private void executeSherpaCommand(HttpServletRequest request,HttpServletResponse response,String action) {	
-//		try {
-//			adminAuthenticate(request, response);
-//			
-//			if (action.equals(SESSION_ACTION)) {
-//				this.service.map(response.getOutputStream(), this.service.getTokenService().sessions());		
-//			} else if (action.equals(DEACTIVATE_USER_ACTION)) {
-//				String deactivateId = request.getParameter("deactivate");
-//				if (deactivateId == null) {
-//					this.service.error("deactivate parameter not specified", response.getOutputStream());
-//				}
-//				this.service.getTokenService().deactivateUser(deactivateId);
-//				this.service.info("user id->"+deactivateId+" has been deactivated",response.getOutputStream());			
-//			}
-//			
-//		} catch (ServletException e) {
-//			error("Executing sherpa command");
-//            throw new RuntimeException(e);
-//		} catch (IOException e) {
-//			error("Executing sherpa command");
-//			throw new RuntimeException(e);
-//		}
-//		
-//	}
-//
-	
 	@Override
 	public void init() throws ServletException {
 
