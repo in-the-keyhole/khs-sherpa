@@ -60,6 +60,10 @@ public class RequestMapper {
 			return service.getUserService();
 		} else if(type.isAssignableFrom(ActivityService.class)) {
 			return service.getActivityService();
+		} else if(type.isAssignableFrom(ServletRequest.class)) {
+			return request;
+		} else if(type.isAssignableFrom(ServletResponse.class)) {
+			return response;
 		}
 		
 		return null;
