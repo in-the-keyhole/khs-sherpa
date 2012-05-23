@@ -23,8 +23,10 @@ import javax.servlet.ServletResponse;
 
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionTokenService;
+import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.parser.ParamParser;
 
 public class RequestMapper {
@@ -54,9 +56,13 @@ public class RequestMapper {
 	private Object mapNonAnnotation(String endpoint,String action,Class<?> type) {
 		if(type.isAssignableFrom(SessionTokenService.class)) {
 			return service.getTokenService();
+		} else if(type.isAssignableFrom(UserService.class)) {
+			return service.getUserService();
+		} else if(type.isAssignableFrom(ActivityService.class)) {
+			return service.getActivityService();
 		}
+		
 		return null;
-//		return this.parseObject(type, null, null);
 	}
 	
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
