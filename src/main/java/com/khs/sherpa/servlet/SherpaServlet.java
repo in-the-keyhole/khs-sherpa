@@ -17,6 +17,8 @@ package com.khs.sherpa.servlet;
  */
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,6 +28,15 @@ import javax.servlet.http.HttpServletResponse;
 import com.khs.sherpa.endpoint.SherpaEndpoint;
 import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
+import com.khs.sherpa.parser.BooleanParamParser;
+import com.khs.sherpa.parser.CalendarParamParser;
+import com.khs.sherpa.parser.DateParamParser;
+import com.khs.sherpa.parser.DoubleParamPaser;
+import com.khs.sherpa.parser.FloatParamParser;
+import com.khs.sherpa.parser.IntegerParamParser;
+import com.khs.sherpa.parser.ParamParser;
+import com.khs.sherpa.parser.StringParamParser;
+import com.khs.sherpa.util.SettingsContext;
 import com.khs.sherpa.util.SettingsLoader;
 
 public class SherpaServlet extends HttpServlet {
@@ -33,14 +44,14 @@ public class SherpaServlet extends HttpServlet {
 //	private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 	private static final long serialVersionUID = 4345668988238038540L;	
 	private JSONService service = new JSONService();
-	private Settings settings = new Settings();
+//	private Settings settings = new Settings();
 
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SessionStatus sessionStatus = null;
 		
 		SherpaRequest sherpa = new SherpaRequest();
 		sherpa.setService(service);
-		sherpa.setSettings(settings);
+//		sherpa.setSettings(settings);
 		sherpa.setSessionStatus(sessionStatus);
 		sherpa.loadRequest(request, response);
 	
@@ -112,6 +123,7 @@ public class SherpaServlet extends HttpServlet {
 		service.setActivityService(loader.activityService());
 		
 		// loading settings
+		Settings settings = new Settings();
 		settings.endpointPackage = loader.endpoint();
 		settings.sessionTimeout = loader.timeout();
 		settings.dateFormat = loader.dateFormat();
@@ -119,10 +131,23 @@ public class SherpaServlet extends HttpServlet {
 		settings.activityLogging = loader.logging();
 		settings.encode = loader.encoding();
 		settings.sherpaAdmin = loader.sherpaAdmin();
+		SettingsContext context = new SettingsContext();
+		context.setSettings(settings);
+		
+		// initialize parsers
+		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
+		parsers.add(new StringParamParser());
+		parsers.add(new IntegerParamParser());
+		parsers.add(new DoubleParamPaser());
+		parsers.add(new FloatParamParser());
+		parsers.add(new BooleanParamParser());
+		parsers.add(new DateParamParser());
+		parsers.add(new CalendarParamParser());
+		service.setParsers(parsers);
 		
 //		// initialize endpoints
 		EndpointScanner scanner = new EndpointScanner();
-		scanner.classPathScan(this.settings.endpointPackage);
+		scanner.classPathScan(settings.endpointPackage);
 		
 		// hard code sherpa endpoint
 		ReflectionCache.addObject("sherpa", SherpaEndpoint.class);

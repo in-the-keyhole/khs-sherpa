@@ -2,6 +2,8 @@ package com.khs.sherpa.servlet;
 
 import static com.khs.sherpa.util.Defaults.*;
 
+import java.util.List;
+
 public class Settings {
 	
 	public String dateFormat = DATE_FORMAT;

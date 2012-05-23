@@ -6,8 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.util.SettingsContext;
 
-public class DateParamPaser implements ParamParser<Date> {
+public class DateParamParser implements ParamParser<Date> {
 
 	public boolean isValid(Class<?> clazz) {
 		return clazz.isAssignableFrom(Date.class);
@@ -15,7 +16,10 @@ public class DateParamPaser implements ParamParser<Date> {
 
 	public Date parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
-
+		if(format == null || format.equals("")) {
+			format = SettingsContext.getSettings().dateFormat;
+		}
+		
 		try {
 			DateFormat fmt = new SimpleDateFormat(format);
 			return fmt.parse(value);

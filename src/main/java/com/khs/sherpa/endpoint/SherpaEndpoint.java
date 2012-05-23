@@ -16,16 +16,20 @@ package com.khs.sherpa.endpoint;
  * limitations under the License.
  */
 
+import java.util.Date;
+
 import javax.annotation.security.RolesAllowed;
 
 import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.json.service.SessionTokenService;
 
 @Endpoint(value = "sherpa", authenticated = true)
 public class SherpaEndpoint {
 
 	@RolesAllowed("SHERPA_ADMIN")
-	public void sessions() {
-		
+	public void sessions(@Param(name ="val") String val, SessionTokenService service, Date date) {
+		System.out.println("SESSION" + service);
 	}
 	
 }

@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
 import com.khs.sherpa.exception.SherpaPermissionExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
@@ -39,6 +40,7 @@ import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
 import com.khs.sherpa.util.Constants;
+import com.khs.sherpa.util.SettingsContext;
 
 class SherpaRequest {
 
@@ -55,7 +57,6 @@ class SherpaRequest {
 	
 	private SessionStatus sessionStatus = null;
 	private JSONService service;
-	private Settings settings;
 	
 	private String userid;
 	private String token;
@@ -94,14 +95,6 @@ class SherpaRequest {
 
 	public void setService(JSONService service) {
 		this.service = service;
-	}
-
-	public Settings getSettings() {
-		return settings;
-	}
-
-	public void setSettings(Settings settings) {
-		this.settings = settings;
 	}
 
 	public HttpServletResponse getServletResponse() {
@@ -160,24 +153,52 @@ class SherpaRequest {
 	}
 	
 	private Object[] getParams(Method method) {
-		RequestMapper map = new RequestMapper(settings);
+		RequestMapper map = new RequestMapper();
+//		map.setSettings(settings);
+		map.setService(service);
+		map.setRequest(servletRequest);
+		map.setResponse(servletResponse);
+		
 		Class<?>[] types = method.getParameterTypes();
 		Object[] params = null;
 		// get parameters
-		if (types.length > 0) {
-			Annotation[][] parameters = method.getParameterAnnotations();
-			// Annotation[] annotations = parameters[0];
-			params = new Object[types.length];					
-			int i = 0;
-			for (Annotation[] annotations : parameters) {
-				for (Annotation annotation : annotations) {
-					Object result = map.map(method.getClass().getName(),method.getName(),types[i], servletRequest, annotation);					
-					params[i] = result;
-					i++;
-				}
-			}
-
+		if(types.length > 0) {
+			params = new Object[types.length];
 		}
+		
+		Annotation[][] parameters = method.getParameterAnnotations();
+		for(int i=0; i<parameters.length; i++) {
+			Class<?> type = types[i];
+			Annotation annotation = null;
+			if(parameters[i].length > 0 ) {
+				for(Annotation an: parameters[i]) {
+					if(an.annotationType().isAssignableFrom(Param.class)) {
+						annotation = an;
+						break;
+					}
+				}
+				
+			}
+			params[i] = map.map(method.getClass().getName(),method.getName(),type, annotation);	
+		}
+		
+		
+		
+		
+//		if (types.length > 0) {
+//			Annotation[][] parameters = method.getParameterAnnotations();
+//			// Annotation[] annotations = parameters[0];
+//			params = new Object[types.length];					
+//			int i = 0;
+//			for (Annotation[] annotations : parameters) {
+//				for (Annotation annotation : annotations) {
+//					Object result = map.map(method.getClass().getName(),method.getName(),types[i], servletRequest, annotation);					
+//					params[i] = result;
+//					i++;
+//				}
+//			}
+//
+//		}
 		return params;
 	}
 	
@@ -208,7 +229,7 @@ class SherpaRequest {
 				this.service.getTokenService().activate(userid, token);
 				
 				// load the sherpa admin user
-				if(this.service.getTokenService().hasRole(userid, token.getToken(), settings.sherpaAdmin)) {
+				if(this.service.getTokenService().hasRole(userid, token.getToken(), SettingsContext.getSettings().sherpaAdmin)) {
 					String[] roles = token.getRoles();
 					token.setRoles(append(roles, "SHERPA_ADMIN"));
 				}

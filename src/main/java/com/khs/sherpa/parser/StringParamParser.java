@@ -4,14 +4,15 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.util.SettingsContext;
 
 public class StringParamParser implements ParamParser<String> {
 	
 	public String parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
 		
-		if(format == null) {
-			return value;
+		if(format == null || format.equals("")) {
+			format = SettingsContext.getSettings().encode;
 		}
 		
 		return this.applyEncoding(value, format);
