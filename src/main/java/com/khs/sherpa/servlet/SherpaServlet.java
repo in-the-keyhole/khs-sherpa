@@ -34,6 +34,7 @@ import com.khs.sherpa.parser.DateParamParser;
 import com.khs.sherpa.parser.DoubleParamPaser;
 import com.khs.sherpa.parser.FloatParamParser;
 import com.khs.sherpa.parser.IntegerParamParser;
+import com.khs.sherpa.parser.JsonParamParser;
 import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.parser.StringParamParser;
 import com.khs.sherpa.util.SettingsContext;
@@ -115,6 +116,7 @@ public class SherpaServlet extends HttpServlet {
 		parsers.add(new BooleanParamParser());
 		parsers.add(new DateParamParser());
 		parsers.add(new CalendarParamParser());
+		parsers.add(new JsonParamParser());
 		service.setParsers(parsers);
 		
 //		// initialize endpoints
