@@ -24,12 +24,14 @@ public class StringParamParser implements ParamParser<String> {
 
 	private String applyEncoding(String value,String format) {
 		String result = value;
-		if (format.equals(Encode.XML)) {
-			result = StringEscapeUtils.escapeXml(value);		
-		} else if (format.equals(Encode.HTML)) {
-			result = StringEscapeUtils.escapeHtml4(value);		
-		} else if (format.equals(Encode.CSV)) {
-			result = StringEscapeUtils.escapeCsv(value);
+		if (format != null) {
+			if (format.equals(Encode.XML)) {
+				result = StringEscapeUtils.escapeXml(value);		
+			} else if (format.equals(Encode.HTML)) {
+				result = StringEscapeUtils.escapeHtml4(value);		
+			} else if (format.equals(Encode.CSV)) {
+				result = StringEscapeUtils.escapeCsv(value);
+			}
 		}
 		  
 		return result;
