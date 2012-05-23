@@ -148,6 +148,7 @@ class SherpaRequest {
 		try {
 			return method.invoke(target, this.getParams(method));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new SherpaActionNotFoundException("unable to execute method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"]");
 		}
 	}

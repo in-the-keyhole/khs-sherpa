@@ -24,6 +24,7 @@ import javax.servlet.ServletResponse;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.json.service.JSONService;
+import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.parser.ParamParser;
 
 public class RequestMapper {
@@ -51,7 +52,11 @@ public class RequestMapper {
 	}
 	
 	private Object mapNonAnnotation(String endpoint,String action,Class<?> type) {
-		return this.parseObject(type, null, null);
+		if(type.isAssignableFrom(SessionTokenService.class)) {
+			return service.getTokenService();
+		}
+		return null;
+//		return this.parseObject(type, null, null);
 	}
 	
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
@@ -67,57 +72,12 @@ public class RequestMapper {
 	
 	
 	public Object map(String endpoint,String action,Class<?> type, Annotation annotation) {
-		
 		// load all params that do not have a annotation?
 		if(annotation != null && annotation.annotationType().isAssignableFrom(Param.class)) {
 			return mapAnnotation(endpoint, action, type, (Param) annotation);
 		} 
 		
 		return mapNonAnnotation(endpoint, action, type);
-		
-//
-//		} else if (type == Calendar.class) { 
-//			
-//			String s = parameterValue;
-//			if (s == null) {
-//				return null;
-//			} else {
-//			String fmt = this.settings.dateTimeFormat;
-//	
-//			try {
-//				// annotation format value overrides property format
-//			   if (!a.format().isEmpty()) {
-//					fmt = a.format();
-//				}
-//				DateFormat format = new SimpleDateFormat(fmt);
-//				Date date = format.parse(s);
-//				Calendar cal = Calendar.getInstance();
-//				cal.setTime(date);
-//				result = cal;
-//			  } catch (ParseException e) {
-//				throw new RuntimeException("endpoint parameter " + a.name() + "= "+s+" invalid date/time format must be " + fmt);
-//			  }
-//			}
-//			
-//	
-//			Param p = (Param) annotation;
-//			String jsonString = new String(request.getParameter(p.name()));
-//			// map to json object
-//			ObjectMapper mapper = new ObjectMapper();
-//			try {
-//			 result	= mapper.readValue(jsonString,type);
-//			} catch (JsonParseException e) {
-//				throw new RuntimeException("ERROR parsing JSON parameter "+p.name()+" Exception:"+e);
-//			} catch (JsonMappingException e) {
-//				throw new RuntimeException("ERROR mapping JSON parameter "+p.name()+" Exception:"+e);
-//			} catch (IOException e) {
-//				throw new RuntimeException("endpoint JSON parameter error " + p.name() + "cannot deserialize JSON string "+e);
-//			}
-//			
-//		}
-//
-//		return result;
-
 	}
 	
 	public JSONService getService() {
