@@ -1,8 +1,11 @@
 package com.khs.sherpa.servlet;
 
-import static com.khs.sherpa.util.Defaults.*;
-
-import java.util.List;
+import static com.khs.sherpa.util.Defaults.ACTIVITY_LOG;
+import static com.khs.sherpa.util.Defaults.DATE_FORMAT;
+import static com.khs.sherpa.util.Defaults.DATE_TIME_FORMAT;
+import static com.khs.sherpa.util.Defaults.ENDPOINT_AUTHENTICATION;
+import static com.khs.sherpa.util.Defaults.SESSION_TIMEOUT;
+import static com.khs.sherpa.util.Defaults.SHERPA_ADMIN;
 
 public class Settings {
 	
