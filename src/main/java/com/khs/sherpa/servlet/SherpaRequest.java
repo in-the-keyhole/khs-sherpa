@@ -155,7 +155,6 @@ class SherpaRequest {
 	
 	private Object[] getParams(Method method) {
 		RequestMapper map = new RequestMapper();
-//		map.setSettings(settings);
 		map.setService(service);
 		map.setRequest(servletRequest);
 		map.setResponse(servletResponse);
@@ -182,24 +181,6 @@ class SherpaRequest {
 			}
 			params[i] = map.map(method.getClass().getName(),method.getName(),type, annotation);	
 		}
-		
-		
-		
-		
-//		if (types.length > 0) {
-//			Annotation[][] parameters = method.getParameterAnnotations();
-//			// Annotation[] annotations = parameters[0];
-//			params = new Object[types.length];					
-//			int i = 0;
-//			for (Annotation[] annotations : parameters) {
-//				for (Annotation annotation : annotations) {
-//					Object result = map.map(method.getClass().getName(),method.getName(),types[i], servletRequest, annotation);					
-//					params[i] = result;
-//					i++;
-//				}
-//			}
-//
-//		}
 		return params;
 	}
 	
