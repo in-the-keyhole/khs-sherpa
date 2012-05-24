@@ -139,6 +139,6 @@ public class SherpaServlet extends HttpServlet {
 		scanner.classPathScan(settings.endpointPackage);
 		
 		// hard code sherpa endpoint
-		ReflectionCache.addObject("sherpa", SherpaEndpoint.class);
+		ReflectionCache.addObject(SherpaEndpoint.class.getName(), SherpaEndpoint.class);
 	}
 }
