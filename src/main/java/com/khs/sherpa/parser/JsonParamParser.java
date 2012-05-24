@@ -8,7 +8,7 @@ public class JsonParamParser implements ParamParser<Object> {
 	private JsonProvider jsonProvider;
 	
 	public boolean isValid(Class<?> clazz) {
-		return clazz.isAssignableFrom(Object.class);
+		return true;
 	}
 
 	public Object parse(String value, Param annotation, Class<?> clazz) {
