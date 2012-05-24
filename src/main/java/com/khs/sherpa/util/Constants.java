@@ -21,6 +21,8 @@ public class Constants {
 	public final static String SHERPA_NOT_INITIALIZED = "SHERPA_SERVER_NOT_INITIALIZED->";
 	public final static String SHERPA_SERVER = "SHERPA_SERVER->";
 
+	public final static String SHERPA_ENDPOINT = "sherpa";
+	
 	// sherpa command names
 	public final static String AUTHENTICATE_ACTION = "authenticate";
 	public final static String SESSION_ACTION = "sessions";

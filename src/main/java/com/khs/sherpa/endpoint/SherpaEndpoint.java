@@ -16,12 +16,19 @@ package com.khs.sherpa.endpoint;
  * limitations under the License.
  */
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.annotation.security.RolesAllowed;
 
 import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.exception.SherpaEndpointNotFoundException;
 import com.khs.sherpa.json.service.SessionTokenService;
+import com.khs.sherpa.servlet.ReflectionCache;
 
-@Endpoint(value = "sherpa", authenticated = true)
+@Endpoint(value = "Sherpa", authenticated = true)
 public class SherpaEndpoint {
 
 	@RolesAllowed("SHERPA_ADMIN")
@@ -29,4 +36,25 @@ public class SherpaEndpoint {
 		return service.sessions();
 	}
 	
+	@RolesAllowed("SHERPA_ADMIN")
+	public Map<String, String> endpoints() {
+		Map<String, String> map = new HashMap<String, String>();
+		for(Entry<String, Object> entry: ReflectionCache.getTypeCache().entrySet()) {
+			map.put(entry.getKey(), entry.getValue().getClass().getName());
+		}
+		
+		return map;
+	}
+	
+	@RolesAllowed("SHERPA_ADMIN")
+	public Object describe(@Param(name ="value") String value) {
+		Object object = null;
+		try {
+			object = ReflectionCache.getObject(value);
+		} catch (ClassNotFoundException e) {
+			throw new SherpaEndpointNotFoundException("endpoint ["+value+"] not found");
+		}
+		
+		return object.getClass();
+	}
 }

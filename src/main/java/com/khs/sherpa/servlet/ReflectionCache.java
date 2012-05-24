@@ -31,6 +31,10 @@ public class ReflectionCache {
 		
 	static Map<String,Object> typeCache = new HashMap<String, Object>();
 
+	public static Map<String,Object> getTypeCache() {
+		return typeCache;
+	}
+	
 	// TODO: MD - work on this class. Clean this up
 	public static void addTypes(Map<String, Class<?>> endpointClasses) {
 		for(Entry<String, Class<?>> entry: endpointClasses.entrySet()) {
