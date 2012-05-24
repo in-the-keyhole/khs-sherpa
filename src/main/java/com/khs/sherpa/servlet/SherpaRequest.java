@@ -40,6 +40,7 @@ import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
 import com.khs.sherpa.util.Constants;
+import com.khs.sherpa.util.MethodUtil;
 import com.khs.sherpa.util.SettingsContext;
 
 class SherpaRequest {
@@ -185,8 +186,8 @@ class SherpaRequest {
 	}
 	
 	private Method findMethod(String name) {
-		Method[] methods = target.getClass().getMethods();
-		for (Method m : methods) {
+		for (Method m : MethodUtil.getAllMethods(target.getClass())) {
+			// skip method declared in object.
 			if(m.getName().equals(name)) {
 				return m;
 			}
