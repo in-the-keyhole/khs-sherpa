@@ -186,13 +186,11 @@ class SherpaRequest {
 	}
 	
 	private Method findMethod(String name) {
-		for (Method m : MethodUtil.getAllMethods(target.getClass())) {
-			// skip method declared in object.
-			if(m.getName().equals(name)) {
-				return m;
-			}
+		Method method = MethodUtil.getMethodByName(target.getClass(), name);
+		if(method == null) {
+			throw new SherpaActionNotFoundException("no method found ["+name+"] in class ["+target.getClass().getCanonicalName()+"]");
 		}
-		throw new SherpaActionNotFoundException("no method found ["+name+"] in class ["+target.getClass().getCanonicalName()+"]");
+		return method;
 	}
 	
 	static <T> T[] append(T[] arr, T element) {

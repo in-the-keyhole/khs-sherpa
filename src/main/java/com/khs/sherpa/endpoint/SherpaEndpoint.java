@@ -68,7 +68,7 @@ public class SherpaEndpoint {
 			Map<String, Object> action = new HashMap<String, Object>();
 			actions.add(action);
 			
-			action.put("name", method.getName() );
+			action.put("name", MethodUtil.getMethodName(method));
 			
 			if(method.isAnnotationPresent(DenyAll.class)) {
 				action.put("permission", "DenyAll");
