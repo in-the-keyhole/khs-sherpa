@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.khs.sherpa.endpoint.SherpaEndpoint;
 import com.khs.sherpa.json.service.JSONService;
+import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.parser.BooleanParamParser;
 import com.khs.sherpa.parser.CalendarParamParser;
@@ -107,6 +108,15 @@ public class SherpaServlet extends HttpServlet {
 		SettingsContext context = new SettingsContext();
 		context.setSettings(settings);
 		
+		JsonProvider jsonProvider = null;
+		try {
+			jsonProvider = settings.jsonProvider.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
 		// initialize parsers
 		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
 		parsers.add(new StringParamParser());
@@ -116,7 +126,12 @@ public class SherpaServlet extends HttpServlet {
 		parsers.add(new BooleanParamParser());
 		parsers.add(new DateParamParser());
 		parsers.add(new CalendarParamParser());
-		parsers.add(new JsonParamParser());
+		
+		JsonParamParser jsonParamParser = new JsonParamParser();
+		jsonParamParser.setJsonProvider(jsonProvider);
+		parsers.add(jsonParamParser);
+
+		service.setJsonProvider(jsonProvider);
 		service.setParsers(parsers);
 		
 //		// initialize endpoints

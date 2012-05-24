@@ -7,6 +7,9 @@ import static com.khs.sherpa.util.Defaults.ENDPOINT_AUTHENTICATION;
 import static com.khs.sherpa.util.Defaults.SESSION_TIMEOUT;
 import static com.khs.sherpa.util.Defaults.SHERPA_ADMIN;
 
+import com.khs.sherpa.json.service.JsonProvider;
+import com.khs.sherpa.util.Defaults;
+
 public class Settings {
 	
 	public String dateFormat = DATE_FORMAT;
@@ -17,5 +20,6 @@ public class Settings {
 	public boolean activityLogging = ACTIVITY_LOG;
 	public String encode = null;
 	public String sherpaAdmin = SHERPA_ADMIN;
+	public Class<? extends JsonProvider> jsonProvider = Defaults.JSON_PROVIDER; 
 	
 }

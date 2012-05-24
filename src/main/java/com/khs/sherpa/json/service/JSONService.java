@@ -24,10 +24,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.servlet.SherpaServlet;
@@ -80,6 +76,8 @@ public class JSONService {
 	
 	List<ParamParser<?>> parsers;
 	
+	JsonProvider jsonProvider = null;
+	
 	// session timeout in milliseconds, zero indicates no timeout
 	long sessionTimeout = SESSION_TIMEOUT;
 
@@ -129,13 +127,8 @@ public class JSONService {
 	}
 
 	public void map(OutputStream out, Object object) {
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			mapper.writeValue(out, object);
-		} catch (JsonGenerationException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			out.write(jsonProvider.toJson(object).getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -187,5 +180,13 @@ public class JSONService {
 
 	public void setParsers(List<ParamParser<?>> parsers) {
 		this.parsers = parsers;
+	}
+
+	public JsonProvider getJsonProvider() {
+		return jsonProvider;
+	}
+
+	public void setJsonProvider(JsonProvider jsonProvider) {
+		this.jsonProvider = jsonProvider;
 	}
 }
