@@ -34,7 +34,7 @@ import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.servlet.ReflectionCache;
 import com.khs.sherpa.util.MethodUtil;
 
-@Endpoint(value = "Sherpa", authenticated = false)
+@Endpoint(value = "Sherpa", authenticated = true)
 public class SherpaEndpoint {
 
 	@RolesAllowed("SHERPA_ADMIN")
@@ -52,7 +52,7 @@ public class SherpaEndpoint {
 		return map;
 	}
 	
-//	@RolesAllowed("SHERPA_ADMIN")
+	@RolesAllowed("SHERPA_ADMIN")
 	public Object describe(@Param(name ="value") String value) {
 		Object object = null;
 		try {
