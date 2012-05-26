@@ -15,11 +15,11 @@ also, provides session support for client applications that exist outside of a b
 
 Examples
 --------
-Example Web application  (https://github.com/in-the-keyhole/khs-sherpa-example-webapp)
+Example Web application - https://github.com/in-the-keyhole/khs-sherpa-example-webapp
 
-Working HTML5 JQuery Mobile application that uses Sherpa can be found here..http://sherpa.keyholekce.com
+Working HTML5 JQuery Mobile - http://sherpa.keyholekc.com
 
-HTML5 JQuery Mobile application project on GitHub https://github.com/in-the-keyhole/khs-sherpa-jquery
+HTML5 JQuery Mobile application on GitHub https://github.com/in-the-keyhole/khs-sherpa-jquery
 
 Features  
 --------
