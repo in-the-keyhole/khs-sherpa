@@ -13,12 +13,18 @@ to become JSON endpoints that can be consumed via HTTP by native mobile devices 
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
 also, provides session support for client applications that exist outside of a browser.
 
-Example Web application using khsSherpa can be found on github at (https://github.com/in-the-keyhole/khs-sherpa-example-webapp)
+Examples
+--------
+Example Web application  (https://github.com/in-the-keyhole/khs-sherpa-example-webapp)
+
+Working HTML5 JQuery Mobile application that uses Sherpa can be found here..http://sherpa.keyholekce.com
+
+HTML5 JQuery Mobile application project on GitHub https://github.com/in-the-keyhole/khs-sherpa-jquery
 
 Features  
 --------
  * Annotation Based Configuration
- * Authentication
+ * Authentication and Role based permissions 
  * Session Support 
  * Plug-gable User Activity Logging
  * Type mapping
@@ -43,13 +49,48 @@ Using Maven: add this dependency in your 'pom.xml' (available in Maven central r
    
 Not using Maven: include following jars in lib class path
 
-    khs-sherpa-x.x.jar
-	jackson-mapper-asl-1.8.2.jar
-	jackson-core-asi-1.8.2.jar
+    khs-sherpa-1.1.1.jar
+	gson-2.2.1.jar
+	commons-lang3-3.1.jar
 	
+Quick Start 
+----------
+Configure and create Java server side end point in a WAR project
 
-Applying to JEE App Server
---------------------------
+	
+	1) Register Sherpa Servlet in WEB.XML (see configuring WEB.XML below)
+	
+	2) Create the following java class in a package named com.khs.example.endpoint
+	
+	@Endpoint(authenticated = false)
+	public class TestService {
+	
+	// hello world  method
+	public Result helloWorld() {
+		return new Result("Hello World");
+	}
+		
+		class Result {	
+			public Result(Object o) {
+			result = o;
+			}
+			public Object result;		
+		}
+	}
+	 
+
+	3) Create sherpa.properties file in your project resource/classpath folder and add this entry
+	   
+	endpoint.package=com.khs.example.endpoints
+	   
+	4) Start app server and in a browser enter the following URL.
+
+	http://<server>/<webapp>/sherpa?endpoint=TestService&action=helloWorld	
+
+
+
+Configuring WEB.XML
+-------------------
 Add the khsSherpa framework jar to your classpath/maven dependency list and add the 
 SherpaServlet to the WEB-INF/web.xml as shown below. 
 
