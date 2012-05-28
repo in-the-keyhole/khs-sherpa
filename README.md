@@ -8,7 +8,7 @@ About
 Turn Java application servers into a remote JSON data access mechanism for mobile and HTML 5/Java Script applications. 
 
 This lightweight server side framework allows Java classes contained inside a JEE application sever
-to become JSON endpoints that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
+to become JSON end points that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
 
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
 also, provides session support for client applications that exist outside of a browser.
@@ -130,7 +130,7 @@ The java endpoint below has two methods that can be called remotely.
 		}
 	}
 
-The @Param annotation is used to specify request parameters for an endpoint method. 
+The @Param annotation is used to specify request parameters for an end point method. 
 
 ### Get/Post URL to access the TestService.helloWorld() java method is formatted in this manner 
 
@@ -143,7 +143,7 @@ The @Param annotation is used to specify request parameters for an endpoint meth
 Configuring khsSherpa
 ---------------------
 Define a sherpa.properties file in your webapp classpath. The only required entry is 
-the endpoint.package entry, which tells sherpa where to find Java Endpoints. 
+the endpoint.package entry, which tells sherpa where to find Java end points. 
 
 
     ##khsSherpa server properties
@@ -153,11 +153,11 @@ the endpoint.package entry, which tells sherpa where to find Java Endpoints.
 
 Test Fixture
 ------------
-A testing jsp, test-fixture.jsp has been created that will allow testing of khsSherpa endpoints, copy this 
+A testing jsp, test-fixture.jsp has been created that will allow testing of khsSherpa end points, copy this 
 file into your web contents web app directory, access the test-fixture.jsp with a browser and you will be able to invoke @Endpoint 
 methods and view JSON results.  
 
-Steps for testing json endpoints from a web app:
+Steps for testing json end points from a web app:
 
 	create a java webapp project
 	
@@ -165,7 +165,7 @@ Steps for testing json endpoints from a web app:
 	
 	define a java class and annotate with @Endpoint, see above example
 	
-	define endpoint package name in sherpa.properties file
+	define end point package name in sherpa.properties file
 	
 	start your webapp
 	
@@ -173,13 +173,13 @@ Steps for testing json endpoints from a web app:
 	
 		http://<server>/<webapp>/test-fixture.jsp
 		
-	Fill in endpoint simple class name, method name and parameter names and submit	
+	Fill in end point simple class name, method name and parameter names and submit	
 
 
 Authentication
 --------------
-Endpoints can be configured to require configuration by setting the authentication attribute to true 
-on the @Endpoint annotation. Authenticated endpoints can only be invoked if a valid user id and token
+End points can be configured to require authentication by setting the authentication attribute to true 
+on the @Endpoint annotation. Authenticated end points can only be invoked if a valid user id and token
 id is supplied. Valid token ids are obtained by invoking the framework authenticate action with valid 
 credentials. 
 
@@ -202,12 +202,17 @@ Authenticated URL's with token parameters will look like this...
 
 	http://<server>/<webapp>/sherpa?endpoint=TestService&action=helloWord&userid=dpitt@keyholesoftware.com&token=1336103738643
 
+Authentication Interface Implementation
+---------------------------------------
 The default authentication mechanism denies all credentials. Since various authentication mechanisms exist,
 the framework supplies an interface, com.khs.sherpa.json.service.UserService. Concrete UserService implementations
 are registered by defining the entry below in the sherpa.properties file.  
 
 	## Authentication implementation
 	user.service = com.example.LDAPUserService
+	
+Authentication implementations validate a user id and password and returns a list of valid roles for the user id. Roles 
+are only required if role based authentication is applied.
 
 Session Timeout
 ---------------
@@ -220,6 +225,26 @@ the sherpa.properties file entry below.
 	## Session timeout (ms), default is 0 
 	session.timeout=900000 
 
+Role Based Security
+-------------------
+JEE javax.security roles can be applied to authenticated end point methods. These annotations are listed below. 
+	
+	javax.annotation.security.PermitAll
+	javax.annotation.security.DenyAll
+	javax.annotation.security.RolesAllowed
+	
+Declared roles for a user are applied to the authenticated users token. An example end point method that is 
+restricted to only users with a "admin" role is shown below. 
+
+	@RolesAllowed({"admin"})
+	public Department create(@Param(name="number") int number,@Param(name="name")String name) {	
+		Department dept = new Department();
+		dept.number = number;
+		dept.name = name;		
+		return dept;		
+	}	
+
+
 Token Service
 -------------
 
@@ -229,6 +254,7 @@ timeout periods and as long as the web application is started.
 
 If this default behavior is not sufficient, it can be replaced with an alternative implementation by implementing the framework 
 supplied TokenService interface and registering it in the sherpa.properties file as shown below. 
+
 
 Data Type Mappings
 ------------------
@@ -276,12 +302,11 @@ Encoding can be applied at an end point action level by specifying the encoding 
 	public Result encode(@Param(name="value",format=Encode.HTML) String value) {
 		return new Result(value);	
 	}
-	
 
 Activity Logging
 ----------------
 
-By default endpoint execution will be logged via the java.util.logging.Logger. This can be turned off by setting 
+By default end point execution will be logged via the java.util.logging.Logger. This can be turned off by setting 
 the property below in sherpa.properties file. 
 
 	acitivity.logging=false
@@ -295,14 +320,24 @@ interface and registering in the sherpa.properties file as shown below.
 Session Management Commands
 ---------------------------
 
-Framework specific action commands are available that will return active user sessions and allow de-activation of user sessions
-These actions must be invoked using admin userid and passwords in order for them to be executed. Example URL's are shown below.
+Framework specific end point is available that will return active user sessions, and describe end point meta data. 
+These actions must be invoked using the userid, passwords, and token for a user authenticated with the framework 
+"SHERPA_ADMIN" role.
 
 	Current Sessions
 	
 	http://<server>/<webapp>/sherpa?action=sessions&adminuserid=dpitt@keyholesoftware.com&adminpassword=password
 	
+  	Describe end point
+  	
+  	http://<server>/<webapp>/sherpa?action=describe&adminuserid=dpitt@keyholesoftware.com&adminpassword=password
+  
+  
   	Deactivate User id
   	
   	http://<server>/<webapp>/sherpa?action=deactivate&deactivate=jdoe@keyholesoftware.com&adminuserid=dpitt@keyholesoftware.com&adminpassword=password
+  
+  
+  
+  
   
