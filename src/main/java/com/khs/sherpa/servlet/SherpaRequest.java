@@ -30,6 +30,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.annotation.Action;
+import com.khs.sherpa.annotation.ContentType;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
@@ -147,6 +149,12 @@ class SherpaRequest {
 	
 	private Object invokeMethod(Method method) {
 		try {
+			if(method.isAnnotationPresent(Action.class)) {
+				servletResponse.setContentType(method.getAnnotation(Action.class).contentType().type);
+			} else {
+				servletResponse.setContentType(ContentType.JSON.type);
+			}
+			
 			return method.invoke(target, this.getParams(method));
 		} catch (Exception e) {
 			e.printStackTrace();
