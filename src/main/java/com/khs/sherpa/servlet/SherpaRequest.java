@@ -202,6 +202,8 @@ class SherpaRequest {
 	
 	public void run() {
 		
+		// see if there's a json call back function specified
+		String callback = this.servletRequest.getParameter("callback");
 		if(isAuthRequest(servletRequest)) {
 			String userid = servletRequest.getParameter("userid");
 			String password = servletRequest.getParameter("password");
@@ -216,7 +218,12 @@ class SherpaRequest {
 				}
 				
 				log(msg("authenticated"), userid, "*****");
-				this.service.map(this.getResponseOutputStream(), token);
+				if (SettingsContext.getSettings().jsonpSupport && callback != null) {
+					servletResponse.setContentType("text/javascript");
+				    this.service.mapJsonp(this.getResponseOutputStream(),token,callback);	
+				} else {
+				  this.service.map(this.getResponseOutputStream(), token);
+				}    
 			} catch (AuthenticationException e) {
 				this.service.error("Authentication Error Invalid Credentials", this.getResponseOutputStream());
 				log(msg("invalid authentication"), userid, "*****");
@@ -236,8 +243,15 @@ class SherpaRequest {
 
 		try {
 			this.validateMethod(method);
-			this.service.map(this.getResponseOutputStream(), this.invokeMethod(method));
+			
+			if (SettingsContext.getSettings().jsonpSupport && callback != null) {
+				servletResponse.setContentType("text/javascript");
+			    this.service.mapJsonp(this.getResponseOutputStream(), this.invokeMethod(method),callback);	
+			} else {
+				this.service.map(this.getResponseOutputStream(), this.invokeMethod(method));
+			}
 		} catch (SherpaRuntimeException e) {
+			//this.service.error(e,this.getResponseOutputStream());
 			throw e;
 		}
 		

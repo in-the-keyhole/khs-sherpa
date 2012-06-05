@@ -37,5 +37,6 @@ public class Settings {
 	public String encode = null;
 	public String sherpaAdmin = SHERPA_ADMIN;
 	public Class<? extends JsonProvider> jsonProvider = Defaults.JSON_PROVIDER; 
+	public boolean jsonpSupport = false;
 	
 }

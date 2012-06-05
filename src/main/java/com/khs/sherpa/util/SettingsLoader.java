@@ -93,6 +93,18 @@ public class SettingsLoader {
 		return Defaults.ACTIVITY_LOG;
 	}
 	
+	public boolean jsonpSupport() {
+	    String value = properties.getProperty("jsonp.support");
+		if (value != null) {
+			value = value.toUpperCase();
+			if (value.equals("Y") || value.equals("YES") || value.equals("TRUE")) {
+				return true;
+			}		
+		} 
+		return Defaults.JSONP_SUPPORT;
+	}
+	
+	
 	public String dateFormat() {
 		String value = properties.getProperty("date.format");
 		if (value != null) {

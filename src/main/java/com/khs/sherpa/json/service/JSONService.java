@@ -126,9 +126,20 @@ public class JSONService {
 		map(out, new Result("ERROR", msg));
 	}
 
-	public void map(OutputStream out, Object object) {
+	public void mapJsonp(OutputStream out, Object object,String jsonpCallback) {
 		try {
-			out.write(jsonProvider.toJson(object).getBytes());
+			    out.write( (jsonpCallback+"(").getBytes());
+				out.write(jsonProvider.toJson(object).getBytes());
+				out.write(");".getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	public void map(OutputStream out, Object object) {
+		try {	
+			  out.write(jsonProvider.toJson(object).getBytes());			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

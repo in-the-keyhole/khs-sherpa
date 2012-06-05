@@ -31,6 +31,7 @@ public class Defaults {
 	public final static boolean ACTIVITY_LOG = true;
 	public final static String ENCODE = null;
 	public final static String SHERPA_ADMIN = "ROLE_ADMIN";
+	public final static boolean JSONP_SUPPORT = false;
 	public final static Class<? extends JsonProvider> JSON_PROVIDER = GsonJsonProvider.class;
 
 }

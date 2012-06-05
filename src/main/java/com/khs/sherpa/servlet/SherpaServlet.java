@@ -19,6 +19,8 @@ package com.khs.sherpa.servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.khs.sherpa.endpoint.SherpaEndpoint;
+import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.json.service.SessionStatus;
@@ -40,10 +43,11 @@ import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.parser.StringParamParser;
 import com.khs.sherpa.util.SettingsContext;
 import com.khs.sherpa.util.SettingsLoader;
+import static com.khs.sherpa.util.Util.*;
 
 public class SherpaServlet extends HttpServlet {
 
-//	private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
+    private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 	private static final long serialVersionUID = 4345668988238038540L;	
 	private JSONService service = new JSONService();
 
@@ -63,7 +67,11 @@ public class SherpaServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			doService(request, response);
-		} catch (Exception e) {
+		} catch (SherpaRuntimeException e) {	
+			response.sendError(500,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
+		}
+		catch (Exception e) {	
 			throw new ServletException(e);
 		}
 	}
@@ -76,7 +84,12 @@ public class SherpaServlet extends HttpServlet {
 
 		try {
 			doService(request, response);
-		} catch (Exception e) {
+		} catch (SherpaRuntimeException e) {	
+			response.sendError(500,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg(e.getMessage() ));
+			e.printStackTrace();
+		}
+		catch (Exception e) {	
 			throw new ServletException(e);
 		}
 	}
@@ -105,6 +118,7 @@ public class SherpaServlet extends HttpServlet {
 		settings.activityLogging = loader.logging();
 		settings.encode = loader.encoding();
 		settings.sherpaAdmin = loader.sherpaAdmin();
+		settings.jsonpSupport = loader.jsonpSupport();
 		SettingsContext context = new SettingsContext();
 		context.setSettings(settings);
 		
