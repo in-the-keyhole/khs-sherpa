@@ -149,12 +149,6 @@ class SherpaRequest {
 	
 	private Object invokeMethod(Method method) {
 		try {
-			if(method.isAnnotationPresent(Action.class)) {
-				servletResponse.setContentType(method.getAnnotation(Action.class).contentType().type);
-			} else {
-				servletResponse.setContentType(ContentType.JSON.type);
-			}
-			
 			return method.invoke(target, this.getParams(method));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -241,9 +235,15 @@ class SherpaRequest {
 		}
 		
 		Method method = this.findMethod(action);
-
+		ContentType type = ContentType.JSON;
+		if(method.isAnnotationPresent(Action.class)) {
+			type = method.getAnnotation(Action.class).contentType();
+		}
+		
+		servletResponse.setContentType(type.type);
 		try {
 			this.validateMethod(method);
+			
 			this.service.map(this.getResponseOutputStream(), this.invokeMethod(method));
 		} catch (SherpaRuntimeException e) {
 			throw e;

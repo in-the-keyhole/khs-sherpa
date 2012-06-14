@@ -53,7 +53,7 @@ public class SherpaEndpoint {
 	}
 	
 	@RolesAllowed("SHERPA_ADMIN")
-	public Object describe(@Param(name ="value") String value) {
+	public Object describe(@Param("value") String value) {
 		Object object = null;
 		try {
 			object = ReflectionCache.getObject(value);
@@ -96,7 +96,7 @@ public class SherpaEndpoint {
 					
 				}
 				if(annotation != null) {
-					params.put(annotation.name(), type.getName());
+					params.put(annotation.value(), type.getName());
 				}
 			}
 			

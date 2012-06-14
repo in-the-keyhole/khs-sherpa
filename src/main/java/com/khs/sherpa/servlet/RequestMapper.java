@@ -39,7 +39,7 @@ public class RequestMapper {
 	private ServletResponse response;
 	
 	private Object mapAnnotation(String endpoint,String action,Class<?> type, Param param) {
-		String name = param.name();
+		String name = param.value();
 		
 		if(name == null || name.length() == 0) {
 			throw new SherpaRuntimeException("parameters required");	

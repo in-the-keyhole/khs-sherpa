@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.khs.sherpa.annotation.ContentType;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.servlet.SherpaServlet;
@@ -81,7 +82,7 @@ public class JSONService {
 	// session timeout in milliseconds, zero indicates no timeout
 	long sessionTimeout = SESSION_TIMEOUT;
 
-	public SessionToken authenticate(@Param(name = "userid") String userid, @Param(name = "password") String password) {
+	public SessionToken authenticate(@Param("userid") String userid, @Param("password") String password) {
 
 		SessionToken token = null;
 		
@@ -127,11 +128,23 @@ public class JSONService {
 	}
 
 	public void map(OutputStream out, Object object) {
-		try {
-			out.write(jsonProvider.toJson(object).getBytes());
-		} catch (IOException e) {
-			e.printStackTrace();
+		map(out, object, ContentType.JSON);
+	}
+	// TODO: need to handle any return type
+	public void map(OutputStream out, Object object, ContentType type) {
+		switch (type) {
+		case JSON:
+			try {
+				out.write(jsonProvider.toJson(object).getBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			break;
+		default:
+//			out.write(object.)
+			break;
 		}
+		
 	}
 
 	public void message(String message, OutputStream out) {
