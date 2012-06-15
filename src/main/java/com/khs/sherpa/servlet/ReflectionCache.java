@@ -58,10 +58,8 @@ public class ReflectionCache {
 		try {
 			ReflectionCache.addObject(name, endpoint.newInstance());
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -77,15 +75,7 @@ public class ReflectionCache {
 	}
 	
 	public static Object getObject(String className) throws ClassNotFoundException {
-		String name = className;
-		Object obj = typeCache.get(name);
-		
-		// allow to return null. will check later in process if null
-		
-//		if (obj == null) {
-//			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
-//		}
-		return obj;
+		return typeCache.get(className);
 	}
 	
 	public static Class<?> getClass(String className,String pkg) throws ClassNotFoundException {
