@@ -15,7 +15,7 @@ public class MethodUtil {
 			// skip all method assignable from Object class
 			if(method.getDeclaringClass().isAssignableFrom(Object.class)) {
 				continue;
-			} else if(method.isAnnotationPresent(Action.class) && method.getAnnotation(Action.class).disabled()) {
+			} else if(method.isAnnotationPresent(Action.class) && MethodUtil.getActionAnnotation(method).disabled()) {
 				continue;
 			}
 			methods.add(method);
@@ -24,9 +24,10 @@ public class MethodUtil {
 	}
 	
 	public static String getMethodName(Method method) {
-		if(method.isAnnotationPresent(Action.class)) {
-			if(method.getAnnotation(Action.class).value().trim().length() > 0) {
-				return method.getAnnotation(Action.class).value().trim();
+		Action action = MethodUtil.getActionAnnotation(method);
+		if(action != null) {
+			if(action.value().trim().length() > 0) {
+				return action.value().trim();
 			}
 		}
 		
@@ -46,4 +47,10 @@ public class MethodUtil {
 		return MethodUtil.getMethodByName(MethodUtil.getAllMethods(clazz), theMethodName);
 	}
 	
+	public static Action getActionAnnotation(Method method) {
+		if(method.isAnnotationPresent(Action.class)) {
+			return method.getAnnotation(Action.class);
+		}	
+		return null;
+	}
 }

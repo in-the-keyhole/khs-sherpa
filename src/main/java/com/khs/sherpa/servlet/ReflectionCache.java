@@ -16,21 +16,30 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.khs.sherpa.annotation.Action;
 import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.util.MethodUtil;
 
 public class ReflectionCache {
 	
 	private ReflectionCache() { }
 	
-	static Logger LOG = Logger.getLogger(ReflectionCache.class.getName());	
+	private static Logger LOG = Logger.getLogger(ReflectionCache.class.getName());	
 		
-	static Map<String,Object> typeCache = new HashMap<String, Object>();
+	private static Map<String,Object> typeCache = new HashMap<String, Object>();
 
+	private static Map<String, String> urlCache = new HashMap<String, String>();
+	
 	public static Map<String,Object> getTypeCache() {
 		return typeCache;
 	}
@@ -69,8 +78,31 @@ public class ReflectionCache {
 			if(endpoint.getClass().getAnnotation(Endpoint.class).value().length() > 0) {
 				name = endpoint.getClass().getAnnotation(Endpoint.class).value();
 			}
-			System.out.println("Adding class ["+ endpoint.getClass().getCanonicalName()+"] with name ["+name+"]");
+			LOG.info("Adding class ["+ endpoint.getClass().getCanonicalName()+"] with name ["+name+"]");
 			typeCache.put(name, endpoint);
+			
+			for(Method m: MethodUtil.getAllMethods(endpoint.getClass())) {
+				Action action = MethodUtil.getActionAnnotation(m);
+				if(action != null) {
+					if(action.mapping().length > 0) {
+						String methods = "";
+						if(action.method().length > 0) {
+							methods = StringUtils.join(action.method(), ",");
+						}
+						for(String url: action.mapping()) {
+							String val = "";
+							if(StringUtils.isNotEmpty(methods)) {
+								val = methods + ".";
+							}
+							val += name + "." + m.getName();
+							urlCache.put(url, val);
+							LOG.info("Adding URL ["+url+"] to ["+val+"]");
+							System.out.println("Adding URL ["+url+"] to ["+val+"]");
+						}
+					}
+				}
+			}
+			
 		}
 	}
 	
@@ -85,5 +117,34 @@ public class ReflectionCache {
 			throw new ClassNotFoundException("@Endpoint "+name+" not found initialized");
 		}
 		return clazz;
+	}
+	// \{\d?\w+\}
+	
+	// [^/]*
+	public static String getUrlMethod(String url, String method) {
+		Pattern pattern = null;
+		Matcher matcher = null;
+		for(Entry<String, String> entry : ReflectionCache.urlCache.entrySet()) {
+			String mapping = entry.getKey();
+			pattern = Pattern.compile("\\{\\d?\\w+\\}");
+			matcher = pattern.matcher(mapping);
+			String matcherText = matcher.replaceAll("[^/]*");
+			
+			if(Pattern.matches(matcherText, url)) {
+				String[] str = StringUtils.split(entry.getValue(), '.');
+				if(str.length == 2) {
+					return entry.getValue();
+				} else {
+					String[] methods = StringUtils.split(str[0], ','); {
+						if(method.contains(method)) {
+							return StringUtils.removeStart(entry.getValue(), str[0] + ".");
+						}
+					}
+				}
+				return entry.getValue();
+			}
+			System.out.println(mapping);
+		}
+		return null;
 	}
 }
