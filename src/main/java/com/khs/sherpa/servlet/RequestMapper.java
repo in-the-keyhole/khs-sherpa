@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaRuntimeException;
@@ -28,6 +29,7 @@ import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.parser.ParamParser;
+import com.khs.sherpa.util.UrlUtil;
 
 public class RequestMapper {
 	
@@ -45,7 +47,8 @@ public class RequestMapper {
 			throw new SherpaRuntimeException("parameters required");	
 		}
 		
-		String value = request.getParameter(name);
+		//String value = request.getParameter(name);
+		String value = UrlUtil.getParamValue((HttpServletRequest) request, name);
 		if(value == null) {
 			throw new RuntimeException("Endpoint = "+endpoint+" Action = "+action+" - Parameter name ("+name+") not found in request");		
 		}

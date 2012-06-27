@@ -118,10 +118,9 @@ public class ReflectionCache {
 		}
 		return clazz;
 	}
-	// \{\d?\w+\}
 	
-	// [^/]*
-	public static String getUrlMethod(String url, String method) {
+
+	public static String getUrl(String url, String method) {
 		Pattern pattern = null;
 		Matcher matcher = null;
 		for(Entry<String, String> entry : ReflectionCache.urlCache.entrySet()) {
@@ -131,19 +130,28 @@ public class ReflectionCache {
 			String matcherText = matcher.replaceAll("[^/]*");
 			
 			if(Pattern.matches(matcherText, url)) {
-				String[] str = StringUtils.split(entry.getValue(), '.');
-				if(str.length == 2) {
-					return entry.getValue();
-				} else {
-					String[] methods = StringUtils.split(str[0], ','); {
-						if(method.contains(method)) {
-							return StringUtils.removeStart(entry.getValue(), str[0] + ".");
-						}
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+	
+	public static String getUrlMethod(String url, String method) {
+		String stringUrl = ReflectionCache.getUrl(url, method);
+		if(url != null) {
+			String value = urlCache.get(stringUrl);
+			String[] str = StringUtils.split(value, '.');
+			if(str.length == 2) {
+				return value;
+			} else {
+				String[] methods = StringUtils.split(str[0], ','); 
+				for(String m: methods) {
+					if(m.equals(method)) {
+						return StringUtils.removeStart(value, str[0] + ".");
 					}
 				}
-				return entry.getValue();
 			}
-			System.out.println(mapping);
+			
 		}
 		return null;
 	}
