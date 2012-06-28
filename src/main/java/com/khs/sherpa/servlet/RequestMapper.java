@@ -22,6 +22,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.json.service.ActivityService;
@@ -67,8 +69,12 @@ public class RequestMapper {
 			return request;
 		} else if(type.isAssignableFrom(ServletResponse.class)) {
 			return response;
+		} else {
+			String body = UrlUtil.getRequestBody((HttpServletRequest) request);
+			if(StringUtils.isNotEmpty(body)) {
+				return this.parseObject(type, body, null);
+			}
 		}
-		
 		return null;
 	}
 	

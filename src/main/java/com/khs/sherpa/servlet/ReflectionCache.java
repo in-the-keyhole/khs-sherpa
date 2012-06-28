@@ -24,10 +24,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.khs.sherpa.annotation.Action;
 import com.khs.sherpa.annotation.Endpoint;
+import com.khs.sherpa.annotation.MethodRequest;
 import com.khs.sherpa.util.MethodUtil;
 
 public class ReflectionCache {
@@ -82,23 +81,24 @@ public class ReflectionCache {
 			typeCache.put(name, endpoint);
 			
 			for(Method m: MethodUtil.getAllMethods(endpoint.getClass())) {
+				String methodName = name + "." + m.getName();
 				Action action = MethodUtil.getActionAnnotation(m);
 				if(action != null) {
 					if(action.mapping().length > 0) {
-						String methods = "";
-						if(action.method().length > 0) {
-							methods = StringUtils.join(action.method(), ",");
-						}
 						for(String url: action.mapping()) {
-							String val = "";
-							if(StringUtils.isNotEmpty(methods)) {
-								val = methods + ".";
+							if(action.method().length > 0) {
+								for(MethodRequest mr: action.method()) {
+									String mu = mr.toString() + "." + url;
+									urlCache.put(mu, methodName);
+									LOG.info("Adding URL ["+mu+"] to ["+methodName+"]");
+									System.out.println("Adding URL ["+mu+"] to ["+methodName+"]");
+								}
+							} else {
+								urlCache.put(url, methodName);
+								LOG.info("Adding URL ["+url+"] to ["+methodName+"]");
+								System.out.println("Adding URL ["+url+"] to ["+methodName+"]");
 							}
-							val += name + "." + m.getName();
-							urlCache.put(url, val);
-							LOG.info("Adding URL ["+url+"] to ["+val+"]");
-							System.out.println("Adding URL ["+url+"] to ["+val+"]");
-						}
+						} 
 					}
 				}
 			}
@@ -131,6 +131,8 @@ public class ReflectionCache {
 			
 			if(Pattern.matches(matcherText, url)) {
 				return entry.getKey();
+			} else if(Pattern.matches(matcherText, method + "." + url)) {
+				return entry.getKey();
 			}
 		}
 		return null;
@@ -138,20 +140,11 @@ public class ReflectionCache {
 	
 	public static String getUrlMethod(String url, String method) {
 		String stringUrl = ReflectionCache.getUrl(url, method);
+		if(stringUrl == null) {
+			stringUrl = ReflectionCache.getUrl(method + "." + url, method);
+		}
 		if(url != null) {
-			String value = urlCache.get(stringUrl);
-			String[] str = StringUtils.split(value, '.');
-			if(str.length == 2) {
-				return value;
-			} else {
-				String[] methods = StringUtils.split(str[0], ','); 
-				for(String m: methods) {
-					if(m.equals(method)) {
-						return StringUtils.removeStart(value, str[0] + ".");
-					}
-				}
-			}
-			
+			return urlCache.get(stringUrl);
 		}
 		return null;
 	}
