@@ -8,7 +8,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.runner.RunWith;
 
 @RunWith(JMock.class)
-public class SherpaTest {
+public abstract class SherpaTest {
 
 	private Mockery context = new JUnit4Mockery() {
 		{

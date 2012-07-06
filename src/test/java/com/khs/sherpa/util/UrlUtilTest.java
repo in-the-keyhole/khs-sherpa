@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 
 import com.khs.sherpa.SherpaTest;
 
-@RunWith(JMock.class)
 public class UrlUtilTest extends SherpaTest {
 	
 	@Test
