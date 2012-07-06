@@ -13,19 +13,9 @@ public class MethodUtil {
 		List<Method> methods = new ArrayList<Method>();
 		
 		for(Method method: clazz.getDeclaredMethods()) {
-			method.getGenericParameterTypes();
-			method.getGenericReturnType();
-
-			method.isBridge();
-			// skip all method assignable from Object class
-			if(method.getDeclaringClass().isAssignableFrom(Object.class)) {
-				continue;
-			} else if(method.isAnnotationPresent(Action.class) && MethodUtil.getActionAnnotation(method).disabled()) {
-				continue;
-			} else if(method.isBridge()) {
-				continue;
+			if(isMethodValid(method)) {
+				methods.add(method);
 			}
-			methods.add(method);
 		}
 		return methods;
 	}
@@ -59,5 +49,17 @@ public class MethodUtil {
 			return method.getAnnotation(Action.class);
 		}	
 		return null;
+	}
+	
+	private static boolean isMethodValid(Method method) {
+		// skip all method assignable from Object class
+		if(method.getDeclaringClass().isAssignableFrom(Object.class)) {
+			return false;
+		} else if(method.isAnnotationPresent(Action.class) && MethodUtil.getActionAnnotation(method).disabled()) {
+			return false;
+		} else if(method.isBridge()) {
+			return false;
+		}
+		return true;
 	}
 }
