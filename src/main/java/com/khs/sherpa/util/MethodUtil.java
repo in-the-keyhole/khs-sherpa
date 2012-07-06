@@ -9,13 +9,23 @@ import com.khs.sherpa.annotation.Action;
 public class MethodUtil {
 
 	public static List<Method> getAllMethods(Class<?> clazz) {
+
 		List<Method> methods = new ArrayList<Method>();
+		boolean hasGenericInterface = clazz.getGenericInterfaces().length > 0;
 		
-		for(Method method: clazz.getMethods()) {
+		System.out.println(hasGenericInterface);
+		
+		for(Method method: clazz.getDeclaredMethods()) {
+			method.getGenericParameterTypes();
+			method.getGenericReturnType();
+
+			method.isBridge();
 			// skip all method assignable from Object class
 			if(method.getDeclaringClass().isAssignableFrom(Object.class)) {
 				continue;
 			} else if(method.isAnnotationPresent(Action.class) && MethodUtil.getActionAnnotation(method).disabled()) {
+				continue;
+			} else if(method.isBridge()) {
 				continue;
 			}
 			methods.add(method);

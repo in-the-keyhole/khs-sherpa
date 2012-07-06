@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MethodUtilTest {
+public class MethodUtilInterfaceTest {
 	
 	interface InterfaceGenericClass<T> {
 		T create(T entity);
@@ -27,7 +27,6 @@ public class MethodUtilTest {
 		public void delete(Serializable id) { }
 		public Collection<GenericClass> fetch() { return null; }
 		public GenericClass fetchOne(Serializable id) { return null; }
-		
 	}
 	
 	interface InterfaceClass {
@@ -45,7 +44,6 @@ public class MethodUtilTest {
 		public void delete(Serializable id) { }
 		public Collection<Object> fetch() { return null; }
 		public Object fetchOne(Serializable id) { return null; }
-		
 	}
 	
 	class ConcreteClass {
@@ -55,7 +53,6 @@ public class MethodUtilTest {
 		public void delete(Serializable id) { }
 		public Collection<GenericClass> fetch() { return null; }
 		public GenericClass fetchOne(Serializable id) { return null; }
-		
 	}
 	
 	@Test
@@ -75,4 +72,5 @@ public class MethodUtilTest {
 		List<Method> methods = MethodUtil.getAllMethods(ConcreteGenericInterfaceClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
+	
 }
