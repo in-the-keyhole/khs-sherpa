@@ -11,9 +11,6 @@ public class MethodUtil {
 	public static List<Method> getAllMethods(Class<?> clazz) {
 
 		List<Method> methods = new ArrayList<Method>();
-		boolean hasGenericInterface = clazz.getGenericInterfaces().length > 0;
-		
-		System.out.println(hasGenericInterface);
 		
 		for(Method method: clazz.getDeclaredMethods()) {
 			method.getGenericParameterTypes();
