@@ -122,14 +122,7 @@ public class SherpaServlet extends HttpServlet {
 		SettingsContext context = new SettingsContext();
 		context.setSettings(settings);
 		
-		JsonProvider jsonProvider = null;
-		try {
-			jsonProvider = settings.jsonProvider.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		JsonProvider jsonProvider = loader.jsonProvider();
 		
 		// initialize parsers
 		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();

@@ -28,5 +28,7 @@ public @interface Action {
 	// name of the action. defaults to the method name
 	String value() default "";
 	boolean disabled() default false;
-
+	ContentType contentType() default ContentType.JSON;
+	String[] mapping() default {};
+	MethodRequest[] method() default {};
 }

@@ -20,6 +20,9 @@ import java.lang.annotation.Annotation;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaRuntimeException;
@@ -28,6 +31,7 @@ import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.parser.ParamParser;
+import com.khs.sherpa.util.UrlUtil;
 
 public class RequestMapper {
 	
@@ -39,13 +43,14 @@ public class RequestMapper {
 	private ServletResponse response;
 	
 	private Object mapAnnotation(String endpoint,String action,Class<?> type, Param param) {
-		String name = param.name();
+		String name = param.value();
 		
 		if(name == null || name.length() == 0) {
 			throw new SherpaRuntimeException("parameters required");	
 		}
 		
-		String value = request.getParameter(name);
+		//String value = request.getParameter(name);
+		String value = UrlUtil.getParamValue((HttpServletRequest) request, name);
 		if(value == null) {
 			throw new RuntimeException("Endpoint = "+endpoint+" Action = "+action+" - Parameter name ("+name+") not found in request");		
 		}
@@ -64,8 +69,12 @@ public class RequestMapper {
 			return request;
 		} else if(type.isAssignableFrom(ServletResponse.class)) {
 			return response;
+		} else {
+			String body = UrlUtil.getRequestBody((HttpServletRequest) request);
+			if(StringUtils.isNotEmpty(body)) {
+				return this.parseObject(type, body, null);
+			}
 		}
-		
 		return null;
 	}
 	

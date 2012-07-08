@@ -30,6 +30,8 @@ import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.DefaultActivityService;
 import com.khs.sherpa.json.service.DefaultTokenService;
 import com.khs.sherpa.json.service.DefaultUserService;
+import com.khs.sherpa.json.service.GsonJsonProvider;
+import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.servlet.SherpaServlet;
@@ -135,6 +137,15 @@ public class SettingsLoader {
 		}
 		LOG.info(msg("session timeout set to "+Defaults.SESSION_TIMEOUT+" ms"));
 		return Defaults.SESSION_TIMEOUT;
+	}
+	
+	public JsonProvider jsonProvider() {
+		String userClazzName = properties.getProperty("json.provider");
+		if (userClazzName == null) {
+			return new GsonJsonProvider();
+		} else {
+			return (GsonJsonProvider) createInstance(userClazzName);
+		}
 	}
 	
 	public String endpoint() {
