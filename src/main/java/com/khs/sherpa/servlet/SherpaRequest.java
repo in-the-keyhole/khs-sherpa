@@ -30,6 +30,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.khs.sherpa.annotation.Action;
+import com.khs.sherpa.annotation.ContentType;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
@@ -42,6 +46,7 @@ import com.khs.sherpa.json.service.SessionToken;
 import com.khs.sherpa.util.Constants;
 import com.khs.sherpa.util.MethodUtil;
 import com.khs.sherpa.util.SettingsContext;
+import com.khs.sherpa.util.UrlUtil;
 
 class SherpaRequest {
 
@@ -107,19 +112,28 @@ class SherpaRequest {
 	}
 
 	public void loadRequest(HttpServletRequest request, HttpServletResponse response) {
-		this.setEndpoint(request.getParameter("endpoint"));
-		this.setAction(request.getParameter("action"));
+		
+		String urlMethod = ReflectionCache.getUrlMethod(UrlUtil.getPath(request), request.getMethod());
+		if(StringUtils.isNotEmpty(urlMethod)) {
+			String[] str = StringUtils.split(urlMethod, ".");
+			this.setEndpoint(str[0]);
+			this.setAction(str[1]);
+		} else {
+			this.setEndpoint(request.getParameter("endpoint"));
+			this.setAction(request.getParameter("action"));
+		}
+		
 		this.setServletRequest(request);
 		this.setServletResponse(response);
 	}
 	
 	private boolean isAuthRequest(HttpServletRequest request) {
-		String endpoint = request.getParameter("endpoint");
+		String endpoint = this.getEndpoint();
 		if(endpoint != null && endpoint.equals("null")) {
 			endpoint =  null;
 		}
 		
-		String action = request.getParameter("action");
+		String action = this.getAction();
 		
 		if(endpoint == null && action.equals(Constants.AUTHENTICATE_ACTION)) {
 			return true;
@@ -240,10 +254,14 @@ class SherpaRequest {
 		}
 		
 		Method method = this.findMethod(action);
-
+		ContentType type = ContentType.JSON;
+		if(method.isAnnotationPresent(Action.class)) {
+			type = method.getAnnotation(Action.class).contentType();
+		}
+		
+		servletResponse.setContentType(type.type);
 		try {
 			this.validateMethod(method);
-			
 			if (SettingsContext.getSettings().jsonpSupport && callback != null) {
 				servletResponse.setContentType("text/javascript");
 			    this.service.mapJsonp(this.getResponseOutputStream(), this.invokeMethod(method),callback);	
