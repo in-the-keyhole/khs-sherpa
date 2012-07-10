@@ -81,7 +81,7 @@ public class JSONService {
 	// session timeout in milliseconds, zero indicates no timeout
 	long sessionTimeout = SESSION_TIMEOUT;
 
-	public SessionToken authenticate(@Param(name = "userid") String userid, @Param(name = "password") String password) {
+	public SessionToken authenticate(@Param("userid") String userid, @Param("password") String password) {
 
 		SessionToken token = null;
 		
