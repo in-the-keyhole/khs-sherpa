@@ -119,7 +119,7 @@ The java endpoint below has two methods that can be called remotely.
 	}
 	
 	// add two numbers method
-	public Result add(@Param(name="x_value") double x, @Param(name="y_value") double y) {
+	public Result add(@Param("x_value") double x, @Param("y_value") double y) {
 		return new Result(x + y);
 	}
 		
@@ -258,7 +258,7 @@ Declared roles for a user are applied to the authenticated users token. An examp
 restricted to only users with a "admin" role is shown below. 
 
 	@RolesAllowed({"admin"})
-	public Department create(@Param(name="number") int number,@Param(name="name")String name) {	
+	public Department create(@Param("number") int number,@Param("name")String name) {	
 		Department dept = new Department();
 		dept.number = number;
 		dept.name = name;		
@@ -313,7 +313,7 @@ the sherpa.properties file. An example is shown below.
 Date/Time  format types on an @Endpoint method level can be changed by specifying the format attribute on on @Param annotation
 as shown below. 
 
-	public Result time(@Param(name="cal", format="hh:mm:ss a") Calendar cal) {
+	public Result time(@Param(value="cal", format="hh:mm:ss a") Calendar cal) {
 		return new Result(cal);
 	}
 
@@ -331,7 +331,7 @@ sherpa.properties file as shown below.
 Encoding can be applied at an end point action level by specifying the encoding format type in the
 @Param annotation an example is shown below. 
 
-	public Result encode(@Param(name="value",format=Encode.HTML) String value) {
+	public Result encode(@Param(value="value",format=Encode.HTML) String value) {
 		return new Result(value);	
 	}
 
