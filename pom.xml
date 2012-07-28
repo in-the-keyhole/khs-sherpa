@@ -32,11 +32,12 @@
 		<snapshotRepository>
 			<id>khs-snapshot</id>
 			<name>Keyhole Software Snapshot</name>
-			<url>http://maven.keyholekc.com/content/repositories/</url>
+			<url>http://maven.keyholekc.com/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
