@@ -27,6 +27,14 @@
 		<developerConnection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</developerConnection>
 		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>
 	</scm>
+	
+	<distributionManagement>
+		<snapshotRepository>
+			<id>khs-snapshot</id>
+			<name>Keyhole Software Snapshot</name>
+			<url>http://maven.keyholekc.com/content/repositories/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 
