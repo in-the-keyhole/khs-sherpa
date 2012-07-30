@@ -35,7 +35,7 @@ public class CalendarParamParser implements ParamParser<Calendar> {
 	public Calendar parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
 		if(format == null) {
-			format = SettingsContext.getSettings().dateFormat;
+//			format = SettingsContext.getSettings().dateFormat;
 		}
 		
 		try {

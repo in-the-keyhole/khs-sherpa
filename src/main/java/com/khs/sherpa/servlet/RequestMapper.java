@@ -18,16 +18,17 @@ package com.khs.sherpa.servlet;
 
 import java.lang.annotation.Annotation;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.khs.sherpa.SherpaContext;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.json.service.ActivityService;
-import com.khs.sherpa.json.service.JSONService;
 import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.parser.ParamParser;
@@ -35,10 +36,7 @@ import com.khs.sherpa.util.UrlUtil;
 
 public class RequestMapper {
 	
-	
-//	private Settings settings = null;
-	private JSONService service = null;
-	
+	private ServletContext context;
 	private ServletRequest request;
 	private ServletResponse response;
 	
@@ -60,11 +58,11 @@ public class RequestMapper {
 	
 	private Object mapNonAnnotation(String endpoint,String action,Class<?> type) {
 		if(type.isAssignableFrom(SessionTokenService.class)) {
-			return service.getTokenService();
+			return this.getSherpaContext().getSessionTokenService();
 		} else if(type.isAssignableFrom(UserService.class)) {
-			return service.getUserService();
+			return this.getSherpaContext().getUserService();
 		} else if(type.isAssignableFrom(ActivityService.class)) {
-			return service.getActivityService();
+			return this.getSherpaContext().getActivityService();
 		} else if(type.isAssignableFrom(ServletRequest.class)) {
 			return request;
 		} else if(type.isAssignableFrom(ServletResponse.class)) {
@@ -80,7 +78,7 @@ public class RequestMapper {
 	
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
 
-		for(ParamParser<?> parser: service.getParsers()) {
+		for(ParamParser<?> parser: this.getSherpaContext().getParser()) {
 			if(parser.isValid(clazz)) {
 				return parser.parse(value, annotation, clazz);
 			}
@@ -99,14 +97,6 @@ public class RequestMapper {
 		return mapNonAnnotation(endpoint, action, type);
 	}
 	
-	public JSONService getService() {
-		return service;
-	}
-
-	public void setService(JSONService service) {
-		this.service = service;
-	}
-
 	public ServletRequest getRequest() {
 		return request;
 	}
@@ -121,6 +111,18 @@ public class RequestMapper {
 
 	public void setResponse(ServletResponse response) {
 		this.response = response;
+	}
+	
+	public ServletContext getContext() {
+		return context;
+	}
+
+	public void setContext(ServletContext context) {
+		this.context = context;
+	}
+
+	private SherpaContext getSherpaContext() {
+		return SherpaContext.getSherpaContext(context);
 	}
 
 }

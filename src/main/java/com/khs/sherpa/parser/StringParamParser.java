@@ -29,7 +29,7 @@ public class StringParamParser implements ParamParser<String> {
 		String format = annotation.format();
 		
 		if(format == null || format.equals("")) {
-			format = SettingsContext.getSettings().encode;
+//			format = SettingsContext.getSettings().encode;
 		}
 		
 		return this.applyEncoding(value, format);

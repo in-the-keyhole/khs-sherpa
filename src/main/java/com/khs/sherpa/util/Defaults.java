@@ -2,6 +2,14 @@ package com.khs.sherpa.util;
 
 import com.khs.sherpa.json.service.GsonJsonProvider;
 import com.khs.sherpa.json.service.JsonProvider;
+import com.khs.sherpa.parser.BooleanParamParser;
+import com.khs.sherpa.parser.CalendarParamParser;
+import com.khs.sherpa.parser.DateParamParser;
+import com.khs.sherpa.parser.DoubleParamPaser;
+import com.khs.sherpa.parser.FloatParamParser;
+import com.khs.sherpa.parser.IntegerParamParser;
+import com.khs.sherpa.parser.JsonParamParser;
+import com.khs.sherpa.parser.StringParamParser;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -34,4 +42,13 @@ public class Defaults {
 	public final static boolean JSONP_SUPPORT = false;
 	public final static Class<? extends JsonProvider> JSON_PROVIDER = GsonJsonProvider.class;
 
+	public final static Class<?> BOOLEAN_PARAM_PARSER = BooleanParamParser.class;
+	public final static Class<?> CALENDAR_PARAM_PARSER = CalendarParamParser.class;
+	public final static Class<?> DATE_PARAM_PARSER = DateParamParser.class;
+	public final static Class<?> DOULBE_PARAM_PARSER = DoubleParamPaser.class;
+	public final static Class<?> FLOAT_PARAM_PARSER = FloatParamParser.class;
+	public final static Class<?> INTEGER_PARAM_PARSER = IntegerParamParser.class;
+	public final static Class<?> JSON_PARAM_PARSER = JsonParamParser.class;
+	public final static Class<?> STRING_PARAM_PARSER = StringParamParser.class;
+	
 }

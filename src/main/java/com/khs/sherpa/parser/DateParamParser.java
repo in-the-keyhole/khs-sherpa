@@ -35,7 +35,7 @@ public class DateParamParser implements ParamParser<Date> {
 	public Date parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
 		if(format == null || format.equals("")) {
-			format = SettingsContext.getSettings().dateFormat;
+//			format = SettingsContext.getSettings().dateFormat;
 		}
 		
 		try {

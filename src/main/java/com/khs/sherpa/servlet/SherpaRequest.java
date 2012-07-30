@@ -27,11 +27,13 @@ import java.util.logging.Logger;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.khs.sherpa.SherpaContext;
 import com.khs.sherpa.annotation.Action;
 import com.khs.sherpa.annotation.ContentType;
 import com.khs.sherpa.annotation.Endpoint;
@@ -39,13 +41,14 @@ import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
 import com.khs.sherpa.exception.SherpaPermissionExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.json.service.Authentication;
 import com.khs.sherpa.json.service.AuthenticationException;
-import com.khs.sherpa.json.service.JSONService;
+import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
 import com.khs.sherpa.util.Constants;
+import com.khs.sherpa.util.JsonUtil;
 import com.khs.sherpa.util.MethodUtil;
-import com.khs.sherpa.util.SettingsContext;
 import com.khs.sherpa.util.UrlUtil;
 
 class SherpaRequest {
@@ -58,11 +61,11 @@ class SherpaRequest {
 	private Object target;
 	private Object responseData;
 	
+	private ServletContext servletContext;
 	private HttpServletRequest servletRequest;
 	private HttpServletResponse servletResponse;
 	
 	private SessionStatus sessionStatus = null;
-	private JSONService service;
 	
 	private String userid;
 	private String token;
@@ -97,10 +100,6 @@ class SherpaRequest {
 
 	public void setSessionStatus(SessionStatus sessionStatus) {
 		this.sessionStatus = sessionStatus;
-	}
-
-	public void setService(JSONService service) {
-		this.service = service;
 	}
 
 	public HttpServletResponse getServletResponse() {
@@ -150,7 +149,7 @@ class SherpaRequest {
 				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"] has `@DenyAll` annotation" );
 			} else if(method.isAnnotationPresent(RolesAllowed.class)) {
 				for(String role: method.getAnnotation(RolesAllowed.class).value()) {
-					if(service.getTokenService().hasRole(userid, token, role)) {
+					if(getSherpaContext().getSessionTokenService().hasRole(userid, token, role)) {
 						return ;
 					}
 				}
@@ -170,7 +169,7 @@ class SherpaRequest {
 	
 	private Object[] getParams(Method method) {
 		RequestMapper map = new RequestMapper();
-		map.setService(service);
+		map.setContext(servletContext);
 		map.setRequest(servletRequest);
 		map.setResponse(servletResponse);
 		
@@ -214,39 +213,48 @@ class SherpaRequest {
 	    return arr;
 	}
 	
-	public void run() {
-		
-		// see if there's a json call back function specified
-		String callback = this.servletRequest.getParameter("callback");
-		if(isAuthRequest(servletRequest)) {
-			String userid = servletRequest.getParameter("userid");
-			String password = servletRequest.getParameter("password");
-			try {
-				SessionToken token = this.service.authenticate(userid, password);
-				this.service.getTokenService().activate(userid, token);
-				
-				// load the sherpa admin user
-				if(this.service.getTokenService().hasRole(userid, token.getToken(), SettingsContext.getSettings().sherpaAdmin)) {
-					String[] roles = token.getRoles();
-					token.setRoles(append(roles, "SHERPA_ADMIN"));
-				}
-				
-				log(msg("authenticated"), userid, "*****");
-				if (SettingsContext.getSettings().jsonpSupport && callback != null) {
-					servletResponse.setContentType("text/javascript");
-				    this.service.mapJsonp(this.getResponseOutputStream(),token,callback);	
-				} else {
-				  this.service.map(this.getResponseOutputStream(), token);
-				}    
-			} catch (AuthenticationException e) {
-				this.service.error("Authentication Error Invalid Credentials", this.getResponseOutputStream());
-				log(msg("invalid authentication"), userid, "*****");
+	protected boolean hasRole(SessionToken token, String role) {
+		return this.getSherpaContext().getSessionTokenService().hasRole(token.getUserid(), token.getToken(), role);
+	}
+	
+	private JsonProvider getJsonProvider() {
+		return this.getSherpaContext().getSherpaSettings().jsonProvider();
+	}
+	
+	public void authenticate() {
+		String userid = servletRequest.getParameter("userid");
+		String password = servletRequest.getParameter("password");
+		try {
+			Authentication authentication = new Authentication();
+			SessionToken token = authentication.authenticate(userid, password);
+			
+			// load the sherpa admin user
+			if(this.hasRole(token, this.getSherpaContext().getSherpaSettings().sherpaAdmin())) {
+				String[] roles = token.getRoles();
+				token.setRoles(append(roles, "SHERPA_ADMIN"));
 			}
+			log(msg("authenticated"), userid, "*****");
 			
-			return;
+			if (this.getSherpaContext().getSherpaSettings().jsonpSupport() && this.getCallback() != null) {
+				servletResponse.setContentType("text/javascript");
+			    JsonUtil.mapJsonp(this.getResponseOutputStream(), this.getJsonProvider(), token, this.getCallback());	
+			} else {
+			  JsonUtil.map(this.getResponseOutputStream(), this.getJsonProvider(), token);
+			}    
+		} catch (AuthenticationException e) {
+			JsonUtil.error("Authentication Error Invalid Credentials", this.getJsonProvider(), this.getResponseOutputStream());
+			log(msg("invalid authentication"), userid, "*****");
+		}
+	}
+	
+	public void run() {
+		// see if there's a json call back function specified
+		
+		if(isAuthRequest(servletRequest)) {
+			this.authenticate();
 		} else {
-			sessionStatus = this.service.validToken(getToken(), getUserId());
 			
+			sessionStatus = this.getSherpaContext().getSessionTokenService().isActive(getToken(), getUserId());
 		}
 		
 		if(target == null) {
@@ -262,14 +270,14 @@ class SherpaRequest {
 		servletResponse.setContentType(type.type);
 		try {
 			this.validateMethod(method);
-			if (SettingsContext.getSettings().jsonpSupport && callback != null) {
+			if (this.getSherpaContext().getSherpaSettings().jsonpSupport() && this.getCallback() != null) {
 				servletResponse.setContentType("text/javascript");
-			    this.service.mapJsonp(this.getResponseOutputStream(), this.invokeMethod(method),callback);	
+				JsonUtil.mapJsonp(this.getResponseOutputStream(), this.getJsonProvider(), this.invokeMethod(method), this.getCallback());	
 			} else {
-				this.service.map(this.getResponseOutputStream(), this.invokeMethod(method));
+				JsonUtil.map(this.getResponseOutputStream(), this.getJsonProvider(), this.invokeMethod(method));
 			}
 		} catch (SherpaRuntimeException e) {
-			//this.service.error(e,this.getResponseOutputStream());
+			JsonUtil.error(e, this.getJsonProvider(), this.getResponseOutputStream());
 			throw e;
 		}
 		
@@ -304,4 +312,21 @@ class SherpaRequest {
 			return null;
 		}
 	}
+	
+	public ServletContext getServletContext() {
+		return servletContext;
+	}
+
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
+	}
+
+	private SherpaContext getSherpaContext() {
+		return SherpaContext.getSherpaContext(servletContext);
+	}
+	
+	private String getCallback() {
+		return this.servletRequest.getParameter("callback");
+	}
+	
 }
