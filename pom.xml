@@ -14,7 +14,7 @@
   <name>khs-sherpa</name>
     <packaging>jar</packaging>
 	<description>JSON remote data end point service via HTTP</description>
-	<url>www.keyholesoftware.com</url>
+	<url>http://keyholesoftware.com</url>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -23,9 +23,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</connection>
-		<developerConnection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</developerConnection>
-		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>
+		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection>
+		<developerConnection>scm:git:git@github.com:in-the-keyhole/khs-sherpa.git</developerConnection>
+		<url>https://github.com/in-the-keyhole/khs-sherpa</url>
 	</scm>
 	
 	<distributionManagement>
@@ -91,4 +91,8 @@
 			<version>2.5.1</version>
 		</dependency>
 	</dependencies>
+	<organization>
+		<url>http://keyholesoftware.com</url>
+		<name>Keyhole Software</name>
+	</organization>
 </project>
