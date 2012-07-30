@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.annotation.Param;
-import com.khs.sherpa.util.SettingsContext;
 
 public class StringParamParser implements ParamParser<String> {
 	
@@ -29,7 +28,7 @@ public class StringParamParser implements ParamParser<String> {
 		String format = annotation.format();
 		
 		if(format == null || format.equals("")) {
-//			format = SettingsContext.getSettings().encode;
+//			format = default?;
 		}
 		
 		return this.applyEncoding(value, format);

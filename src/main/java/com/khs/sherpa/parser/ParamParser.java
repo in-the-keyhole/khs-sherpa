@@ -16,8 +16,6 @@ package com.khs.sherpa.parser;
 * limitations under the License.
 */
 
-
-
 import com.khs.sherpa.annotation.Param;
 
 public interface ParamParser<T> {
