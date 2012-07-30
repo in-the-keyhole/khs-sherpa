@@ -3,8 +3,6 @@ package com.khs.sherpa;
 import java.util.List;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 
 import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.SessionTokenService;
