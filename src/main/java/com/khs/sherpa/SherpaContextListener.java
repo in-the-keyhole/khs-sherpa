@@ -11,7 +11,6 @@ import javax.servlet.ServletContextListener;
 import org.reflections.Reflections;
 
 import com.khs.sherpa.annotation.Endpoint;
-import com.khs.sherpa.endpoint.SherpaEndpoint;
 import com.khs.sherpa.parser.BooleanParamParser;
 import com.khs.sherpa.parser.CalendarParamParser;
 import com.khs.sherpa.parser.DateParamParser;
@@ -58,15 +57,28 @@ public class SherpaContextListener implements ServletContextListener {
 //		EndpointScanner scanner = new EndpointScanner();
 //		scanner.classPathScan(sherpaContext.getSherpaSettings().endpoint());
 		
-		Reflections reflections = new Reflections(sherpaContext.getSherpaSettings().endpoint());
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(Endpoint.class);
+//		Reflections reflections = new Reflections(sherpaContext.getSherpaSettings().endpoint());
+//		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(Endpoint.class);
 		
-		for(Class<?> c: annotated) {
+		for(Class<?> c: this.getEndpoints("com.khs.sherpa")) {
+			ReflectionCache.addObject(c.getSimpleName(), c);
+		}
+		
+		for(Class<?> c: this.getEndpoints(sherpaContext.getSherpaSettings().endpoint())) {
 			ReflectionCache.addObject(c.getSimpleName(), c);
 		}
 		
 		// hard code sherpa endpoint
-		ReflectionCache.addObject(SherpaEndpoint.class.getName(), SherpaEndpoint.class);
+//		ReflectionCache.addObject(SherpaEndpoint.class.getName(), SherpaEndpoint.class);
+		
+//		// TODO: register to server manager
+//		if(sherpaContext.getSherpaSettings().serverEnabled()) {
+//			String strUrl = sherpaContext.getSherpaSettings().serverUrl();
+//			servletContextEvent.getServletContext().log("Registering Sherpa instance with ["+strUrl+"]... Finsished");
+////			System.out.println(sherpaContext.getSherpaSettings().serverUrl());
+////			System.out.println(sherpaContext.getSherpaSettings().serverToken());
+//		}
+		
 		
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Finsished");
 	}
@@ -78,4 +90,9 @@ public class SherpaContextListener implements ServletContextListener {
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Finished");
 	}
 
+	private Set<Class<?>> getEndpoints(String path) {
+		Reflections reflections = new Reflections(path);
+		return reflections.getTypesAnnotatedWith(Endpoint.class);
+	}
+	
 }

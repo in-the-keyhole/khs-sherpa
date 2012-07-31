@@ -26,6 +26,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.DefaultActivityService;
@@ -67,6 +69,7 @@ public class SherpaSettings {
 			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"property file sherpa.properties must be defined in classpath");
 		}
 	}
+	
 	
 	public SherpaSettings(Properties properties) {
 		this.properties = properties;
@@ -196,6 +199,30 @@ public class SherpaSettings {
 		}
 	}
 	
+	public boolean serverEnabled() {
+		String value = properties.getProperty("server.enabled");
+		if(value.equalsIgnoreCase("true")) {
+			return true;
+		}
+		return false;
+	}
+	
+	public String serverUrl() {
+		String value = properties.getProperty("server.url");
+		if(!StringUtils.isEmpty(value)) {
+			return value;
+		}
+		return null;
+	}
+	
+	public String serverToken() {
+		String value = properties.getProperty("server.token");
+		if(!StringUtils.isEmpty(value)) {
+			return value;
+		}
+		return null;
+	}
+	
 	protected Object createInstance(String name) {
 		try {
 			Class<?> clazz = Class.forName(name);
@@ -210,4 +237,5 @@ public class SherpaSettings {
 		}
 
 	}
+
 }

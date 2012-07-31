@@ -64,6 +64,7 @@ public class ReflectionCache {
 	
 	public static void addObject(String name, Class<?> endpoint) {
 		try {
+			
 			ReflectionCache.addObject(name, endpoint.newInstance());
 		} catch (InstantiationException e) {
 			e.printStackTrace();
@@ -76,6 +77,10 @@ public class ReflectionCache {
 		if(endpoint.getClass().isAnnotationPresent(Endpoint.class)) {
 			if(endpoint.getClass().getAnnotation(Endpoint.class).value().length() > 0) {
 				name = endpoint.getClass().getAnnotation(Endpoint.class).value();
+			}
+			if(typeCache.get(name) != null) {
+				LOG.info("Skipping Existing class ["+ endpoint.getClass().getCanonicalName()+"] with name ["+name+"]");
+				return;
 			}
 			LOG.info("Adding class ["+ endpoint.getClass().getCanonicalName()+"] with name ["+name+"]");
 			typeCache.put(name, endpoint);
@@ -91,12 +96,10 @@ public class ReflectionCache {
 									String mu = mr.toString() + "." + url;
 									urlCache.put(mu, methodName);
 									LOG.info("Adding URL ["+mu+"] to ["+methodName+"]");
-									System.out.println("Adding URL ["+mu+"] to ["+methodName+"]");
 								}
 							} else {
 								urlCache.put(url, methodName);
 								LOG.info("Adding URL ["+url+"] to ["+methodName+"]");
-								System.out.println("Adding URL ["+url+"] to ["+methodName+"]");
 							}
 						} 
 					}
