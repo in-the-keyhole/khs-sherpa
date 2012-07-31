@@ -27,6 +27,7 @@ public class SherpaContextListener implements ServletContextListener {
 	public static final String SHERPA_CONFIG_LOCATION = "classpath:/sherpa.properties";
 	
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
+		System.out.println(System.getProperty("java.class.path"));
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Start");
 		
 		String configLocation = servletContextEvent.getServletContext().getInitParameter("sherpaConfigLocation");
@@ -36,7 +37,6 @@ public class SherpaContextListener implements ServletContextListener {
 		
 		SherpaContext sherpaContext = new SherpaContext(servletContextEvent.getServletContext());
 		sherpaContext.setSherpaSettings(new SherpaSettings(configLocation));
-		
 		
 		// initialize parsers
 		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
@@ -52,34 +52,21 @@ public class SherpaContextListener implements ServletContextListener {
 		jsonParamParser.setJsonProvider(sherpaContext.getSherpaSettings().jsonProvider());
 		parsers.add(jsonParamParser);
 
-		
-		// initialize endpoints
-//		EndpointScanner scanner = new EndpointScanner();
-//		scanner.classPathScan(sherpaContext.getSherpaSettings().endpoint());
-		
-//		Reflections reflections = new Reflections(sherpaContext.getSherpaSettings().endpoint());
-//		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(Endpoint.class);
-		
+		// Load Sherpa Base Endpoints
 		for(Class<?> c: this.getEndpoints("com.khs.sherpa")) {
 			ReflectionCache.addObject(c.getSimpleName(), c);
 		}
-		
-		for(Class<?> c: this.getEndpoints(sherpaContext.getSherpaSettings().endpoint())) {
+
+		// Load Sherpa Server Endpoint
+		for(Class<?> c: this.getEndpoints("com.sherpa.server.endpoint")) {
 			ReflectionCache.addObject(c.getSimpleName(), c);
 		}
 		
-		// hard code sherpa endpoint
-//		ReflectionCache.addObject(SherpaEndpoint.class.getName(), SherpaEndpoint.class);
-		
-//		// TODO: register to server manager
-//		if(sherpaContext.getSherpaSettings().serverEnabled()) {
-//			String strUrl = sherpaContext.getSherpaSettings().serverUrl();
-//			servletContextEvent.getServletContext().log("Registering Sherpa instance with ["+strUrl+"]... Finsished");
-////			System.out.println(sherpaContext.getSherpaSettings().serverUrl());
-////			System.out.println(sherpaContext.getSherpaSettings().serverToken());
-//		}
-		
-		
+		// Load Project Endpoints
+		for(Class<?> c: this.getEndpoints(sherpaContext.getSherpaSettings().endpoint())) {
+			ReflectionCache.addObject(c.getSimpleName(), c);
+		}
+
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Finsished");
 	}
 
