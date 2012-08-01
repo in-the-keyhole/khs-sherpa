@@ -15,7 +15,9 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -30,6 +32,8 @@ public class SherpaContext {
 	
 	private SherpaSettings sherpaSettings;
 	
+	private Set<String> endpiontPaths = new HashSet<String>();
+	
 	// Sherpa Services
 	private ActivityService activityService;
 	private UserService userService;
@@ -39,6 +43,14 @@ public class SherpaContext {
 	
 	public final List<ParamParser<?>> getParser() {
 		return parser;
+	}
+
+	public final Set<String> getEndpiontPaths() {
+		return endpiontPaths;
+	}
+
+	public void addEnpointPath(String path) {
+		this.endpiontPaths.add(path);
 	}
 
 	public void setParser(List<ParamParser<?>> parser) {
