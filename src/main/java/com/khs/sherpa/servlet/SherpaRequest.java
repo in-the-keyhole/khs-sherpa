@@ -160,7 +160,10 @@ class SherpaRequest {
 	
 	private Object invokeMethod(Method method) {
 		try {
-			return method.invoke(target, this.getParams(method));
+			SherpaStats.startMethod(servletRequest);
+			Object obj = method.invoke(target, this.getParams(method));
+			SherpaStats.endMethod(servletRequest);
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SherpaActionNotFoundException("unable to execute method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"]");

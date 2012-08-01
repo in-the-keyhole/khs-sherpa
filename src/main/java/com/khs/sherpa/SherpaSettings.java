@@ -15,7 +15,6 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
 import static com.khs.sherpa.util.Util.msg;
 

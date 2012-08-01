@@ -15,7 +15,6 @@ package com.khs.sherpa.servlet;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
@@ -28,24 +27,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.khs.sherpa.exception.SherpaRuntimeException;
-import com.khs.sherpa.json.service.SessionStatus;
 
 public class SherpaServlet extends HttpServlet {
 
-    private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 	private static final long serialVersionUID = 4345668988238038540L;	
+	
+    private static final Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		SessionStatus sessionStatus = null;
+		SherpaStats.startRequest(request);
 		
 		SherpaRequest sherpa = new SherpaRequest();
 		sherpa.setServletContext(getServletContext());
-		sherpa.setSessionStatus(sessionStatus);
 		sherpa.loadRequest(request, response);
 	
 		sherpa.setTarget(ReflectionCache.getObject(sherpa.getEndpoint()));
 		sherpa.run();
+		
+		SherpaStats.endRequest(request);
 	}
 	
 	@Override
@@ -78,61 +77,5 @@ public class SherpaServlet extends HttpServlet {
 			throw new ServletException(e);
 		}
 	}
-
-//	@Override
-//	public void init() throws ServletException {
-//
-//		System.out.println(SherpaContext.getSherpaContext(this.getServletContext()));
-//		
-//		String configFile = "sherpa.properties";
-//		if(getInitParameter("sherpaConfigPath") != null) {
-//			configFile = getInitParameter("sherpaConfigPath");
-//		}
-//		
-//		SherpaSettings loader = new SherpaSettings(configFile);
-//		
-//		// loading service
-////		service.setUserService(loader.userService());
-////		service.setTokenService(loader.tokenService());
-////		service.setActivityService(loader.activityService());
-//		
-//		// loading settings
-//		Settings settings = new Settings();
-//		settings.endpointPackage = loader.endpoint();
-//		settings.sessionTimeout = loader.timeout();
-//		settings.dateFormat = loader.dateFormat();
-//		settings.dateTimeFormat = loader.dateTimeFormat();
-//		settings.activityLogging = loader.logging();
-//		settings.encode = loader.encoding();
-//		settings.sherpaAdmin = loader.sherpaAdmin();
-//		settings.jsonpSupport = loader.jsonpSupport();
-//		SettingsContext context = new SettingsContext();
-//		context.setSettings(settings);
-//		
-//		JsonProvider jsonProvider = loader.jsonProvider();
-//		
-//		// initialize parsers
-//		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
-//		parsers.add(new StringParamParser());
-//		parsers.add(new IntegerParamParser());
-//		parsers.add(new DoubleParamPaser());
-//		parsers.add(new FloatParamParser());
-//		parsers.add(new BooleanParamParser());
-//		parsers.add(new DateParamParser());
-//		parsers.add(new CalendarParamParser());
-//		
-//		JsonParamParser jsonParamParser = new JsonParamParser();
-//		jsonParamParser.setJsonProvider(jsonProvider);
-//		parsers.add(jsonParamParser);
-//
-//		service.setJsonProvider(jsonProvider);
-//		service.setParsers(parsers);
-//		
-////		// initialize endpoints
-//		EndpointScanner scanner = new EndpointScanner();
-//		scanner.classPathScan(settings.endpointPackage);
-//		
-//		// hard code sherpa endpoint
-//		ReflectionCache.addObject(SherpaEndpoint.class.getName(), SherpaEndpoint.class);
-//	}
+	
 }
