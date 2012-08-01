@@ -29,8 +29,6 @@ import javax.servlet.ServletContextListener;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Initialize;
 import com.khs.sherpa.annotation.Initializer;
@@ -132,7 +130,12 @@ public class SherpaContextListener implements ServletContextListener {
 				Object initializer = clazz.newInstance();
 				for(Method m: methods) {
 					try {
-						m.invoke(initializer, null);
+						if(m.getParameterTypes().length == 0) {
+							m.invoke(initializer, null);
+						} else {
+							m.invoke(initializer, context);
+						}
+						
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

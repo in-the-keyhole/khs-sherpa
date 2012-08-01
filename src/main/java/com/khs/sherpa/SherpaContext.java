@@ -15,8 +15,10 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -40,6 +42,16 @@ public class SherpaContext {
 	private SessionTokenService sessionTokenService;
 	
 	private List<ParamParser<?>> parser;
+	
+	private Map<String, Object> attribute = new HashMap<String, Object>();
+	
+	public void setAttribue(String key, Object value) {
+		attribute.put(key, value);
+	}
+	
+	public Object getAttribue(String key) {
+		return attribute.get(key);
+	}
 	
 	public final List<ParamParser<?>> getParser() {
 		return parser;
