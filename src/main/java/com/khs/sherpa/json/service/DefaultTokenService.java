@@ -1,7 +1,9 @@
 package com.khs.sherpa.json.service;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +25,12 @@ import java.util.Map;
 
 public class DefaultTokenService implements SessionTokenService {
 
-	public Map<String, SessionToken> tokens = new HashMap<String, SessionToken>();
+	public Map<String, SessionToken> tokens = new LinkedHashMap<String, SessionToken>();
 
+	private SecureRandom random = new SecureRandom();
+	
 	public String newToken(String userid) {
-		return "" + System.currentTimeMillis();
+		return new BigInteger(130, random).toString(32);
 	}
 
 	public SessionStatus isActive(String userid, String tokenId) {
