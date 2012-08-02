@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
 
+import com.khs.sherpa.annotation.Action;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaEndpointNotFoundException;

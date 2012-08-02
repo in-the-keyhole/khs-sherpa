@@ -38,6 +38,7 @@ import com.khs.sherpa.json.service.SessionTokenService;
 import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.servlet.SherpaServlet;
 import com.khs.sherpa.util.Defaults;
+import com.khs.sherpa.util.Util;
 
 public class SherpaSettings {
 
@@ -47,7 +48,10 @@ public class SherpaSettings {
 	
 	public SherpaSettings(String configFile) {
 		
+		
+		
 		try {
+			
 			InputStream in = null;
 			if(configFile.startsWith("classpath:")) {
 				in = SherpaServlet.class.getClassLoader().getResourceAsStream(configFile.substring("classpath:".length()));
@@ -206,17 +210,21 @@ public class SherpaSettings {
 		return false;
 	}
 	
-	public String serverUrl() {
-		String value = properties.getProperty("server.url");
-		if(!StringUtils.isEmpty(value)) {
+	public String serverToken() {
+		String value = properties.getProperty("server.token");
+		if(StringUtils.isNotEmpty(value)) {
 			return value;
 		}
 		return null;
 	}
 	
-	public String serverToken() {
-		String value = properties.getProperty("server.token");
+	public String serverUrl() {
+		String value = properties.getProperty("server.url");
 		if(!StringUtils.isEmpty(value)) {
+			// always remove the ending /
+			if(StringUtils.endsWith(value, "/")) {
+				value = StringUtils.removeEnd(value, "/");
+			}
 			return value;
 		}
 		return null;

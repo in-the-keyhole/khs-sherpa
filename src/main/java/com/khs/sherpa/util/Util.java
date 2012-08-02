@@ -16,7 +16,12 @@ package com.khs.sherpa.util;
  * limitations under the License.
  */
 
-import static com.khs.sherpa.util.Constants.*;
+import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
+import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
 
 public class Util {
 
@@ -28,6 +33,19 @@ public class Util {
 		return SHERPA_NOT_INITIALIZED+msg;	
 	}
 	
+	public static URL getResource(String resource) {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		return cl.getResource(resource);
+	}
 	
+	public static Properties getProperties(String resource) throws IOException {
+		return getProperties(Util.getResource(resource));
+	}
+	
+	public static Properties getProperties(URL url) throws IOException {
+		Properties properties = new Properties();
+		properties.load(url.openStream());
+		return properties;
+	}
 	
 }

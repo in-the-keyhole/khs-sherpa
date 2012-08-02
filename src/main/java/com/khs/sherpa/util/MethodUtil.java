@@ -17,23 +17,26 @@ package com.khs.sherpa.util;
  */
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
 
+import org.reflections.ReflectionUtils;
+import org.reflections.Reflections;
+
+import com.google.common.base.Predicates;
 import com.khs.sherpa.annotation.Action;
 
 public class MethodUtil {
 
-	public static List<Method> getAllMethods(Class<?> clazz) {
-
-		List<Method> methods = new ArrayList<Method>();
-		
-		for(Method method: clazz.getDeclaredMethods()) {
-			if(isMethodValid(method)) {
-				methods.add(method);
-			}
-		}
-		return methods;
+	@SuppressWarnings("unchecked")
+	public static Collection<Method> getAllMethods(Class<?> clazz) {
+		return Reflections.getAllMethods(clazz,
+				Predicates.and(
+						Predicates.not(SherpaPredicates.withAssignableFrom(Object.class)),
+						ReflectionUtils.withModifier(Modifier.PUBLIC),
+						Predicates.not(ReflectionUtils.withModifier(Modifier.ABSTRACT)),
+						Predicates.not(SherpaPredicates.withGeneric()))
+				);
 	}
 	
 	public static String getMethodName(Method method) {
@@ -47,7 +50,7 @@ public class MethodUtil {
 		return method.getName();
 	}
 	
-	public static Method getMethodByName(List<Method> methods, String theMethodName) {
+	public static Method getMethodByName(Collection<Method> methods, String theMethodName) {
 		for(Method method: methods) {
 			if(theMethodName.equals(MethodUtil.getMethodName(method))) {
 				return method;
@@ -65,17 +68,5 @@ public class MethodUtil {
 			return method.getAnnotation(Action.class);
 		}	
 		return null;
-	}
-	
-	private static boolean isMethodValid(Method method) {
-		// skip all method assignable from Object class
-		if(method.getDeclaringClass().isAssignableFrom(Object.class)) {
-			return false;
-		} else if(method.isAnnotationPresent(Action.class) && MethodUtil.getActionAnnotation(method).disabled()) {
-			return false;
-		} else if(method.isBridge()) {
-			return false;
-		}
-		return true;
 	}
 }

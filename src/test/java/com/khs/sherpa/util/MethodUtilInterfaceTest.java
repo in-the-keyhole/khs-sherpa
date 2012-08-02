@@ -3,7 +3,6 @@ package com.khs.sherpa.util;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,19 +56,19 @@ public class MethodUtilInterfaceTest {
 	
 	@Test
 	public void testGetAllMethodsNoInterface() {
-		List<Method> methods = MethodUtil.getAllMethods(ConcreteClass.class);
+		Collection<Method> methods = MethodUtil.getAllMethods(ConcreteClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
 	
 	@Test
 	public void testGetAllMethodsWithInterface() {
-		List<Method> methods = MethodUtil.getAllMethods(ConcreteInterfaceClass.class);
+		Collection<Method> methods = MethodUtil.getAllMethods(ConcreteInterfaceClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
 	
 	@Test
 	public void testGetAllMethodsWithGenericInterface() {
-		List<Method> methods = MethodUtil.getAllMethods(ConcreteGenericInterfaceClass.class);
+		Collection<Method> methods = MethodUtil.getAllMethods(ConcreteGenericInterfaceClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
 	

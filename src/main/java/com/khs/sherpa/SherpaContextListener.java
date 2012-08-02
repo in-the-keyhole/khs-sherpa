@@ -76,6 +76,8 @@ public class SherpaContextListener implements ServletContextListener {
 		jsonParamParser.setJsonProvider(sherpaContext.getSherpaSettings().jsonProvider());
 		parsers.add(jsonParamParser);
 		
+		sherpaContext.setParser(parsers);
+		
 		this.setupInitializer(sherpaContext);
 		this.setupEndpoints(sherpaContext);
 

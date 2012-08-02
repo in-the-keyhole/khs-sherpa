@@ -58,19 +58,19 @@ public class MethodUtilExtendTest {
 	
 	@Test
 	public void testGetAllMethodsNoInterface() {
-		List<Method> methods = MethodUtil.getAllMethods(ConcreteClass.class);
+		Collection<Method> methods = MethodUtil.getAllMethods(ConcreteClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
 	
 	@Test
 	public void testGetAllMethodsWithInterface() {
-		List<Method> methods = MethodUtil.getAllMethods(ConcreteExtendClass.class);
+		Collection<Method> methods = MethodUtil.getAllMethods(ConcreteExtendClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
 	
 	@Test
 	public void testGetAllMethodsWithGenericInterface() {
-		List<Method> methods = MethodUtil.getAllMethods(ConcreteGenericExtendClass.class);
+		Collection<Method> methods = MethodUtil.getAllMethods(ConcreteGenericExtendClass.class);
 		Assert.assertEquals(5, methods.size());
 	}
 	
