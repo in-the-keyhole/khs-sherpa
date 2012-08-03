@@ -7,7 +7,7 @@ About
 -----
 Turn Java application servers into a remote JSON data access mechanism for mobile and HTML 5/Java Script applications. 
 
-This lightweight server side framework allows Java classes contained inside a JEE application sever
+This lightweight server side framework allows Java classes contained inside a JEE application server
 to become JSON end points that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
 
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
