@@ -1,5 +1,7 @@
 package com.khs.sherpa.json.service;
 
+import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
+
 /*
  * Copyright 2012 the original author or authors.
  *
@@ -25,8 +27,8 @@ package com.khs.sherpa.json.service;
 
 public class DefaultUserService implements UserService {
 
-	public String[] authenticate(String userid, String password) throws AuthenticationException {
+	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword {
 		// Default always fails authentication
-		throw new AuthenticationException();	
+		throw new SherpaInvalidUsernamePassword();	
 	}
 }

@@ -39,10 +39,10 @@ import com.khs.sherpa.annotation.ContentType;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
+import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 import com.khs.sherpa.exception.SherpaPermissionExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.json.service.Authentication;
-import com.khs.sherpa.json.service.AuthenticationException;
 import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.json.service.SessionStatus;
 import com.khs.sherpa.json.service.SessionToken;
@@ -244,7 +244,7 @@ class SherpaRequest {
 			} else {
 			  JsonUtil.map(this.getResponseOutputStream(), this.getJsonProvider(), token);
 			}    
-		} catch (AuthenticationException e) {
+		} catch (SherpaInvalidUsernamePassword e) {
 			JsonUtil.error("Authentication Error Invalid Credentials", this.getJsonProvider(), this.getResponseOutputStream());
 			log(msg("invalid authentication"), userid, "*****");
 		}

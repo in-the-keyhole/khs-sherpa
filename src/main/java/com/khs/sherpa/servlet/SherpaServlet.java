@@ -56,7 +56,7 @@ public class SherpaServlet extends HttpServlet {
 			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
 		}
 		catch (Exception e) {	
-			throw new ServletException(e);
+			throw new SherpaRuntimeException(e);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class SherpaServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		catch (Exception e) {	
-			throw new ServletException(e);
+			throw new SherpaRuntimeException(e);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class SherpaServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		catch (Exception e) {	
-			throw new ServletException(e);
+			throw new SherpaRuntimeException(e);
 		}
 	}
 
@@ -102,41 +102,31 @@ public class SherpaServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		catch (Exception e) {	
-			throw new ServletException(e);
+			throw new SherpaRuntimeException(e);
 		}
 	}
 
 	@Override
 	protected long getLastModified(HttpServletRequest req) {
-		// TODO Auto-generated method stub
 		return super.getLastModified(req);
 	}
 
 	@Override
 	protected void doHead(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		super.doHead(req, resp);
 	}
 	
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		super.doOptions(req, resp);
 	}
 
 	@Override
 	protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		super.doTrace(req, resp);
-	}
-
-	@Override
-	public void init() throws ServletException {
-		// TODO Auto-generated method stub
-		super.init();
 	}
 	
 }
