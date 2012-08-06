@@ -133,7 +133,7 @@ public class SherpaContextListener implements ServletContextListener {
 				for(Method m: methods) {
 					try {
 						if(m.getParameterTypes().length == 0) {
-							m.invoke(initializer, null);
+							m.invoke(initializer, new Object(){});
 						} else {
 							m.invoke(initializer, context);
 						}
