@@ -228,7 +228,7 @@ class SherpaRequest {
 		String userid = servletRequest.getParameter("userid");
 		String password = servletRequest.getParameter("password");
 		try {
-			Authentication authentication = new Authentication();
+			Authentication authentication = new Authentication(getSherpaContext());
 			SessionToken token = authentication.authenticate(userid, password);
 			
 			// load the sherpa admin user
@@ -255,8 +255,8 @@ class SherpaRequest {
 		
 		if(isAuthRequest(servletRequest)) {
 			this.authenticate();
+			return;
 		} else {
-			
 			sessionStatus = this.getSherpaContext().getSessionTokenService().isActive(getToken(), getUserId());
 		}
 		

@@ -1,5 +1,7 @@
 package com.khs.sherpa.json.service;
 
+import com.khs.sherpa.SherpaContext;
+
 
 /*
  * Copyright 2012 the original author or authors.
@@ -24,6 +26,12 @@ public class Authentication {
 	private SessionTokenService tokenService;
 	private ActivityService activityService;
 	
+	public Authentication(SherpaContext sherpaContext) {
+		userService = sherpaContext.getSherpaSettings().userService();
+		tokenService = sherpaContext.getSherpaSettings().tokenService();
+		activityService = sherpaContext.getSherpaSettings().activityService();
+	}
+
 	public SessionToken authenticate(String userid, String password) {
 		String[] roles = this.authenticateUser(userid, password);
 		SessionToken token = this.newToken(userid, roles);

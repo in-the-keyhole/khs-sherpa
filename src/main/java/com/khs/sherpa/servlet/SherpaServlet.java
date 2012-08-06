@@ -77,5 +77,66 @@ public class SherpaServlet extends HttpServlet {
 			throw new ServletException(e);
 		}
 	}
+
+	@Override
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			doService(request, response);
+		} catch (SherpaRuntimeException e) {	
+			response.sendError(500,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg(e.getMessage() ));
+			e.printStackTrace();
+		}
+		catch (Exception e) {	
+			throw new ServletException(e);
+		}
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			doService(request, response);
+		} catch (SherpaRuntimeException e) {	
+			response.sendError(500,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg(e.getMessage() ));
+			e.printStackTrace();
+		}
+		catch (Exception e) {	
+			throw new ServletException(e);
+		}
+	}
+
+	@Override
+	protected long getLastModified(HttpServletRequest req) {
+		// TODO Auto-generated method stub
+		return super.getLastModified(req);
+	}
+
+	@Override
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		super.doHead(req, resp);
+	}
+	
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		super.doOptions(req, resp);
+	}
+
+	@Override
+	protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		super.doTrace(req, resp);
+	}
+
+	@Override
+	public void init() throws ServletException {
+		// TODO Auto-generated method stub
+		super.init();
+	}
 	
 }
