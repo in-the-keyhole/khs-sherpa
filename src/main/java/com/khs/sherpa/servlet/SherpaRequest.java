@@ -247,6 +247,7 @@ class SherpaRequest {
 		} catch (SherpaInvalidUsernamePassword e) {
 			JsonUtil.error("Authentication Error Invalid Credentials", this.getJsonProvider(), this.getResponseOutputStream());
 			log(msg("invalid authentication"), userid, "*****");
+			throw e;
 		}
 	}
 	
@@ -254,7 +255,12 @@ class SherpaRequest {
 		// see if there's a json call back function specified
 		
 		if(isAuthRequest(servletRequest)) {
-			this.authenticate();
+			try {
+				this.authenticate();
+			} catch (SherpaRuntimeException e) {
+				JsonUtil.error(e, this.getJsonProvider(), this.getResponseOutputStream());
+				throw e;
+			}
 			return;
 		} else {
 			sessionStatus = this.getSherpaContext().getSessionTokenService().isActive(getToken(), getUserId());

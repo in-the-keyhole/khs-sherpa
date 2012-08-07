@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 
 public class SherpaServlet extends HttpServlet {
@@ -34,30 +35,32 @@ public class SherpaServlet extends HttpServlet {
 	
     private static final Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 
-	private void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		SherpaStats.startRequest(request);
+	private void doService(HttpServletRequest request, HttpServletResponse response) throws RuntimeException, IOException {
+		try {
+			SherpaStats.startRequest(request);
+			
+			SherpaRequest sherpa = new SherpaRequest();
+			sherpa.setServletContext(getServletContext());
+			sherpa.loadRequest(request, response);
 		
-		SherpaRequest sherpa = new SherpaRequest();
-		sherpa.setServletContext(getServletContext());
-		sherpa.loadRequest(request, response);
-	
-		sherpa.setTarget(ReflectionCache.getObject(sherpa.getEndpoint()));
-		sherpa.run();
-		
-		SherpaStats.endRequest(request);
+			sherpa.setTarget(ReflectionCache.getObject(sherpa.getEndpoint()));
+			sherpa.run();
+			
+			SherpaStats.endRequest(request);
+		} catch (SherpaInvalidUsernamePassword e) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Username or Password!");
+			LOG.log(Level.INFO,msg("INFO "+e.getMessage() ));			
+		} catch (SherpaRuntimeException e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
+		} catch (Exception e) {
+			throw new SherpaRuntimeException(e);
+		}
 	}
 	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
-		}
-		catch (Exception e) {	
-			throw new SherpaRuntimeException(e);
-		}
+		doService(request, response);
 	}
 
 	/**
@@ -65,45 +68,17 @@ public class SherpaServlet extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg(e.getMessage() ));
-			e.printStackTrace();
-		}
-		catch (Exception e) {	
-			throw new SherpaRuntimeException(e);
-		}
+		doService(request, response);
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg(e.getMessage() ));
-			e.printStackTrace();
-		}
-		catch (Exception e) {	
-			throw new SherpaRuntimeException(e);
-		}
+		doService(request, response);
 	}
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg(e.getMessage() ));
-			e.printStackTrace();
-		}
-		catch (Exception e) {	
-			throw new SherpaRuntimeException(e);
-		}
+		doService(request, response);
 	}
 
 	@Override
