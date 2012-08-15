@@ -28,17 +28,12 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 import com.khs.sherpa.annotation.Encode;
-import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.DefaultActivityService;
 import com.khs.sherpa.json.service.DefaultTokenService;
 import com.khs.sherpa.json.service.DefaultUserService;
 import com.khs.sherpa.json.service.GsonJsonProvider;
-import com.khs.sherpa.json.service.JsonProvider;
-import com.khs.sherpa.json.service.SessionTokenService;
-import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.servlet.SherpaServlet;
 import com.khs.sherpa.util.Defaults;
-import com.khs.sherpa.util.Util;
 
 public class SherpaSettings {
 
@@ -47,8 +42,6 @@ public class SherpaSettings {
 	protected Properties properties;
 	
 	public SherpaSettings(String configFile) {
-		
-		
 		
 		try {
 			
@@ -101,18 +94,28 @@ public class SherpaSettings {
 	    String value = properties.getProperty("activity.logging");
 		if (value != null) {
 			value = value.toUpperCase();
-			if (value.equals("N") || value.equals("NO") || value.equals("FALSE")) {
+			if (value.equalsIgnoreCase("N") || value.equalsIgnoreCase("NO") || value.equalsIgnoreCase("FALSE")) {
 				return false;
 			}		
 		} 
 		return Defaults.ACTIVITY_LOG;
 	}
 	
+	public boolean endpointAuthenication() {
+		String value = properties.getProperty("endpoint.authentication");
+		if(value != null) {
+			if (value.equalsIgnoreCase("N") || value.equalsIgnoreCase("NO") || value.equalsIgnoreCase("FALSE")) {
+				return false;
+			}	
+		}
+		return Defaults.ENDPOINT_AUTHENTICATION;
+	}
+	
 	public boolean jsonpSupport() {
 	    String value = properties.getProperty("jsonp.support");
 		if (value != null) {
 			value = value.toUpperCase();
-			if (value.equals("Y") || value.equals("YES") || value.equals("TRUE")) {
+			if (value.equalsIgnoreCase("Y") || value.equalsIgnoreCase("YES") || value.equalsIgnoreCase("TRUE")) {
 				return true;
 			}		
 		} 
@@ -152,12 +155,12 @@ public class SherpaSettings {
 		return Defaults.SESSION_TIMEOUT;
 	}
 	
-	public JsonProvider jsonProvider() {
+	public Class<?> jsonProvider() {
 		String userClazzName = properties.getProperty("json.provider");
 		if (userClazzName == null) {
-			return new GsonJsonProvider();
+			return GsonJsonProvider.class;
 		} else {
-			return (GsonJsonProvider) createInstance(userClazzName);
+			return getInstanceClass(userClazzName);
 		}
 	}
 	
@@ -175,30 +178,30 @@ public class SherpaSettings {
 		return endpoint;
 	}
 	
-	public UserService userService() {
+	public Class<?> userService() {
 		String userClazzName = properties.getProperty("user.service");
 		if (userClazzName == null) {
-			return new DefaultUserService();
+			return DefaultUserService.class;
 		} else {
-			return (UserService) createInstance(userClazzName);
+			return getInstanceClass(userClazzName);
 		}
 	}
 	
-	public SessionTokenService tokenService() {
+	public Class<?> tokenService() {
 		String tokenClazzName = properties.getProperty("token.service");
 		if (tokenClazzName == null) {
-			return new DefaultTokenService();
+			return DefaultTokenService.class;
 		} else {
-			return (SessionTokenService) createInstance(tokenClazzName);
+			return getInstanceClass(tokenClazzName);
 		}
 	}
 	
-	public ActivityService activityService() {
+	public Class<?> activityService() {
 		String activityClazzName = properties.getProperty("activity.service");
 		if (activityClazzName == null) {
-			return new DefaultActivityService();
+			return DefaultActivityService.class;
 		} else {
-			return (ActivityService) createInstance(activityClazzName);
+			return getInstanceClass(activityClazzName);
 		}
 	}
 	
@@ -228,6 +231,14 @@ public class SherpaSettings {
 			return value;
 		}
 		return null;
+	}
+	
+	protected Class<?> getInstanceClass(String name) {
+		try {
+			return Class.forName(name);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("User service class not found " + name);
+		}
 	}
 	
 	protected Object createInstance(String name) {

@@ -17,26 +17,42 @@ package com.khs.sherpa.util;
  */
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
 
-import org.reflections.ReflectionUtils;
-import org.reflections.Reflections;
-
-import com.google.common.base.Predicates;
 import com.khs.sherpa.annotation.Action;
+import com.khs.sherpa.annotation.MethodRequest;
+import com.khs.sherpa.exception.SherpaRuntimeException;
 
 public class MethodUtil {
 
-	@SuppressWarnings("unchecked")
-	public static Collection<Method> getAllMethods(Class<?> clazz) {
-		return Reflections.getAllMethods(clazz,
-				Predicates.and(
-						Predicates.not(SherpaPredicates.withAssignableFrom(Object.class)),
-						ReflectionUtils.withModifier(Modifier.PUBLIC),
-						Predicates.not(ReflectionUtils.withModifier(Modifier.ABSTRACT)),
-						Predicates.not(SherpaPredicates.withGeneric()))
-				);
+	public static  Method validateHttpMethods(Method[] methods, String httpMethod) {
+		Method method = null;
+		for(Method m: methods) {
+			Method newMethod = null;
+			if(m.isAnnotationPresent(Action.class)) {
+				if(m.getAnnotation(Action.class).method().length == 0) {
+					newMethod = m;
+				} else {
+					for(MethodRequest r: m.getAnnotation(Action.class).method()) {
+						if(r.toString().equalsIgnoreCase(httpMethod)) {
+							newMethod = m;
+						}
+					}
+				}
+			} else {
+				newMethod = m;
+			}
+			
+			if(newMethod == null) {
+				continue;
+			}
+			
+			if(method != null) {
+				throw new SherpaRuntimeException("To many methods found for method ["+method.getName()+"]");
+			}
+			
+			method = newMethod;
+		}
+		return method;
 	}
 	
 	public static String getMethodName(Method method) {
@@ -48,19 +64,6 @@ public class MethodUtil {
 		}
 		
 		return method.getName();
-	}
-	
-	public static Method getMethodByName(Collection<Method> methods, String theMethodName) {
-		for(Method method: methods) {
-			if(theMethodName.equals(MethodUtil.getMethodName(method))) {
-				return method;
-			}
-		}
-		return null;
-	}
-	
-	public static Method getMethodByName(Class<?> clazz, String theMethodName) {
-		return MethodUtil.getMethodByName(MethodUtil.getAllMethods(clazz), theMethodName);
 	}
 	
 	public static Action getActionAnnotation(Method method) {

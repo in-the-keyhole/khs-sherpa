@@ -26,8 +26,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.context.GenericApplicationContext;
 import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.servlet.request.DefaultSherpaRequest;
 
 public class SherpaServlet extends HttpServlet {
 
@@ -37,16 +39,12 @@ public class SherpaServlet extends HttpServlet {
 
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws RuntimeException, IOException {
 		try {
-			SherpaStats.startRequest(request);
 			
-			SherpaRequest sherpa = new SherpaRequest();
-			sherpa.setServletContext(getServletContext());
-			sherpa.loadRequest(request, response);
-		
-			sherpa.setTarget(ReflectionCache.getObject(sherpa.getEndpoint()));
-			sherpa.run();
+			DefaultSherpaRequest sherpaRequest = new DefaultSherpaRequest();
+			sherpaRequest.setApplicationContext(GenericApplicationContext.getApplicationContext(getServletContext()));
+
+			sherpaRequest.doService(request, response);
 			
-			SherpaStats.endRequest(request);
 		} catch (SherpaInvalidUsernamePassword e) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Username or Password!");
 			LOG.log(Level.INFO,msg("INFO "+e.getMessage() ));			
@@ -55,6 +53,8 @@ public class SherpaServlet extends HttpServlet {
 			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
 		} catch (Exception e) {
 			throw new SherpaRuntimeException(e);
+		} finally {
+			// do nothing right now
 		}
 	}
 	

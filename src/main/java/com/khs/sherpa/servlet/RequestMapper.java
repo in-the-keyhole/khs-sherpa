@@ -17,28 +17,27 @@ package com.khs.sherpa.servlet;
  */
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.khs.sherpa.SherpaContext;
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
-import com.khs.sherpa.json.service.ActivityService;
-import com.khs.sherpa.json.service.SessionTokenService;
-import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.parser.ParamParser;
+import com.khs.sherpa.processor.RequestProcessor;
 import com.khs.sherpa.util.UrlUtil;
 
 public class RequestMapper {
 	
-	private ServletContext context;
-	private ServletRequest request;
-	private ServletResponse response;
+	private HttpServletRequest request;
+	private RequestProcessor requestProcessor;
+	
+	private ApplicationContext applicationContext;
 	
 	private Object mapAnnotation(String endpoint,String action,Class<?> type, Param param) {
 		String name = param.value();
@@ -47,8 +46,7 @@ public class RequestMapper {
 			throw new SherpaRuntimeException("parameters required");	
 		}
 		
-		//String value = request.getParameter(name);
-		String value = UrlUtil.getParamValue((HttpServletRequest) request, name);
+		String value = requestProcessor.getParmeter(request, name);
 		if(value == null) {
 			throw new RuntimeException("Endpoint = "+endpoint+" Action = "+action+" - Parameter name ("+name+") not found in request");		
 		}
@@ -57,16 +55,14 @@ public class RequestMapper {
 	}
 	
 	private Object mapNonAnnotation(String endpoint,String action,Class<?> type) {
-		if(type.isAssignableFrom(SessionTokenService.class)) {
-			return this.getSherpaContext().getSessionTokenService();
-		} else if(type.isAssignableFrom(UserService.class)) {
-			return this.getSherpaContext().getUserService();
-		} else if(type.isAssignableFrom(ActivityService.class)) {
-			return this.getSherpaContext().getActivityService();
-		} else if(type.isAssignableFrom(ServletRequest.class)) {
+		try {
+			return applicationContext.getManagedBean(type);
+		} catch (NoSuchManagedBeanExcpetion e) {
+			// DO NOTHING - Not a managed bean;
+		}
+		
+		if(type.isAssignableFrom(ServletRequest.class)) {
 			return request;
-		} else if(type.isAssignableFrom(ServletResponse.class)) {
-			return response;
 		} else {
 			String body = UrlUtil.getRequestBody((HttpServletRequest) request);
 			if(StringUtils.isNotEmpty(body)) {
@@ -77,8 +73,8 @@ public class RequestMapper {
 	}
 	
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
-
-		for(ParamParser<?> parser: this.getSherpaContext().getParser()) {
+		List<ParamParser<?>> parsers  = (List<ParamParser<?>>) applicationContext.getAttribute(ApplicationContext.SETTINGS_PARSERS);
+		for(ParamParser<?> parser: parsers) {
 			if(parser.isValid(clazz)) {
 				return parser.parse(value, annotation, clazz);
 			}
@@ -96,33 +92,16 @@ public class RequestMapper {
 		
 		return mapNonAnnotation(endpoint, action, type);
 	}
-	
-	public ServletRequest getRequest() {
-		return request;
-	}
 
-	public void setRequest(ServletRequest request) {
+	public void setRequest(HttpServletRequest request) {
 		this.request = request;
 	}
 
-	public ServletResponse getResponse() {
-		return response;
+	public void setRequestProcessor(RequestProcessor requestProcessor) {
+		this.requestProcessor = requestProcessor;
 	}
 
-	public void setResponse(ServletResponse response) {
-		this.response = response;
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
-	
-	public ServletContext getContext() {
-		return context;
-	}
-
-	public void setContext(ServletContext context) {
-		this.context = context;
-	}
-
-	private SherpaContext getSherpaContext() {
-		return SherpaContext.getSherpaContext(context);
-	}
-
 }

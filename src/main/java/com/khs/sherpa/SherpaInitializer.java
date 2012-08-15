@@ -1,5 +1,7 @@
 package com.khs.sherpa;
 
+import com.khs.sherpa.context.ApplicationContext;
+
 /*
  * Copyright 2012 the original author or authors.
  *
@@ -18,7 +20,7 @@ package com.khs.sherpa;
 
 public interface SherpaInitializer {
 
-	public void sherpaInitialize(SherpaContext context);
+	public void sherpaInitialize(ApplicationContext applicationContext);
 
-	public void sherpaDestroy(SherpaContext context) ;
+	public void sherpaDestroy(ApplicationContext applicationContext) ;
 }

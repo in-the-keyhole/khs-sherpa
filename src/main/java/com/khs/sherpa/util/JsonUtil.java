@@ -24,17 +24,25 @@ import com.khs.sherpa.json.service.JsonProvider;
 
 public class JsonUtil {
 
-	public static void mapJsonp(OutputStream out, JsonProvider provider, Object object,String jsonpCallback) {
+	public static void mapJsonp(Object object, JsonProvider provider, OutputStream out, String jsonpCallback) {
 		try {
 			    out.write( (jsonpCallback+"(").getBytes());
-			    JsonUtil.map(out, provider, object);
+			    JsonUtil.map(object, provider, out);
 				out.write(");".getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void map(OutputStream out, JsonProvider provider, Object object) {
+	public static void map(Object object, JsonProvider provider, OutputStream out, String callback) {
+		if (callback != null) {
+			JsonUtil.mapJsonp(object, provider, out, callback);
+		} else {
+			JsonUtil.map(object, provider, out);
+		}
+	}
+	
+	public static void map(Object object, JsonProvider provider, OutputStream out) {
 		try {	
 			  out.write(provider.toJson(object).getBytes());			
 		} catch (IOException e) {
@@ -42,12 +50,20 @@ public class JsonUtil {
 		}
 	}
 	
+	public static void error(String msg, JsonProvider provider, OutputStream out, String callback) {
+		if (callback != null) {
+			JsonUtil.mapJsonp(new Result("ERROR", msg), provider, out, callback);
+		} else {
+			JsonUtil.map(new Result("ERROR", msg), provider, out);
+		}
+	}
+	
 	public static void error(String msg, JsonProvider provider, OutputStream out) {
-		map(out, provider, new Result("ERROR", msg));
+		map(new Result("ERROR", msg), provider, out);
 	}
 	
 	public static void info(String msg, JsonProvider provider, OutputStream out) {
-		map(out, provider, new Result("INFO", msg));
+		map(new Result("INFO", msg), provider, out);
 	}
 
 	public static void error(SherpaRuntimeException ex, JsonProvider provider, OutputStream out) {
@@ -64,14 +80,14 @@ public class JsonUtil {
 			}
 		}
 
-		map(out, provider, new Result("ERROR", error));
+		map(new Result("ERROR", error), provider, out);
 	}
 
 	public static void message(String message, JsonProvider provider, OutputStream out) {
-		map(out, provider, new Result("SUCCESS", message));
+		map(new Result("SUCCESS", message), provider, out);
 	}
 
 	public static void validation(String message, JsonProvider provider, OutputStream out) {
-		map(out, provider, new Result("VALIDATION", message));
+		map(new Result("VALIDATION", message), provider, out);
 	}
 }

@@ -1,6 +1,7 @@
 package com.khs.sherpa.json.service;
 
-import com.khs.sherpa.SherpaContext;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 
 
 /*
@@ -26,10 +27,11 @@ public class Authentication {
 	private SessionTokenService tokenService;
 	private ActivityService activityService;
 	
-	public Authentication(SherpaContext sherpaContext) {
-		userService = sherpaContext.getSherpaSettings().userService();
-		tokenService = sherpaContext.getSherpaSettings().tokenService();
-		activityService = sherpaContext.getSherpaSettings().activityService();
+	public Authentication(ApplicationContext context) throws NoSuchManagedBeanExcpetion {
+		
+		userService = context.getManagedBean(UserService.class);
+		tokenService = context.getManagedBean(SessionTokenService.class);
+		activityService = context.getManagedBean(ActivityService.class);
 	}
 
 	public SessionToken authenticate(String userid, String password) {

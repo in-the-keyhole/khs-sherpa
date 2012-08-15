@@ -29,6 +29,6 @@ public class DefaultUserService implements UserService {
 
 	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword {
 		// Default always fails authentication
-		throw new SherpaInvalidUsernamePassword();	
+		throw new SherpaInvalidUsernamePassword("Authentication Error Invalid Credentials");	
 	}
 }

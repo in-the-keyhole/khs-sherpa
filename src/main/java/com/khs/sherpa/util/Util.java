@@ -21,6 +21,7 @@ import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class Util {
@@ -46,6 +47,13 @@ public class Util {
 		Properties properties = new Properties();
 		properties.load(url.openStream());
 		return properties;
+	}
+	
+	public static <T> T[] append(T[] arr, T element) {
+	    final int N = arr.length;
+	    arr = Arrays.copyOf(arr, N + 1);
+	    arr[N] = element;
+	    return arr;
 	}
 	
 }

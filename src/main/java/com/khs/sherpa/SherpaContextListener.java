@@ -15,8 +15,6 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,12 +24,14 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 
-import com.khs.sherpa.annotation.Endpoint;
-import com.khs.sherpa.annotation.Initialize;
-import com.khs.sherpa.annotation.Initializer;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.context.GenericApplicationContext;
+import com.khs.sherpa.context.factory.DefaultManagedBeanFactory;
+import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
+import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.parser.BooleanParamParser;
 import com.khs.sherpa.parser.CalendarParamParser;
 import com.khs.sherpa.parser.DateParamParser;
@@ -41,7 +41,6 @@ import com.khs.sherpa.parser.IntegerParamParser;
 import com.khs.sherpa.parser.JsonParamParser;
 import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.parser.StringParamParser;
-import com.khs.sherpa.servlet.ReflectionCache;
 
 public class SherpaContextListener implements ServletContextListener {
 
@@ -57,12 +56,28 @@ public class SherpaContextListener implements ServletContextListener {
 			configLocation = SHERPA_CONFIG_LOCATION;
 		}
 		
-		SherpaContext sherpaContext = new SherpaContext(servletContextEvent.getServletContext());
-		sherpaContext.setSherpaSettings(new SherpaSettings(configLocation));
-		sherpaContext.addEnpointPath("com.khs.sherpa");
-		sherpaContext.addEnpointPath(sherpaContext.getSherpaSettings().endpoint());
+		SherpaSettings settings = new SherpaSettings(configLocation);
 		
-		// initialize parsers
+		GenericApplicationContext applicationContext = new GenericApplicationContext();
+		DefaultManagedBeanFactory defaultManagedBeanFactory = (DefaultManagedBeanFactory) applicationContext.getManagedBeanFactory();
+		
+		defaultManagedBeanFactory.loadManagedBean(settings.userService());
+		defaultManagedBeanFactory.loadManagedBean(settings.tokenService());
+		defaultManagedBeanFactory.loadManagedBean(settings.activityService());
+		defaultManagedBeanFactory.loadManagedBean(settings.jsonProvider());
+		
+		applicationContext.setAttribute(ApplicationContext.SETTINGS_JSONP, settings.jsonpSupport());
+		applicationContext.setAttribute(ApplicationContext.SETTINGS_ADMIN_USER, settings.sherpaAdmin());
+		applicationContext.setAttribute(ApplicationContext.SETTINGS_ENDPOINT_AUTH, settings.endpointAuthenication());
+		
+		// load the root domain
+		defaultManagedBeanFactory.loadManagedBeans("com.khs.sherpa.endpoint");
+
+		this.setupInitializer(applicationContext);
+		
+		servletContextEvent.getServletContext().setAttribute(GenericApplicationContext.SHERPA_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
+
+//		// initialize parsers
 		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
 		parsers.add(new StringParamParser());
 		parsers.add(new IntegerParamParser());
@@ -73,14 +88,14 @@ public class SherpaContextListener implements ServletContextListener {
 		parsers.add(new CalendarParamParser());
 		
 		JsonParamParser jsonParamParser = new JsonParamParser();
-		jsonParamParser.setJsonProvider(sherpaContext.getSherpaSettings().jsonProvider());
+		try {
+			jsonParamParser.setJsonProvider(defaultManagedBeanFactory.getManagedBean(JsonProvider.class));
+		} catch (NoSuchManagedBeanExcpetion e) {
+			throw new SherpaRuntimeException(e);
+		}
 		parsers.add(jsonParamParser);
+		applicationContext.setAttribute(ApplicationContext.SETTINGS_PARSERS, parsers);
 		
-		sherpaContext.setParser(parsers);
-		
-		this.setupInitializer(sherpaContext);
-		this.setupEndpoints(sherpaContext);
-
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Finsished");
 	}
 
@@ -91,83 +106,110 @@ public class SherpaContextListener implements ServletContextListener {
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Finished");
 	}
 
-	private void setupInitializer(SherpaContext context) {
+//	private void setupEvents(SherpaContext context) {
+//		Set<Class<?>> events = new HashSet<Class<?>>();
+//		for(String path: context.getEndpiontPaths()) {
+//			LOGGER.info("Loading Events from path: [" + path + "]");
+//			Reflections reflections = new Reflections(path);
+//			
+//			for(Class<? extends SherpaEvent> clazz : reflections.getSubTypesOf(SherpaEvent.class)) {
+//				System.out.println(clazz);
+//			}
+//		}
+//	}
+//	
+	private void setupInitializer(ApplicationContext applicationContext) {
 		Set<Class<?>> initialized = new HashSet<Class<?>>();
-		for(String path: context.getEndpiontPaths()) {
-			LOGGER.info("Loading Initializer from path: [" + path + "]");
-			Reflections reflections = new Reflections("com.khs.sherpa");
-		    for(Class<? extends SherpaInitializer> clazz : reflections.getSubTypesOf(SherpaInitializer.class)) {
-		    	// skip the Initializer if its been loaded
-		    	if(initialized.contains(clazz)) {
-		    		LOGGER.warning("Initializer [" + clazz + "] is already loaded. Skipping.....");
-		    		continue;
-		    	}
-		    	this.initializeClass(context, clazz);
-		    	initialized.add(clazz);
-		    }
-		    for(Class<?> clazz : reflections.getTypesAnnotatedWith(Initializer.class)) {
-		    	// skip the Initializer if its been loaded
-		    	if(initialized.contains(clazz)) {
-		    		continue;
-		    	}
-		    	this.initializeClass(context, clazz);
-		    	initialized.add(clazz);
-		    }
-		}
-	}
-	
-	private void initializeClass(SherpaContext context, Class<?> clazz) {
-		try {
-			if(SherpaInitializer.class.isAssignableFrom(clazz)) {
-				// Uses SherpaInitializer
-				SherpaInitializer initializer = (SherpaInitializer) clazz.newInstance();
-				initializer.sherpaInitialize(context);
-			} else {
-				// User Annotation Initializer
-				Set<Method> methods = Reflections.getAllMethods(clazz, ReflectionUtils.withAnnotation(Initialize.class));
-				if(methods.size() == 0) {
-					LOGGER.warning("Initializer [" + clazz + "] is missing @Initialize. Skipping.....");
-					return;
-				}
-				Object initializer = clazz.newInstance();
-				for(Method m: methods) {
-					try {
-						if(m.getParameterTypes().length == 0) {
-							m.invoke(initializer, new Object(){});
-						} else {
-							m.invoke(initializer, context);
-						}
-						
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
+		Reflections reflections = new Reflections("com.khs.sherpa");
+	    for(Class<? extends SherpaInitializer> clazz : reflections.getSubTypesOf(SherpaInitializer.class)) {
+	    	// skip the Initializer if its been loaded
+	    	if(initialized.contains(clazz)) {
+	    		LOGGER.warning("Initializer [" + clazz + "] is already loaded. Skipping.....");
+	    		continue;
+	    	}
+	    	initialized.add(clazz);
+	    	try {
+				clazz.newInstance().sherpaInitialize(applicationContext);
+			} catch (Exception e) {
+				throw new SherpaRuntimeException(e);
 			}
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	    }
+	    
+//		for(String path: context.getEndpiontPaths()) {
+//			LOGGER.info("Loading Initializer from path: [" + path + "]");
+//			Reflections reflections = new Reflections(path);
+//		    for(Class<? extends SherpaInitializer> clazz : reflections.getSubTypesOf(SherpaInitializer.class)) {
+//		    	// skip the Initializer if its been loaded
+//		    	if(initialized.contains(clazz)) {
+//		    		LOGGER.warning("Initializer [" + clazz + "] is already loaded. Skipping.....");
+//		    		continue;
+//		    	}
+//		    	this.initializeClass(context, clazz);
+//		    	initialized.add(clazz);
+//		    }
+//		    for(Class<?> clazz : reflections.getTypesAnnotatedWith(Initializer.class)) {
+//		    	// skip the Initializer if its been loaded
+//		    	if(initialized.contains(clazz)) {
+//		    		continue;
+//		    	}
+//		    	this.initializeClass(context, clazz);
+//		    	initialized.add(clazz);
+//		    }
+//		}
 	}
-	
-	private void setupEndpoints(SherpaContext context) {
-		for(String path: context.getEndpiontPaths()) {
-			LOGGER.info("Loading endpoints from path: [" + path + "]");
-			for(Class<?> c: this.getEndpoints(path)) {
-				ReflectionCache.addObject(c.getSimpleName(), c);
-			}
-		}
-	}
-	
-	private Set<Class<?>> getEndpoints(String path) {
-		Reflections reflections = new Reflections(path);
-		return reflections.getTypesAnnotatedWith(Endpoint.class);
-	}
+//	
+//	private void initializeClass(SherpaContext context, Class<?> clazz) {
+//		try {
+//			if(SherpaInitializer.class.isAssignableFrom(clazz)) {
+//				// Uses SherpaInitializer
+//				SherpaInitializer initializer = (SherpaInitializer) clazz.newInstance();
+//				initializer.sherpaInitialize(context);
+//			} else {
+//				// User Annotation Initializer
+//				Set<Method> methods = Reflections.getAllMethods(clazz, ReflectionUtils.withAnnotation(Initialize.class));
+//				if(methods.size() == 0) {
+//					LOGGER.warning("Initializer [" + clazz + "] is missing @Initialize. Skipping.....");
+//					return;
+//				}
+//				Object initializer = clazz.newInstance();
+//				for(Method m: methods) {
+//					try {
+//						if(m.getParameterTypes().length == 0) {
+//							m.invoke(initializer, new Object(){});
+//						} else {
+//							m.invoke(initializer, context);
+//						}
+//						
+//					} catch (IllegalArgumentException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					} catch (InvocationTargetException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		} catch (InstantiationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	private void setupEndpoints(SherpaContext context) {
+//		for(String path: context.getEndpiontPaths()) {
+//			LOGGER.info("Loading endpoints from path: [" + path + "]");
+//			for(Class<?> c: this.getEndpoints(path)) {
+//				ReflectionCache.addObject(c.getSimpleName(), c);
+//			}
+//		}
+//	}
+//	
+//	private Set<Class<?>> getEndpoints(String path) {
+//		Reflections reflections = new Reflections(path);
+//		return reflections.getTypesAnnotatedWith(Endpoint.class);
+//	}
 	
 }

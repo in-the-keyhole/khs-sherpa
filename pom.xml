@@ -7,12 +7,12 @@
 		<version>7</version>
 	</parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.keyholesoftware</groupId>
-  <artifactId>khs-sherpa</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
-  <name>khs-sherpa</name>
-    <packaging>jar</packaging>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.keyholesoftware</groupId>
+	<artifactId>khs-sherpa</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
+	<name>khs-sherpa</name>
+	<packaging>jar</packaging>
 	<description>JSON remote data end point service via HTTP</description>
 	<url>http://keyholesoftware.com</url>
 	<organization>
@@ -31,7 +31,7 @@
 		<developerConnection>scm:git:git@github.com:in-the-keyhole/khs-sherpa.git</developerConnection>
 		<url>https://github.com/in-the-keyhole/khs-sherpa</url>
 	</scm>
-	
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>khs-snapshot</id>
@@ -69,10 +69,15 @@
 		</dependency>
 		<dependency>
 			<groupId>javax</groupId>
+			<artifactId>javaee-endorsed-api</artifactId>
+			<version>6.0</version>
+		</dependency>
+<!-- 		<dependency>
+			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>6.0</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
