@@ -81,7 +81,34 @@ public class SherpaServlet extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			doService(request, response);
+		} catch (SherpaRuntimeException e) {	
+			response.sendError(500,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg(e.getMessage() ));
+			e.printStackTrace();
+		}
+		catch (Exception e) {	
+			throw new ServletException(e);
+		}
+	}
 
+	@Override
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			doService(request, response);
+		} catch (SherpaRuntimeException e) {	
+			response.sendError(500,"Sherpa Error "+e.getMessage());
+			LOG.log(Level.SEVERE,msg(e.getMessage() ));
+			e.printStackTrace();
+		}
+		catch (Exception e) {	
+			throw new ServletException(e);
+		}
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			doService(request, response);
 		} catch (SherpaRuntimeException e) {	
