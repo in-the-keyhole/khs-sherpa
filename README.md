@@ -7,7 +7,7 @@ About
 -----
 Turn Java application servers into a remote JSON data access mechanism for mobile and HTML 5/Java Script applications. 
 
-This lightweight server side framework allows Java classes contained inside a JEE application sever
+This lightweight server side framework allows Java classes contained inside a JEE application server
 to become JSON end points that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
 
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
@@ -104,6 +104,12 @@ SherpaServlet to the WEB-INF/web.xml as shown below.
 		<servlet-name>sherpa</servlet-name>
 		<url-pattern>/sherpa</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>sherpa</servlet-name>
+		<url-pattern>/sherpa/*</url-pattern>
+	</servlet-mapping>
+	
 
 Endpoint Example
 ----------------
@@ -170,6 +176,32 @@ The @Action annotation can also be specified to disable a method from execution 
 
 	@Action(disabled=true)
 	public String myMethod() { 	
+	
+Restful based Action URLs
+-------------------------
+End point action methods can be mapped to a restful URL by applying the mapping attribute in the @Action 
+annotation. An example restful mapping for the helloworld action is shown below
+
+	@Action(mapping = "/helloworld", method = MethodRequest.GET)
+	public String helloWorld() {		
+		return "hello world";
+	}
+
+End point action an then be accessed with the following restful URL 
+
+	http:<server>/<webapp>/sherpa/helloworld
+
+Parameters can also be mapped to a restful URL by including a delimited parameter name in the mapping. 
+The example below shows how a Vendor lookup id is mapped into the URL.
+	
+	@Action(mapping = "/findbyid/{id}", method = MethodRequest.GET)
+	public Vendor fetchOne(@Param("id") Integer id) {
+		return repository.findOne(id);
+	}
+	
+Restful URL specifying a Vendor lookup id for the above action is shown below. 	
+	
+	http:<server>/<webapp>/sherpa/findbyid/100
 	
 
 Test Fixture
@@ -371,5 +403,5 @@ These actions must be invoked using the userid, passwords, and token for a user 
   
   
   
-  
+
   
