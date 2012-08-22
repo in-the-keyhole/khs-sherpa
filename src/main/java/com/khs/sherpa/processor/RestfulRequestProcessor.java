@@ -50,13 +50,14 @@ public class RestfulRequestProcessor implements RequestProcessor {
 		}
 		
 		method = MethodUtil.validateHttpMethods(methods.toArray(new Method[] {}), request.getMethod());
+		Class<?> type = method.getDeclaringClass();
 		if(method != null) {
-			if(method.getDeclaringClass().isAnnotationPresent(Endpoint.class)) {
-				if(StringUtils.isNotEmpty(method.getDeclaringClass().getAnnotation(Endpoint.class).value())) {
-					return method.getDeclaringClass().getAnnotation(Endpoint.class).value();
+			if(type.isAnnotationPresent(Endpoint.class)) {
+				if(StringUtils.isNotEmpty(type.getAnnotation(Endpoint.class).value())) {
+					return type.getAnnotation(Endpoint.class).value();
 				}
 			}
-			return method.getDeclaringClass().getSimpleName();
+			return type.getSimpleName();
 		}
 		throw new SherpaEndpointNotFoundException("no endpoint for url [" + UrlUtil.getPath(request) + "]");
 	}

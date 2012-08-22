@@ -115,6 +115,7 @@ public class SherpaContextListener implements ServletContextListener {
 		
 		if(InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
 			((InitManageBeanFactory)managedBeanFactory).init(settings, servletContextEvent.getServletContext());
+			((InitManageBeanFactory)managedBeanFactory).loadManagedBeans(settings.endpoint());
 		}
 	
 		JsonParamParser jsonParamParser = new JsonParamParser();

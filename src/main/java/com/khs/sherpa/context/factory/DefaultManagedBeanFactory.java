@@ -72,7 +72,7 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManage
 	
 	public void loadManagedBeans(String path) {
 		Reflections reflections = new Reflections(path);
-//		this.loadManagedBeans(reflections.getTypesAnnotatedWith(javax.annotation.ManagedBean.class));
+		this.loadManagedBeans(reflections.getTypesAnnotatedWith(javax.annotation.ManagedBean.class));
 		this.loadManagedBeans(reflections.getTypesAnnotatedWith(com.khs.sherpa.annotation.Endpoint.class));
 	}
 	

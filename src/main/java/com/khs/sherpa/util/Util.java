@@ -24,6 +24,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.khs.sherpa.annotation.Endpoint;
+
 public class Util {
 
 	public static String msg(String msg) {
@@ -54,6 +58,24 @@ public class Util {
 	    arr = Arrays.copyOf(arr, N + 1);
 	    arr[N] = element;
 	    return arr;
+	}
+	
+	public static String getObjectName(Class<?> type) {
+		String name = null;
+		if(type.isAnnotationPresent(Endpoint.class)) {
+			name = type.getAnnotation(Endpoint.class).value();
+			if(StringUtils.isEmpty(name)) {
+				name = type.getSimpleName();
+			}
+		} else if(type.isAnnotationPresent(javax.annotation.ManagedBean.class)) {
+			name = type.getAnnotation(javax.annotation.ManagedBean.class).value();
+			if(StringUtils.isEmpty(name)) {
+				name = type.getSimpleName();
+			}
+		}  else {
+			name = type.getSimpleName();
+		}
+		return name;
 	}
 	
 }

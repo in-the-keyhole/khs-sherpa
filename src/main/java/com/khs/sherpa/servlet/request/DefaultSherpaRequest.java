@@ -97,7 +97,6 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		}
 		
 		String endpoint = requestProcessor.getEndpoint(request);
-		endpoint = endpoint.substring(0,1).toLowerCase() + endpoint.substring(1);
 		String action = requestProcessor.getAction(request);
 		String httpMethod = request.getMethod();
 		

@@ -1,9 +1,7 @@
 package com.khs.sherpa.context.factory;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.util.Util;
 
 abstract class ManagedBean {
 
@@ -16,19 +14,7 @@ abstract class ManagedBean {
 	
 	public ManagedBean(Class<?> type) {
 		this.type = type;
-		if(type.isAnnotationPresent(Endpoint.class)) {
-			name = type.getAnnotation(Endpoint.class).value();
-			if(StringUtils.isEmpty(name)) {
-				name = type.getSimpleName();
-			}
-		} else if(type.isAnnotationPresent(javax.annotation.ManagedBean.class)) {
-			name = type.getAnnotation(javax.annotation.ManagedBean.class).value();
-			if(StringUtils.isEmpty(name)) {
-				name = type.getName().substring(0,1).toLowerCase() + type.getName().substring(1);
-			}
-		}  else {
-			name = type.getName().substring(0,1).toLowerCase() + type.getName().substring(1);
-		}
+		this.name = Util.getObjectName(type);
 	}
 	
 	public Class<?> getType() {
@@ -49,7 +35,7 @@ abstract class ManagedBean {
 	
 	protected Object createInstance() {
 		try {
-			return type.newInstance();
+			return type.getDeclaringClass().newInstance();
 		} catch (Exception e) {
 			throw new SherpaRuntimeException("Unable to create Managed Bean [" + type + "]");
 		}
