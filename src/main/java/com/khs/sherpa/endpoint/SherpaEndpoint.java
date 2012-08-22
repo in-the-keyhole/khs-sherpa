@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.security.DenyAll;
@@ -59,12 +60,13 @@ public class SherpaEndpoint implements ApplicationContextAware {
 	@Action(mapping = "/sherpa/admin/endpoints")
 	public Map<String, String> endpoints() {
 		Map<String, String> map = new HashMap<String, String>();
-		for(Class<?> clazz: applicationContext.getEndpointTypes()) {
-			String name = clazz.getAnnotation(Endpoint.class).value();
+		
+		for(Entry<String, Object> entry: applicationContext.getEndpointTypes().entrySet()) {
+			String name = entry.getValue().getClass().getAnnotation(Endpoint.class).value();
 			if(StringUtils.isEmpty(name)) {
-				name = clazz.getSimpleName();
+				name = entry.getValue().getClass().getSimpleName();
 			}
-			map.put(name, clazz.getName());
+			map.put(name, entry.getValue().getClass().getName());
 		}
 		return map;
 	}

@@ -66,7 +66,7 @@ public class GenericApplicationContext implements ApplicationContext {
 		return (ApplicationContext) context.getAttribute(SHERPA_APPLICATION_CONTEXT_ATTRIBUTE);
 	}
 
-	public Collection<Class<?>> getEndpointTypes() {
+	public Map<String, Object> getEndpointTypes() {
 		return managedBeanFactory.getEndpointTypes();
 	}
 }

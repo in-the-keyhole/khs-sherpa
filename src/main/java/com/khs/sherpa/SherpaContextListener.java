@@ -15,12 +15,14 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -28,7 +30,8 @@ import org.reflections.Reflections;
 
 import com.khs.sherpa.context.ApplicationContext;
 import com.khs.sherpa.context.GenericApplicationContext;
-import com.khs.sherpa.context.factory.DefaultManagedBeanFactory;
+import com.khs.sherpa.context.factory.InitManageBeanFactory;
+import com.khs.sherpa.context.factory.ManagedBeanFactory;
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.json.service.JsonProvider;
@@ -69,11 +72,23 @@ public class SherpaContextListener implements ServletContextListener {
 		
 		if(springApplicationContextClass != null) {
 			try {
-				applicationContext = (GenericApplicationContext) springApplicationContextClass.newInstance();
+				applicationContext = (ApplicationContext) springApplicationContextClass.getDeclaredConstructor(ServletContext.class).newInstance(servletContextEvent.getServletContext());
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 				throw new SherpaRuntimeException(e);
 			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				throw new SherpaRuntimeException(e);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				throw new SherpaRuntimeException(e);
+			} catch (SecurityException e) {
+				e.printStackTrace();
+				throw new SherpaRuntimeException(e);
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+				throw new SherpaRuntimeException(e);
+			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 				throw new SherpaRuntimeException(e);
 			}
@@ -81,26 +96,12 @@ public class SherpaContextListener implements ServletContextListener {
 			applicationContext = new GenericApplicationContext();
 		}
 		
-		System.out.println(applicationContext);
-		
-		DefaultManagedBeanFactory defaultManagedBeanFactory = (DefaultManagedBeanFactory) applicationContext.getManagedBeanFactory();
-		
-		defaultManagedBeanFactory.loadManagedBean(settings.userService());
-		defaultManagedBeanFactory.loadManagedBean(settings.tokenService());
-		defaultManagedBeanFactory.loadManagedBean(settings.activityService());
-		defaultManagedBeanFactory.loadManagedBean(settings.jsonProvider());
+		ManagedBeanFactory managedBeanFactory = applicationContext.getManagedBeanFactory();
 		
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_JSONP, settings.jsonpSupport());
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ADMIN_USER, settings.sherpaAdmin());
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ENDPOINT_AUTH, settings.endpointAuthenication());
 		
-		// load the root domain
-		defaultManagedBeanFactory.loadManagedBeans("com.khs.sherpa.endpoint");
-
-		this.setupInitializer(applicationContext);
-		
-		servletContextEvent.getServletContext().setAttribute(GenericApplicationContext.SHERPA_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
-
 //		// initialize parsers
 		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
 		parsers.add(new StringParamParser());
@@ -111,15 +112,24 @@ public class SherpaContextListener implements ServletContextListener {
 		parsers.add(new DateParamParser());
 		parsers.add(new CalendarParamParser());
 		
+		
+		if(InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
+			((InitManageBeanFactory)managedBeanFactory).init(settings, servletContextEvent.getServletContext());
+		}
+	
 		JsonParamParser jsonParamParser = new JsonParamParser();
 		try {
-			jsonParamParser.setJsonProvider(defaultManagedBeanFactory.getManagedBean(JsonProvider.class));
+			jsonParamParser.setJsonProvider(managedBeanFactory.getManagedBean(JsonProvider.class));
 		} catch (NoSuchManagedBeanExcpetion e) {
 			throw new SherpaRuntimeException(e);
 		}
 		parsers.add(jsonParamParser);
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_PARSERS, parsers);
 		
+		this.setupInitializer(applicationContext);
+		
+		servletContextEvent.getServletContext().setAttribute(GenericApplicationContext.SHERPA_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
+
 		servletContextEvent.getServletContext().log("Loading Sherpa Context... Finsished");
 	}
 

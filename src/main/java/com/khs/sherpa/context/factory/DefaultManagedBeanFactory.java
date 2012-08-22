@@ -1,16 +1,19 @@
 package com.khs.sherpa.context.factory;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.ServletContext;
 
 import org.reflections.Reflections;
 
+import com.khs.sherpa.SherpaSettings;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 
-public class DefaultManagedBeanFactory implements ManagedBeanFactory {
+public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManageBeanFactory {
 
 	// @Endpoint & @ManagedBean
 	private Set<ManagedBean> managedBeans = new LinkedHashSet<ManagedBean>();
@@ -84,13 +87,23 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory {
 		managedBeans.add(bean);
 	}
 
-	public Collection<Class<?>> getEndpointTypes() {
-		Set<Class<?>> clazzs = new HashSet<Class<?>>();
+	public Map<String, Object> getEndpointTypes() {
+		Map<String, Object> map = new HashMap<String, Object>();
 		for(ManagedBean bean: managedBeans) {
 			if(bean.getType().isAnnotationPresent(Endpoint.class)) {
-				clazzs.add(bean.getType());
+				map.put(bean.getName(), bean.getInstance());
 			}
 		}
-		return clazzs;
+		return map;
+	}
+
+	public void init(SherpaSettings settings, ServletContext context) {
+		this.loadManagedBean(settings.userService());
+		this.loadManagedBean(settings.tokenService());
+		this.loadManagedBean(settings.activityService());
+		this.loadManagedBean(settings.jsonProvider());
+		
+		// load the root domain
+		this.loadManagedBeans("com.khs.sherpa.endpoint");		
 	}
 }

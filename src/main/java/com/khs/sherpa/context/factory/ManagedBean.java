@@ -24,10 +24,10 @@ abstract class ManagedBean {
 		} else if(type.isAnnotationPresent(javax.annotation.ManagedBean.class)) {
 			name = type.getAnnotation(javax.annotation.ManagedBean.class).value();
 			if(StringUtils.isEmpty(name)) {
-				name = type.getName();
+				name = type.getName().substring(0,1).toLowerCase() + type.getName().substring(1);
 			}
 		}  else {
-			name = type.getName();
+			name = type.getName().substring(0,1).toLowerCase() + type.getName().substring(1);
 		}
 	}
 	

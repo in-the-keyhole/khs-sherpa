@@ -181,7 +181,12 @@ public class SherpaSettings {
 	public Class<?> userService() {
 		String userClazzName = properties.getProperty("user.service");
 		if (userClazzName == null) {
-			return DefaultUserService.class;
+			try {
+				return Class.forName("com.khs.sherpa.sping.SpringAuthentication");
+			} catch (ClassNotFoundException e1) {
+				return DefaultUserService.class;
+			}
+			
 		} else {
 			return getInstanceClass(userClazzName);
 		}

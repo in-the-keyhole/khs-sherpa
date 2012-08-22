@@ -3,6 +3,8 @@ package com.khs.sherpa.processor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,11 +36,11 @@ public class RestfulRequestProcessor implements RequestProcessor {
 	}
 
 	public String getEndpoint(HttpServletRequest request) {
-		Collection<Class<?>> classes = applicationContext.getEndpointTypes();
+		Map<String, Object> map = applicationContext.getEndpointTypes();
 		Collection<Method> methods = new HashSet<Method>();
 		
-		for(Class<?> c: classes) {
-			Collection<Method> m = Reflections.getAllMethods(c, 
+		for(Entry<String, Object> entry: map.entrySet()) {
+			Collection<Method> m = Reflections.getAllMethods(entry.getValue().getClass(), 
 					Predicates.and(
 							ReflectionUtils.withAnnotation(Action.class),
 							SherpaPredicates.withActionMappingPattern(UrlUtil.getPath(request))
@@ -56,7 +58,7 @@ public class RestfulRequestProcessor implements RequestProcessor {
 			}
 			return method.getDeclaringClass().getSimpleName();
 		}
-		throw new SherpaEndpointNotFoundException("for url [" + UrlUtil.getPath(request) + "]");
+		throw new SherpaEndpointNotFoundException("no endpoint for url [" + UrlUtil.getPath(request) + "]");
 	}
 
 	public String getAction(HttpServletRequest request) {

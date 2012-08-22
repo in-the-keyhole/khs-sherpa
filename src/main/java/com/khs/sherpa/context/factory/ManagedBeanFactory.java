@@ -1,6 +1,6 @@
 package com.khs.sherpa.context.factory;
 
-import java.util.Collection;
+import java.util.Map;
 
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 
@@ -58,5 +58,5 @@ public interface ManagedBeanFactory {
 	/**
 	 * @return
 	 */
-	public Collection<Class<?>> getEndpointTypes();
+	public Map<String, Object> getEndpointTypes();
 }
