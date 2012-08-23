@@ -34,6 +34,10 @@ public class GenericApplicationContext implements ApplicationContext {
 		return managedBeanFactory.getManagedBean(type);
 	}
 
+	public <T> Collection<T> getManagedBeans(Class<T> type) {
+		return managedBeanFactory.getManagedBeans(type);
+	}
+	
 	public Object getManagedBean(String name) throws NoSuchManagedBeanExcpetion {
 		return managedBeanFactory.getManagedBean(name);
 	}
@@ -69,4 +73,5 @@ public class GenericApplicationContext implements ApplicationContext {
 	public Map<String, Object> getEndpointTypes() {
 		return managedBeanFactory.getEndpointTypes();
 	}
+
 }

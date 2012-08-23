@@ -1,7 +1,10 @@
 package com.khs.sherpa.context.factory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +15,16 @@ import org.reflections.Reflections;
 import com.khs.sherpa.SherpaSettings;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
+import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.json.service.JsonProvider;
+import com.khs.sherpa.parser.BooleanParamParser;
+import com.khs.sherpa.parser.CalendarParamParser;
+import com.khs.sherpa.parser.DateParamParser;
+import com.khs.sherpa.parser.DoubleParamPaser;
+import com.khs.sherpa.parser.FloatParamParser;
+import com.khs.sherpa.parser.IntegerParamParser;
+import com.khs.sherpa.parser.JsonParamParser;
+import com.khs.sherpa.parser.StringParamParser;
 
 public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManageBeanFactory {
 
@@ -45,6 +58,16 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManage
 		throw new NoSuchManagedBeanExcpetion(type.getName());
 	}
 
+	public <T> Collection<T> getManagedBeans(Class<T> type) {
+		List<T> list = new ArrayList<T>();
+		for(ManagedBean bean: managedBeans) {
+			if(type.isAssignableFrom(bean.getType())) {
+				list.add((T)bean.getInstance());
+			}
+		}
+		return list;
+	}
+	
 	public Object getManagedBean(String name) throws NoSuchManagedBeanExcpetion {
 		for(ManagedBean bean: managedBeans) {
 			if(bean.getName().equals(name)) {
@@ -72,7 +95,6 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManage
 	
 	public void loadManagedBeans(String path) {
 		Reflections reflections = new Reflections(path);
-		this.loadManagedBeans(reflections.getTypesAnnotatedWith(javax.annotation.ManagedBean.class));
 		this.loadManagedBeans(reflections.getTypesAnnotatedWith(com.khs.sherpa.annotation.Endpoint.class));
 	}
 	
@@ -103,7 +125,24 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManage
 		this.loadManagedBean(settings.activityService());
 		this.loadManagedBean(settings.jsonProvider());
 		
+		this.loadManagedBean(StringParamParser.class);
+		this.loadManagedBean(IntegerParamParser.class);
+		this.loadManagedBean(DoubleParamPaser.class);
+		this.loadManagedBean(FloatParamParser.class);
+		this.loadManagedBean(BooleanParamParser.class);
+		this.loadManagedBean(DateParamParser.class);
+		this.loadManagedBean(CalendarParamParser.class);
+		this.loadManagedBean(JsonParamParser.class);
+		
+		try {
+			this.getManagedBean(JsonParamParser.class).setJsonProvider(this.getManagedBean(JsonProvider.class));
+		} catch (NoSuchManagedBeanExcpetion e) {
+			e.printStackTrace();
+			throw new SherpaRuntimeException(e);
+		}
+		
 		// load the root domain
 		this.loadManagedBeans("com.khs.sherpa.endpoint");		
 	}
+
 }

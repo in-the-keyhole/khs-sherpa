@@ -1,5 +1,6 @@
 package com.khs.sherpa.context.factory;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
@@ -24,6 +25,12 @@ public interface ManagedBeanFactory {
 	 * @throws NoSuchManagedBeanExcpetion
 	 */
 	public <T> T getManagedBean(Class<T> type) throws NoSuchManagedBeanExcpetion;
+	
+	/**
+	 * @param type
+	 * @return
+	 */
+	public <T> Collection<T> getManagedBeans(Class<T> type);
 	
 	/**
 	 * @param name

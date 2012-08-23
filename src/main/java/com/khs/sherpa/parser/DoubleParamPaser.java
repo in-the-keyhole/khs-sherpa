@@ -30,7 +30,7 @@ public class DoubleParamPaser implements ParamParser<Double> {
 		try {
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
-			throw new RuntimeException(value+" must be float ");
+			throw new RuntimeException(value+" must be double ");
 		}
 	}
 

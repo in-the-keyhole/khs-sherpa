@@ -16,17 +16,32 @@ package com.khs.sherpa.parser;
 * limitations under the License.
 */
 
+import java.util.Calendar;
+import java.util.Date;
 
+import javax.inject.Inject;
 
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.json.service.JsonProvider;
 
 public class JsonParamParser implements ParamParser<Object> {
 
+	@Inject
 	private JsonProvider jsonProvider;
 	
 	public boolean isValid(Class<?> clazz) {
-		return true;
+		return !clazz.isAssignableFrom(Boolean.class) && 
+				!clazz.isAssignableFrom(boolean.class) &&
+				!clazz.isAssignableFrom(Calendar.class) &&
+				!clazz.isAssignableFrom(Date.class) &&
+				!clazz.isAssignableFrom(Double.class) &&
+				!clazz.isAssignableFrom(double.class) &&
+				!clazz.isAssignableFrom(float.class) &&
+				!clazz.isAssignableFrom(Float.class) &&
+				!clazz.isAssignableFrom(Integer.class) &&
+				!clazz.isAssignableFrom(int.class) &&
+				!clazz.isAssignableFrom(Integer.class) && 
+				!clazz.isAssignableFrom(int.class);
 	}
 
 	public Object parse(String value, Param annotation, Class<?> clazz) {

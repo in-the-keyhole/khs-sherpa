@@ -16,9 +16,7 @@ package com.khs.sherpa;
  * limitations under the License.
  */
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -32,18 +30,7 @@ import com.khs.sherpa.context.ApplicationContext;
 import com.khs.sherpa.context.GenericApplicationContext;
 import com.khs.sherpa.context.factory.InitManageBeanFactory;
 import com.khs.sherpa.context.factory.ManagedBeanFactory;
-import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 import com.khs.sherpa.exception.SherpaRuntimeException;
-import com.khs.sherpa.json.service.JsonProvider;
-import com.khs.sherpa.parser.BooleanParamParser;
-import com.khs.sherpa.parser.CalendarParamParser;
-import com.khs.sherpa.parser.DateParamParser;
-import com.khs.sherpa.parser.DoubleParamPaser;
-import com.khs.sherpa.parser.FloatParamParser;
-import com.khs.sherpa.parser.IntegerParamParser;
-import com.khs.sherpa.parser.JsonParamParser;
-import com.khs.sherpa.parser.ParamParser;
-import com.khs.sherpa.parser.StringParamParser;
 
 public class SherpaContextListener implements ServletContextListener {
 
@@ -102,30 +89,12 @@ public class SherpaContextListener implements ServletContextListener {
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ADMIN_USER, settings.sherpaAdmin());
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ENDPOINT_AUTH, settings.endpointAuthenication());
 		
-//		// initialize parsers
-		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
-		parsers.add(new StringParamParser());
-		parsers.add(new IntegerParamParser());
-		parsers.add(new DoubleParamPaser());
-		parsers.add(new FloatParamParser());
-		parsers.add(new BooleanParamParser());
-		parsers.add(new DateParamParser());
-		parsers.add(new CalendarParamParser());
-		
 		
 		if(InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
 			((InitManageBeanFactory)managedBeanFactory).init(settings, servletContextEvent.getServletContext());
 			((InitManageBeanFactory)managedBeanFactory).loadManagedBeans(settings.endpoint());
 		}
 	
-		JsonParamParser jsonParamParser = new JsonParamParser();
-		try {
-			jsonParamParser.setJsonProvider(managedBeanFactory.getManagedBean(JsonProvider.class));
-		} catch (NoSuchManagedBeanExcpetion e) {
-			throw new SherpaRuntimeException(e);
-		}
-		parsers.add(jsonParamParser);
-		applicationContext.setAttribute(ApplicationContext.SETTINGS_PARSERS, parsers);
 		
 		this.setupInitializer(applicationContext);
 		

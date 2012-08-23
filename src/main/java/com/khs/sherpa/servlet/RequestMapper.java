@@ -57,7 +57,7 @@ public class RequestMapper {
 	private Object mapNonAnnotation(String endpoint,String action,Class<?> type) {
 		try {
 			return applicationContext.getManagedBean(type);
-		} catch (NoSuchManagedBeanExcpetion e) {
+		} catch (Exception e) {
 			// DO NOTHING - Not a managed bean;
 		}
 		
@@ -73,8 +73,7 @@ public class RequestMapper {
 	}
 	
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
-		List<ParamParser<?>> parsers  = (List<ParamParser<?>>) applicationContext.getAttribute(ApplicationContext.SETTINGS_PARSERS);
-		for(ParamParser<?> parser: parsers) {
+		for(ParamParser<?> parser: applicationContext.getManagedBeans(ParamParser.class)) {
 			if(parser.isValid(clazz)) {
 				return parser.parse(value, annotation, clazz);
 			}
