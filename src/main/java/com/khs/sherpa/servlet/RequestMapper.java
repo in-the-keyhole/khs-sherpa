@@ -17,7 +17,6 @@ package com.khs.sherpa.servlet;
  */
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.context.ApplicationContext;
-import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
+import com.khs.sherpa.context.ApplicationContextAware;
 import com.khs.sherpa.exception.SherpaRuntimeException;
 import com.khs.sherpa.parser.ParamParser;
 import com.khs.sherpa.processor.RequestProcessor;
@@ -75,6 +74,9 @@ public class RequestMapper {
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
 		for(ParamParser<?> parser: applicationContext.getManagedBeans(ParamParser.class)) {
 			if(parser.isValid(clazz)) {
+				if(ApplicationContextAware.class.isAssignableFrom(parser.getClass())) {
+					((ApplicationContextAware)parser).setApplicationContext(applicationContext);
+				}
 				return parser.parse(value, annotation, clazz);
 			}
 		}

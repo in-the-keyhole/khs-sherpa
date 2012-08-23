@@ -22,9 +22,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.context.ApplicationContextAware;
 
-public class CalendarParamParser implements ParamParser<Calendar> {
+public class CalendarParamParser implements ApplicationContextAware, ParamParser<Calendar> {
 
+	public static final String DEFAULT = "com.khs.sherpa.DEFUALT_CALENDAR_FORMAT";
+	
+	private ApplicationContext applicationContext;
+	
 	public boolean isValid(Class<?> clazz) {
 		return clazz.isAssignableFrom(Calendar.class);
 	}
@@ -32,7 +38,7 @@ public class CalendarParamParser implements ParamParser<Calendar> {
 	public Calendar parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
 		if(format == null) {
-//			format = SettingsContext.getSettings().dateFormat;
+			format = (String) applicationContext.getAttribute(DEFAULT);
 		}
 		
 		try {
@@ -43,6 +49,10 @@ public class CalendarParamParser implements ParamParser<Calendar> {
 		} catch (ParseException e) {
 			throw new RuntimeException(value+" must be calender ");
 		}
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 }

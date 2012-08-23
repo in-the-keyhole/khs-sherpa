@@ -21,14 +21,20 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.context.ApplicationContextAware;
 
-public class StringParamParser implements ParamParser<String> {
+public class StringParamParser implements ApplicationContextAware, ParamParser<String> {
+	
+	public static final String DEFAULT = "com.khs.sherpa.DEFUALT_STRING_FORMAT";
+	
+	private ApplicationContext applicationContext;
 	
 	public String parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
 		
 		if(format == null || format.equals("")) {
-//			format = default?;
+			format = (String) applicationContext.getAttribute(DEFAULT);
 		}
 		
 		return this.applyEncoding(value, format);
@@ -51,5 +57,9 @@ public class StringParamParser implements ParamParser<String> {
 		}
 		  
 		return result;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 }

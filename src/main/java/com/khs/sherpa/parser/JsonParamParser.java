@@ -19,14 +19,14 @@ package com.khs.sherpa.parser;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.inject.Inject;
-
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.context.ApplicationContextAware;
+import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 import com.khs.sherpa.json.service.JsonProvider;
 
-public class JsonParamParser implements ParamParser<Object> {
+public class JsonParamParser implements ApplicationContextAware, ParamParser<Object> {
 
-	@Inject
 	private JsonProvider jsonProvider;
 	
 	public boolean isValid(Class<?> clazz) {
@@ -48,8 +48,12 @@ public class JsonParamParser implements ParamParser<Object> {
 		return jsonProvider.toObject(value, clazz);
 	}
 
-	public void setJsonProvider(JsonProvider jsonProvider) {
-		this.jsonProvider = jsonProvider;
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		try {
+			this.jsonProvider = applicationContext.getManagedBean(JsonProvider.class);
+		} catch (NoSuchManagedBeanExcpetion e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

@@ -31,6 +31,9 @@ import com.khs.sherpa.context.GenericApplicationContext;
 import com.khs.sherpa.context.factory.InitManageBeanFactory;
 import com.khs.sherpa.context.factory.ManagedBeanFactory;
 import com.khs.sherpa.exception.SherpaRuntimeException;
+import com.khs.sherpa.parser.CalendarParamParser;
+import com.khs.sherpa.parser.DateParamParser;
+import com.khs.sherpa.parser.StringParamParser;
 
 public class SherpaContextListener implements ServletContextListener {
 
@@ -89,6 +92,9 @@ public class SherpaContextListener implements ServletContextListener {
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ADMIN_USER, settings.sherpaAdmin());
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ENDPOINT_AUTH, settings.endpointAuthenication());
 		
+		applicationContext.setAttribute(StringParamParser.DEFAULT, settings.encoding());
+		applicationContext.setAttribute(DateParamParser.DEFAULT, settings.dateFormat());
+		applicationContext.setAttribute(CalendarParamParser.DEFAULT, settings.dateFormat());
 		
 		if(InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
 			((InitManageBeanFactory)managedBeanFactory).init(settings, servletContextEvent.getServletContext());

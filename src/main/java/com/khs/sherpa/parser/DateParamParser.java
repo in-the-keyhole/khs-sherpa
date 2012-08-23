@@ -22,9 +22,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.context.ApplicationContextAware;
 
-public class DateParamParser implements ParamParser<Date> {
+public class DateParamParser implements ApplicationContextAware, ParamParser<Date> {
 
+	public static final String DEFAULT = "com.khs.sherpa.DEFUALT_DATE_FORMAT";
+	
+	private ApplicationContext applicationContext;
+	
 	public boolean isValid(Class<?> clazz) {
 		return clazz.isAssignableFrom(Date.class);
 	}
@@ -32,7 +38,7 @@ public class DateParamParser implements ParamParser<Date> {
 	public Date parse(String value, Param annotation, Class<?> clazz) {
 		String format = annotation.format();
 		if(format == null || format.equals("")) {
-//			format = SettingsContext.getSettings().dateFormat;
+			format =  (String) applicationContext.getAttribute(DEFAULT);
 		}
 		
 		try {
@@ -41,6 +47,10 @@ public class DateParamParser implements ParamParser<Date> {
 		} catch (ParseException e) {
 			throw new RuntimeException(value+" must be date ");
 		}
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 }

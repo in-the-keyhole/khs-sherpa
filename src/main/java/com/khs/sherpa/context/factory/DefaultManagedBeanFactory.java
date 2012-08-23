@@ -15,8 +15,6 @@ import org.reflections.Reflections;
 import com.khs.sherpa.SherpaSettings;
 import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
-import com.khs.sherpa.exception.SherpaRuntimeException;
-import com.khs.sherpa.json.service.JsonProvider;
 import com.khs.sherpa.parser.BooleanParamParser;
 import com.khs.sherpa.parser.CalendarParamParser;
 import com.khs.sherpa.parser.DateParamParser;
@@ -133,13 +131,6 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManage
 		this.loadManagedBean(DateParamParser.class);
 		this.loadManagedBean(CalendarParamParser.class);
 		this.loadManagedBean(JsonParamParser.class);
-		
-		try {
-			this.getManagedBean(JsonParamParser.class).setJsonProvider(this.getManagedBean(JsonProvider.class));
-		} catch (NoSuchManagedBeanExcpetion e) {
-			e.printStackTrace();
-			throw new SherpaRuntimeException(e);
-		}
 		
 		// load the root domain
 		this.loadManagedBeans("com.khs.sherpa.endpoint");		
