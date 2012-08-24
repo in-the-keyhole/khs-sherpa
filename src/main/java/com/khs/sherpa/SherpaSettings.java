@@ -40,6 +40,10 @@ public class SherpaSettings {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(SherpaSettings.class);
 	
+	public static final String SETTINGS_SHERPA_CONTEXT = "com.khs.sherpa.SETTINGS_SHERPA_CONTEXT";
+	public static final String SETTINGS_SERVER_URL = "com.khs.sherpa.SETTINGS_SERVER_URL";
+	public static final String SETTINGS_SERVER_TOKEN = "com.khs.sherpa.SETTINGS_SERVER_TOKEN";
+	
 	protected Properties properties;
 	
 	public SherpaSettings(String configFile) {
@@ -209,14 +213,6 @@ public class SherpaSettings {
 		} else {
 			return getInstanceClass(activityClazzName);
 		}
-	}
-	
-	public boolean serverEnabled() {
-		String value = properties.getProperty("server.enabled");
-		if(value.equalsIgnoreCase("true")) {
-			return true;
-		}
-		return false;
 	}
 	
 	public String serverToken() {

@@ -98,6 +98,10 @@ public class SherpaContextListener implements ServletContextListener {
 		applicationContext.setAttribute(DateParamParser.DEFAULT, settings.dateFormat());
 		applicationContext.setAttribute(CalendarParamParser.DEFAULT, settings.dateFormat());
 		
+		// Settings 
+		applicationContext.setAttribute(SherpaSettings.SETTINGS_SERVER_URL, settings.serverUrl());
+		applicationContext.setAttribute(SherpaSettings.SETTINGS_SERVER_TOKEN, settings.serverToken());
+		
 		if(InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
 			((InitManageBeanFactory)managedBeanFactory).init(settings, servletContextEvent.getServletContext());
 			((InitManageBeanFactory)managedBeanFactory).loadManagedBeans(settings.endpoint());
