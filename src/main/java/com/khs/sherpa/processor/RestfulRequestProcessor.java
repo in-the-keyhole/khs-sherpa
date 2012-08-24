@@ -66,8 +66,8 @@ public class RestfulRequestProcessor implements RequestProcessor {
 		}
 		
 		method = MethodUtil.validateHttpMethods(methods.toArray(new Method[] {}), request.getMethod());
-		Class<?> type = method.getDeclaringClass();
 		if(method != null) {
+			Class<?> type = method.getDeclaringClass();
 			if(type.isAnnotationPresent(Endpoint.class)) {
 				if(StringUtils.isNotEmpty(type.getAnnotation(Endpoint.class).value())) {
 					return type.getAnnotation(Endpoint.class).value();
