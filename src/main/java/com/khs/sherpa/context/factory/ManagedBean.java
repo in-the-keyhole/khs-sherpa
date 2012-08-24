@@ -51,7 +51,7 @@ abstract class ManagedBean {
 	
 	protected Object createInstance() {
 		try {
-			return type.getDeclaringClass().newInstance();
+			return type.newInstance();
 		} catch (Exception e) {
 			throw new SherpaRuntimeException("Unable to create Managed Bean [" + type + "]");
 		}
