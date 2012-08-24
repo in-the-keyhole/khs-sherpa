@@ -64,15 +64,9 @@ public class Util {
 		String name = null;
 		if(type.isAnnotationPresent(Endpoint.class)) {
 			name = type.getAnnotation(Endpoint.class).value();
-			if(StringUtils.isEmpty(name)) {
-				name = type.getSimpleName();
-			}
-		} else if(type.isAnnotationPresent(javax.annotation.ManagedBean.class)) {
-			name = type.getAnnotation(javax.annotation.ManagedBean.class).value();
-			if(StringUtils.isEmpty(name)) {
-				name = type.getSimpleName();
-			}
-		}  else {
+		}
+		
+		if(StringUtils.isEmpty(name)) {
 			name = type.getSimpleName();
 		}
 		return name;
