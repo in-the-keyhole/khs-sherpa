@@ -17,17 +17,17 @@ package com.khs.sherpa.json.service;
  */
 
 
-import java.util.logging.Logger;
-import static com.khs.sherpa.util.Util.*;
+import static com.khs.sherpa.util.Util.msg;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultActivityService implements ActivityService {
 	
-	Logger LOG = Logger.getLogger(DefaultActivityService.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultActivityService.class);
 
 	public void logActivity(String userid, String activity) {
-	
-		LOG.info(msg(userid+":"+activity));
-		
+		LOGGER.info(msg(userid+":"+activity));
 	}
 
 }

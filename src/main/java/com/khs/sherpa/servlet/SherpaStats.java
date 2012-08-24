@@ -16,22 +16,12 @@ package com.khs.sherpa.servlet;
  * limitations under the License.
  */
 
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
 import javax.servlet.ServletRequest;
 
 public class SherpaStats {
 
 	private static final String SHERPA_REQUEST_PARAM = "sherpa_request_param";
 	private static final String SHERPA_METHOD_PARAM = "sherpa_method_param";
-	
-	private static final String SHERPA_REQUEST_LOG = "sherpa_request_log";
-	private static final String SHERPA_METHOD_LOG = "sherpa_method_log";
-	
-	private static final Logger REQUEST = Logger.getLogger(SHERPA_REQUEST_LOG);
-	private static final Logger METHOD = Logger.getLogger(SHERPA_METHOD_LOG);
-	
 	
 	public static void startRequest(ServletRequest request) {
 		request.setAttribute(SHERPA_REQUEST_PARAM, System.currentTimeMillis());

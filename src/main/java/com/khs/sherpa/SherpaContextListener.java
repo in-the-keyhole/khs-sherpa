@@ -15,16 +15,18 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.khs.sherpa.context.ApplicationContext;
 import com.khs.sherpa.context.GenericApplicationContext;
@@ -37,7 +39,7 @@ import com.khs.sherpa.parser.StringParamParser;
 
 public class SherpaContextListener implements ServletContextListener {
 
-	public static final Logger LOGGER = Logger.getLogger("SHERPA");
+	private static final Logger LOGGER = LoggerFactory.getLogger("Sherpa");
 	
 	public static final String SHERPA_CONFIG_LOCATION = "classpath:/sherpa.properties";
 	
@@ -122,7 +124,7 @@ public class SherpaContextListener implements ServletContextListener {
 	    for(Class<? extends SherpaInitializer> clazz : reflections.getSubTypesOf(SherpaInitializer.class)) {
 	    	// skip the Initializer if its been loaded
 	    	if(initialized.contains(clazz)) {
-	    		LOGGER.warning("Initializer [" + clazz + "] is already loaded. Skipping.....");
+	    		LOGGER.warn("Initializer [" + clazz + "] is already loaded. Skipping.....");
 	    		continue;
 	    	}
 	    	initialized.add(clazz);

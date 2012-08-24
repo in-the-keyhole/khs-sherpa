@@ -22,8 +22,9 @@ import static com.khs.sherpa.util.Util.msg;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.json.service.ActivityService;
@@ -38,7 +39,7 @@ import com.khs.sherpa.servlet.SherpaServlet;
 
 public class SettingsLoader {
 
-	private static Logger LOG = Logger.getLogger(SettingsLoader.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsLoader.class);
 	
 	protected Properties properties;
 	
@@ -48,10 +49,10 @@ public class SettingsLoader {
 		    if (in != null) {
 		    	properties = new Properties();
 		    	properties.load(in);
-		    	LOG.info(msg("sherpa properties loaded"));
+		    	LOGGER.info(msg("sherpa properties loaded"));
 			}
 		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "sherpa properties not found, defaults applied...");
+			LOGGER.error("sherpa properties not found, defaults applied...");
          // does'nt exist...
 		}
 		
@@ -128,14 +129,14 @@ public class SettingsLoader {
 		if (value != null) {
 			try {
 				long timeout = Long.parseLong(value);
-				LOG.info(msg("session timeout set to "+timeout+" ms"));
+				LOGGER.info(msg("session timeout set to "+timeout+" ms"));
 				return timeout;
 				
 			} catch(NumberFormatException e) {
 				throw new RuntimeException("ERROR reading session.timeout value from property file, value must be long");
 			}
 		}
-		LOG.info(msg("session timeout set to "+Defaults.SESSION_TIMEOUT+" ms"));
+		LOGGER.info(msg("session timeout set to "+Defaults.SESSION_TIMEOUT+" ms"));
 		return Defaults.SESSION_TIMEOUT;
 	}
 	

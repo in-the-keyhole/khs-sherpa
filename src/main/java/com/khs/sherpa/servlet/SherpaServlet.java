@@ -18,13 +18,14 @@ package com.khs.sherpa.servlet;
 import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.khs.sherpa.context.GenericApplicationContext;
 import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
@@ -35,8 +36,8 @@ public class SherpaServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4345668988238038540L;	
 	
-    private static final Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(SherpaServlet.class);
+	
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws RuntimeException, IOException {
 		try {
 			
@@ -47,10 +48,10 @@ public class SherpaServlet extends HttpServlet {
 			
 		} catch (SherpaInvalidUsernamePassword e) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Username or Password!");
-			LOG.log(Level.INFO,msg("INFO "+e.getMessage() ));			
+			LOGGER.info(msg("INFO "+e.getMessage() ));			
 		} catch (SherpaRuntimeException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
+			LOGGER.error(msg("ERROR "+e.getMessage() ));
 		} catch (Exception e) {
 			throw new SherpaRuntimeException(e);
 		} finally {

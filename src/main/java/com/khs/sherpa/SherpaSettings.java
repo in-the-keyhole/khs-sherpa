@@ -15,6 +15,7 @@ package com.khs.sherpa;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
 import static com.khs.sherpa.util.Util.msg;
 
@@ -22,10 +23,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.khs.sherpa.annotation.Encode;
 import com.khs.sherpa.json.service.DefaultActivityService;
@@ -37,7 +38,7 @@ import com.khs.sherpa.util.Defaults;
 
 public class SherpaSettings {
 
-	private static Logger LOG = Logger.getLogger(SherpaSettings.class.getName());
+	private static Logger LOGGER = LoggerFactory.getLogger(SherpaSettings.class);
 	
 	protected Properties properties;
 	
@@ -54,10 +55,10 @@ public class SherpaSettings {
 		    if (in != null) {
 		    	properties = new Properties();
 		    	properties.load(in);
-		    	LOG.info(msg("sherpa properties loaded"));
+		    	LOGGER.info(msg("sherpa properties loaded"));
 			}
 		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "sherpa properties not found, defaults applied...");
+			LOGGER.error("sherpa properties not found, defaults applied...");
          // does'nt exist...
 		}
 		
@@ -144,14 +145,14 @@ public class SherpaSettings {
 		if (value != null) {
 			try {
 				long timeout = Long.parseLong(value);
-				LOG.info(msg("session timeout set to "+timeout+" ms"));
+				LOGGER.info(msg("session timeout set to "+timeout+" ms"));
 				return timeout;
 				
 			} catch(NumberFormatException e) {
 				throw new RuntimeException("ERROR reading session.timeout value from property file, value must be long");
 			}
 		}
-		LOG.info(msg("session timeout set to "+Defaults.SESSION_TIMEOUT+" ms"));
+		LOGGER.info(msg("session timeout set to "+Defaults.SESSION_TIMEOUT+" ms"));
 		return Defaults.SESSION_TIMEOUT;
 	}
 	
