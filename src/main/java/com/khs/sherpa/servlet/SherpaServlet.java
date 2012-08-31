@@ -37,7 +37,12 @@ public class SherpaServlet extends HttpServlet {
 	private static final long serialVersionUID = 4345668988238038540L;	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SherpaServlet.class);
-	
+
+	@Override
+	public void init() throws ServletException {
+		super.init();
+	}
+
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws RuntimeException, IOException {
 		try {
 			

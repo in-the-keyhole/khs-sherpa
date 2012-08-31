@@ -90,6 +90,9 @@ public class SherpaContextListener implements ServletContextListener {
 		
 		ManagedBeanFactory managedBeanFactory = applicationContext.getManagedBeanFactory();
 		
+		applicationContext.setAttribute(ApplicationContext.CONTEXT_PATH, 
+				servletContextEvent.getServletContext().getContextPath());
+		
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_JSONP, settings.jsonpSupport());
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ADMIN_USER, settings.sherpaAdmin());
 		applicationContext.setAttribute(ApplicationContext.SETTINGS_ENDPOINT_AUTH, settings.endpointAuthenication());
