@@ -95,6 +95,10 @@ Configuring WEB.XML
 Add the khsSherpa framework jar to your classpath/maven dependency list and add the 
 SherpaServlet to the WEB-INF/web.xml as shown below. 
 
+  	<listener>
+  		<listener-class>com.khs.sherpa.SherpaContextListener</listener-class>
+  	</listener>
+
     <servlet>	
   		<servlet-name>sherpa</servlet-name>
 		<display-name>sherpa</display-name>
