@@ -1,4 +1,4 @@
-package com.khs.sherpa.json.service;
+package com.khs.sherpa.exception;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -16,8 +16,24 @@ package com.khs.sherpa.json.service;
  * limitations under the License.
  */
 
-public class AuthenticationException extends RuntimeException {
+public class NoSuchManagedBeanExcpetion extends SherpaException {
 
-	private static final long serialVersionUID = -6383140887087843852L;
+	public NoSuchManagedBeanExcpetion() {
+		super();
+	}
+
+	public NoSuchManagedBeanExcpetion(String arg0, Throwable arg1) {
+		super(arg0, arg1);
+	}
+
+	public NoSuchManagedBeanExcpetion(String arg0) {
+		super(arg0);
+	}
+
+	public NoSuchManagedBeanExcpetion(Throwable arg0) {
+		super(arg0);
+	}
+
+	private static final long serialVersionUID = 3764129759598703541L;
 
 }

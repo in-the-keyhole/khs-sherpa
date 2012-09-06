@@ -15,65 +15,58 @@ package com.khs.sherpa.servlet;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.khs.sherpa.endpoint.SherpaEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.khs.sherpa.context.GenericApplicationContext;
+import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 import com.khs.sherpa.exception.SherpaRuntimeException;
-import com.khs.sherpa.json.service.JSONService;
-import com.khs.sherpa.json.service.JsonProvider;
-import com.khs.sherpa.json.service.SessionStatus;
-import com.khs.sherpa.parser.BooleanParamParser;
-import com.khs.sherpa.parser.CalendarParamParser;
-import com.khs.sherpa.parser.DateParamParser;
-import com.khs.sherpa.parser.DoubleParamPaser;
-import com.khs.sherpa.parser.FloatParamParser;
-import com.khs.sherpa.parser.IntegerParamParser;
-import com.khs.sherpa.parser.JsonParamParser;
-import com.khs.sherpa.parser.ParamParser;
-import com.khs.sherpa.parser.StringParamParser;
-import com.khs.sherpa.util.SettingsContext;
-import com.khs.sherpa.util.SettingsLoader;
-import static com.khs.sherpa.util.Util.*;
+import com.khs.sherpa.servlet.request.DefaultSherpaRequest;
 
 public class SherpaServlet extends HttpServlet {
 
-    private Logger LOG = Logger.getLogger(SherpaServlet.class.getName());
 	private static final long serialVersionUID = 4345668988238038540L;	
-	private JSONService service = new JSONService();
-
-	private void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		SessionStatus sessionStatus = null;
-		
-		SherpaRequest sherpa = new SherpaRequest();
-		sherpa.setService(service);
-		sherpa.setSessionStatus(sessionStatus);
-		sherpa.loadRequest(request, response);
 	
-		sherpa.setTarget(ReflectionCache.getObject(sherpa.getEndpoint()));
-		sherpa.run();
+	private static final Logger LOGGER = LoggerFactory.getLogger(SherpaServlet.class);
+
+	@Override
+	public void init() throws ServletException {
+		super.init();
+	}
+
+	private void doService(HttpServletRequest request, HttpServletResponse response) throws RuntimeException, IOException {
+		try {
+			
+			DefaultSherpaRequest sherpaRequest = new DefaultSherpaRequest();
+			sherpaRequest.setApplicationContext(GenericApplicationContext.getApplicationContext(getServletContext()));
+
+			sherpaRequest.doService(request, response);
+			
+		} catch (SherpaInvalidUsernamePassword e) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Username or Password!");
+			LOGGER.info(msg("INFO "+e.getMessage() ));			
+		} catch (SherpaRuntimeException e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Sherpa Error "+e.getMessage());
+			LOGGER.error(msg("ERROR "+e.getMessage() ));
+		} catch (Exception e) {
+			throw new SherpaRuntimeException(e);
+		} finally {
+			// do nothing right now
+		}
 	}
 	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg("ERROR "+e.getMessage() ));
-		}
-		catch (Exception e) {	
-			throw new ServletException(e);
-		}
+		doService(request, response);
 	}
 
 	/**
@@ -81,98 +74,40 @@ public class SherpaServlet extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg(e.getMessage() ));
-			e.printStackTrace();
-		}
-		catch (Exception e) {	
-			throw new ServletException(e);
-		}
+		doService(request, response);
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg(e.getMessage() ));
-			e.printStackTrace();
-		}
-		catch (Exception e) {	
-			throw new ServletException(e);
-		}
+		doService(request, response);
 	}
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			doService(request, response);
-		} catch (SherpaRuntimeException e) {	
-			response.sendError(500,"Sherpa Error "+e.getMessage());
-			LOG.log(Level.SEVERE,msg(e.getMessage() ));
-			e.printStackTrace();
-		}
-		catch (Exception e) {	
-			throw new ServletException(e);
-		}
+		doService(request, response);
 	}
 
 	@Override
-	public void init() throws ServletException {
-
-		String configFile = "sherpa.properties";
-		if(getInitParameter("sherpaConfigPath") != null) {
-			configFile = getInitParameter("sherpaConfigPath");
-		}
-		
-		SettingsLoader loader = new SettingsLoader(configFile);
-		
-		// loading service
-		service.setUserService(loader.userService());
-		service.setTokenService(loader.tokenService());
-		service.setActivityService(loader.activityService());
-		
-		// loading settings
-		Settings settings = new Settings();
-		settings.endpointPackage = loader.endpoint();
-		settings.sessionTimeout = loader.timeout();
-		settings.dateFormat = loader.dateFormat();
-		settings.dateTimeFormat = loader.dateTimeFormat();
-		settings.activityLogging = loader.logging();
-		settings.encode = loader.encoding();
-		settings.sherpaAdmin = loader.sherpaAdmin();
-		settings.jsonpSupport = loader.jsonpSupport();
-		SettingsContext context = new SettingsContext();
-		context.setSettings(settings);
-		
-		JsonProvider jsonProvider = loader.jsonProvider();
-		
-		// initialize parsers
-		List<ParamParser<?>> parsers = new ArrayList<ParamParser<?>>();
-		parsers.add(new StringParamParser());
-		parsers.add(new IntegerParamParser());
-		parsers.add(new DoubleParamPaser());
-		parsers.add(new FloatParamParser());
-		parsers.add(new BooleanParamParser());
-		parsers.add(new DateParamParser());
-		parsers.add(new CalendarParamParser());
-		
-		JsonParamParser jsonParamParser = new JsonParamParser();
-		jsonParamParser.setJsonProvider(jsonProvider);
-		parsers.add(jsonParamParser);
-
-		service.setJsonProvider(jsonProvider);
-		service.setParsers(parsers);
-		
-//		// initialize endpoints
-		EndpointScanner scanner = new EndpointScanner();
-		scanner.classPathScan(settings.endpointPackage);
-		
-		// hard code sherpa endpoint
-		ReflectionCache.addObject(SherpaEndpoint.class.getName(), SherpaEndpoint.class);
+	protected long getLastModified(HttpServletRequest req) {
+		return super.getLastModified(req);
 	}
+
+	@Override
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		super.doHead(req, resp);
+	}
+	
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		super.doOptions(req, resp);
+	}
+
+	@Override
+	protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		super.doTrace(req, resp);
+	}
+	
 }

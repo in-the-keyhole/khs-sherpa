@@ -1,7 +1,5 @@
 package com.khs.sherpa.util;
 
-import static com.khs.sherpa.util.Constants.*;
-
 /*
  * Copyright 2012 the original author or authors.
  *
@@ -18,6 +16,18 @@ import static com.khs.sherpa.util.Constants.*;
  * limitations under the License.
  */
 
+import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
+import static com.khs.sherpa.util.Constants.SHERPA_SERVER;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.khs.sherpa.annotation.Endpoint;
+
 public class Util {
 
 	public static String msg(String msg) {
@@ -28,6 +38,38 @@ public class Util {
 		return SHERPA_NOT_INITIALIZED+msg;	
 	}
 	
+	public static URL getResource(String resource) {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		return cl.getResource(resource);
+	}
 	
+	public static Properties getProperties(String resource) throws IOException {
+		return getProperties(Util.getResource(resource));
+	}
+	
+	public static Properties getProperties(URL url) throws IOException {
+		Properties properties = new Properties();
+		properties.load(url.openStream());
+		return properties;
+	}
+	
+	public static <T> T[] append(T[] arr, T element) {
+	    final int N = arr.length;
+	    arr = Arrays.copyOf(arr, N + 1);
+	    arr[N] = element;
+	    return arr;
+	}
+	
+	public static String getObjectName(Class<?> type) {
+		String name = null;
+		if(type.isAnnotationPresent(Endpoint.class)) {
+			name = type.getAnnotation(Endpoint.class).value();
+		}
+		
+		if(StringUtils.isEmpty(name)) {
+			name = type.getSimpleName();
+		}
+		return name;
+	}
 	
 }

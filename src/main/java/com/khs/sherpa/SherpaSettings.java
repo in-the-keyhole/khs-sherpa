@@ -1,4 +1,4 @@
-package com.khs.sherpa.util;
+package com.khs.sherpa;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -19,33 +19,43 @@ package com.khs.sherpa.util;
 import static com.khs.sherpa.util.Constants.SHERPA_NOT_INITIALIZED;
 import static com.khs.sherpa.util.Util.msg;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.khs.sherpa.annotation.Encode;
-import com.khs.sherpa.json.service.ActivityService;
 import com.khs.sherpa.json.service.DefaultActivityService;
 import com.khs.sherpa.json.service.DefaultTokenService;
 import com.khs.sherpa.json.service.DefaultUserService;
 import com.khs.sherpa.json.service.GsonJsonProvider;
-import com.khs.sherpa.json.service.JsonProvider;
-import com.khs.sherpa.json.service.SessionTokenService;
-import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.servlet.SherpaServlet;
+import com.khs.sherpa.util.Defaults;
 
-public class SettingsLoader {
+public class SherpaSettings {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettingsLoader.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(SherpaSettings.class);
+	
+	public static final String SETTINGS_SHERPA_CONTEXT = "com.khs.sherpa.SETTINGS_SHERPA_CONTEXT";
+	public static final String SETTINGS_SERVER_URL = "com.khs.sherpa.SETTINGS_SERVER_URL";
+	public static final String SETTINGS_SERVER_TOKEN = "com.khs.sherpa.SETTINGS_SERVER_TOKEN";
 	
 	protected Properties properties;
 	
-	public SettingsLoader(String configFile) {
+	public SherpaSettings(String configFile) {
+		
 		try {
-			InputStream in = SherpaServlet.class.getClassLoader().getResourceAsStream(configFile);
+			
+			InputStream in = null;
+			if(configFile.startsWith("classpath:")) {
+				in = SherpaServlet.class.getClassLoader().getResourceAsStream(configFile.substring("classpath:".length()));
+			} else {
+				in = new FileInputStream(configFile);
+			}
 		    if (in != null) {
 		    	properties = new Properties();
 		    	properties.load(in);
@@ -59,10 +69,10 @@ public class SettingsLoader {
 		if (properties == null) {			
 			throw new RuntimeException(SHERPA_NOT_INITIALIZED+"property file sherpa.properties must be defined in classpath");
 		}
-		
 	}
 	
-	public SettingsLoader(Properties properties) {
+	
+	public SherpaSettings(Properties properties) {
 		this.properties = properties;
 	}
 	
@@ -89,18 +99,28 @@ public class SettingsLoader {
 	    String value = properties.getProperty("activity.logging");
 		if (value != null) {
 			value = value.toUpperCase();
-			if (value.equals("N") || value.equals("NO") || value.equals("FALSE")) {
+			if (value.equalsIgnoreCase("N") || value.equalsIgnoreCase("NO") || value.equalsIgnoreCase("FALSE")) {
 				return false;
 			}		
 		} 
 		return Defaults.ACTIVITY_LOG;
 	}
 	
+	public boolean endpointAuthenication() {
+		String value = properties.getProperty("endpoint.authentication");
+		if(value != null) {
+			if (value.equalsIgnoreCase("N") || value.equalsIgnoreCase("NO") || value.equalsIgnoreCase("FALSE")) {
+				return false;
+			}	
+		}
+		return Defaults.ENDPOINT_AUTHENTICATION;
+	}
+	
 	public boolean jsonpSupport() {
 	    String value = properties.getProperty("jsonp.support");
 		if (value != null) {
 			value = value.toUpperCase();
-			if (value.equals("Y") || value.equals("YES") || value.equals("TRUE")) {
+			if (value.equalsIgnoreCase("Y") || value.equalsIgnoreCase("YES") || value.equalsIgnoreCase("TRUE")) {
 				return true;
 			}		
 		} 
@@ -140,12 +160,12 @@ public class SettingsLoader {
 		return Defaults.SESSION_TIMEOUT;
 	}
 	
-	public JsonProvider jsonProvider() {
+	public Class<?> jsonProvider() {
 		String userClazzName = properties.getProperty("json.provider");
 		if (userClazzName == null) {
-			return new GsonJsonProvider();
+			return GsonJsonProvider.class;
 		} else {
-			return (GsonJsonProvider) createInstance(userClazzName);
+			return getInstanceClass(userClazzName);
 		}
 	}
 	
@@ -163,30 +183,63 @@ public class SettingsLoader {
 		return endpoint;
 	}
 	
-	public UserService userService() {
+	public Class<?> userService() {
 		String userClazzName = properties.getProperty("user.service");
 		if (userClazzName == null) {
-			return new DefaultUserService();
+			try {
+				return Class.forName("com.khs.sherpa.sping.SpringAuthentication");
+			} catch (ClassNotFoundException e1) {
+				return DefaultUserService.class;
+			}
+			
 		} else {
-			return (UserService) createInstance(userClazzName);
+			return getInstanceClass(userClazzName);
 		}
 	}
 	
-	public SessionTokenService tokenService() {
+	public Class<?> tokenService() {
 		String tokenClazzName = properties.getProperty("token.service");
 		if (tokenClazzName == null) {
-			return new DefaultTokenService();
+			return DefaultTokenService.class;
 		} else {
-			return (SessionTokenService) createInstance(tokenClazzName);
+			return getInstanceClass(tokenClazzName);
 		}
 	}
 	
-	public ActivityService activityService() {
+	public Class<?> activityService() {
 		String activityClazzName = properties.getProperty("activity.service");
 		if (activityClazzName == null) {
-			return new DefaultActivityService();
+			return DefaultActivityService.class;
 		} else {
-			return (ActivityService) createInstance(activityClazzName);
+			return getInstanceClass(activityClazzName);
+		}
+	}
+	
+	public String serverToken() {
+		String value = properties.getProperty("server.token");
+		if(StringUtils.isNotEmpty(value)) {
+			return value;
+		}
+		return null;
+	}
+	
+	public String serverUrl() {
+		String value = properties.getProperty("server.url");
+		if(!StringUtils.isEmpty(value)) {
+			// always remove the ending /
+			if(StringUtils.endsWith(value, "/")) {
+				value = StringUtils.removeEnd(value, "/");
+			}
+			return value;
+		}
+		return null;
+	}
+	
+	protected Class<?> getInstanceClass(String name) {
+		try {
+			return Class.forName(name);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("User service class not found " + name);
 		}
 	}
 	
@@ -204,4 +257,5 @@ public class SettingsLoader {
 		}
 
 	}
+
 }

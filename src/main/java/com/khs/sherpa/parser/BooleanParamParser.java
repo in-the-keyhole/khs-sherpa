@@ -21,13 +21,11 @@ import com.khs.sherpa.annotation.Param;
 public class BooleanParamParser implements ParamParser<Boolean> {
 
 	public boolean isValid(Class<?> clazz) {
-		// TODO Auto-generated method stub
-		return false;
+		return (clazz.isAssignableFrom(Boolean.class) || clazz.isAssignableFrom(boolean.class));
 	}
 
 	public Boolean parse(String value, Param annotation, Class<?> clazz) {
-		// TODO Auto-generated method stub
-		return null;
+		return Boolean.parseBoolean(value);
 	}
 
 }

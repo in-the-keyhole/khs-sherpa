@@ -1,6 +1,4 @@
-package com.khs.sherpa.json.service;
-
-import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
+package com.khs.sherpa.processor;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -18,17 +16,13 @@ import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
  * limitations under the License.
  */
 
-/**
- * Test user service implementation ,everyone is authenticated Override by defining in sherpa.properties or use and IOC mechanism
- * 
- * @author dpitt
- * 
- */
+import javax.servlet.http.HttpServletRequest;
 
-public class DefaultUserService implements UserService {
+public interface RequestProcessor {
 
-	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword {
-		// Default always fails authentication
-		throw new SherpaInvalidUsernamePassword("Authentication Error Invalid Credentials");	
-	}
+	public String getEndpoint(HttpServletRequest request);
+	
+	public String getAction(HttpServletRequest request);
+	
+	public String getParmeter(HttpServletRequest request, String value);
 }

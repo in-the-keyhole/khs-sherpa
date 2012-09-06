@@ -1,6 +1,4 @@
-package com.khs.sherpa.json.service;
-
-import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
+package com.khs.sherpa.context.factory;
 
 /*
  * Copyright 2012 the original author or authors.
@@ -18,17 +16,30 @@ import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
  * limitations under the License.
  */
 
-/**
- * Test user service implementation ,everyone is authenticated Override by defining in sherpa.properties or use and IOC mechanism
- * 
- * @author dpitt
- * 
- */
+class ManagedSingletonBean extends ManagedBean {
 
-public class DefaultUserService implements UserService {
-
-	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword {
-		// Default always fails authentication
-		throw new SherpaInvalidUsernamePassword("Authentication Error Invalid Credentials");	
+	public ManagedSingletonBean(Class<?> type) {
+		super(type);
 	}
+
+	public Object instance;
+
+	@Override
+	public boolean isSingletone() {
+		return true;
+	}
+
+	@Override
+	public boolean isPrototype() {
+		return false;
+	}
+
+	@Override
+	public Object getInstance() {
+		if(instance == null) {
+			instance = this.createInstance();
+		}
+		return instance;
+	}
+	
 }

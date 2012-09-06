@@ -19,28 +19,24 @@ package com.khs.sherpa.servlet;
 import java.lang.annotation.Annotation;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.khs.sherpa.annotation.Param;
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.context.ApplicationContextAware;
 import com.khs.sherpa.exception.SherpaRuntimeException;
-import com.khs.sherpa.json.service.ActivityService;
-import com.khs.sherpa.json.service.JSONService;
-import com.khs.sherpa.json.service.SessionTokenService;
-import com.khs.sherpa.json.service.UserService;
 import com.khs.sherpa.parser.ParamParser;
+import com.khs.sherpa.processor.RequestProcessor;
 import com.khs.sherpa.util.UrlUtil;
 
 public class RequestMapper {
 	
+	private HttpServletRequest request;
+	private RequestProcessor requestProcessor;
 	
-//	private Settings settings = null;
-	private JSONService service = null;
-	
-	private ServletRequest request;
-	private ServletResponse response;
+	private ApplicationContext applicationContext;
 	
 	private Object mapAnnotation(String endpoint,String action,Class<?> type, Param param) {
 		String name = param.value();
@@ -49,8 +45,7 @@ public class RequestMapper {
 			throw new SherpaRuntimeException("parameters required");	
 		}
 		
-		//String value = request.getParameter(name);
-		String value = UrlUtil.getParamValue((HttpServletRequest) request, name);
+		String value = requestProcessor.getParmeter(request, name);
 		if(value == null) {
 			throw new RuntimeException("Endpoint = "+endpoint+" Action = "+action+" - Parameter name ("+name+") not found in request");		
 		}
@@ -59,16 +54,14 @@ public class RequestMapper {
 	}
 	
 	private Object mapNonAnnotation(String endpoint,String action,Class<?> type) {
-		if(type.isAssignableFrom(SessionTokenService.class)) {
-			return service.getTokenService();
-		} else if(type.isAssignableFrom(UserService.class)) {
-			return service.getUserService();
-		} else if(type.isAssignableFrom(ActivityService.class)) {
-			return service.getActivityService();
-		} else if(type.isAssignableFrom(ServletRequest.class)) {
+		try {
+			return applicationContext.getManagedBean(type);
+		} catch (Exception e) {
+			// DO NOTHING - Not a managed bean;
+		}
+		
+		if(type.isAssignableFrom(ServletRequest.class)) {
 			return request;
-		} else if(type.isAssignableFrom(ServletResponse.class)) {
-			return response;
 		} else {
 			String body = UrlUtil.getRequestBody((HttpServletRequest) request);
 			if(StringUtils.isNotEmpty(body)) {
@@ -79,9 +72,11 @@ public class RequestMapper {
 	}
 	
 	private Object parseObject(Class<?> clazz, String value, Param annotation) {
-
-		for(ParamParser<?> parser: service.getParsers()) {
+		for(ParamParser<?> parser: applicationContext.getManagedBeans(ParamParser.class)) {
 			if(parser.isValid(clazz)) {
+				if(ApplicationContextAware.class.isAssignableFrom(parser.getClass())) {
+					((ApplicationContextAware)parser).setApplicationContext(applicationContext);
+				}
 				return parser.parse(value, annotation, clazz);
 			}
 		}
@@ -98,29 +93,16 @@ public class RequestMapper {
 		
 		return mapNonAnnotation(endpoint, action, type);
 	}
-	
-	public JSONService getService() {
-		return service;
-	}
 
-	public void setService(JSONService service) {
-		this.service = service;
-	}
-
-	public ServletRequest getRequest() {
-		return request;
-	}
-
-	public void setRequest(ServletRequest request) {
+	public void setRequest(HttpServletRequest request) {
 		this.request = request;
 	}
 
-	public ServletResponse getResponse() {
-		return response;
+	public void setRequestProcessor(RequestProcessor requestProcessor) {
+		this.requestProcessor = requestProcessor;
 	}
 
-	public void setResponse(ServletResponse response) {
-		this.response = response;
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
-
 }

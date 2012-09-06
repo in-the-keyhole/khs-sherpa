@@ -16,14 +16,12 @@ package com.khs.sherpa.parser;
 * limitations under the License.
 */
 
-
-
 import com.khs.sherpa.annotation.Param;
 
 public interface ParamParser<T> {
 
 	public boolean isValid(Class<?> clazz);
 	
-	public T parse(String value,  Param annotation, Class<?> clazz);
+	public T parse(String value, Param annotation, Class<?> clazz);
 	
 }

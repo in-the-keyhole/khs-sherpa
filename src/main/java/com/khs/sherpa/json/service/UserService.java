@@ -1,5 +1,7 @@
 package com.khs.sherpa.json.service;
 
+import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
+
 /*
  * Copyright 2012 the original author or authors.
  *
@@ -26,6 +28,6 @@ public interface UserService {
 	 *  example: {ROLE_USER,ROLE_ADMIN}
 	 * @throws AuthenticationException
 	 */
-	public String[] authenticate(String userid, String password) throws AuthenticationException;
+	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword;
 
 }
