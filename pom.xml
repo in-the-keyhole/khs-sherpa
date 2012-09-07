@@ -28,7 +28,7 @@
 	<scm>
 		<connection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</connection>
 		<developerConnection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</developerConnection>
-		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>
+		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>	
 	</scm>
 
 	<ciManagement>
