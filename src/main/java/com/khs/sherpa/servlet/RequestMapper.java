@@ -60,7 +60,7 @@ public class RequestMapper {
 			// DO NOTHING - Not a managed bean;
 		}
 		
-		if(type.isAssignableFrom(ServletRequest.class)) {
+		if(type.isAssignableFrom(HttpServletRequest.class)) {
 			return request;
 		} else {
 			String body = UrlUtil.getRequestBody((HttpServletRequest) request);

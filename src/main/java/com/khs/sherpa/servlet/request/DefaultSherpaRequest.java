@@ -19,6 +19,7 @@ package com.khs.sherpa.servlet.request;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -98,9 +99,10 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		
 		try {
 			JsonUtil.map(this.proccess(), jsonProvider, output, callback);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			JsonUtil.error(e.getMessage(), jsonProvider, output, callback);
+			throw e;
 		}
 	}
 	
@@ -116,8 +118,12 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		String action = requestProcessor.getAction(request);
 		String httpMethod = request.getMethod();
 		
-		if(StringUtils.isEmpty(endpoint) && action.equals(Constants.AUTHENTICATE_ACTION)) {
-			return this.processAuthenication();
+		if(StringUtils.isEmpty(endpoint)) {
+			if(action.equals(Constants.AUTHENTICATE_ACTION)) {
+				return this.processAuthenication();
+			} else if(action.equals(Constants.VALID)) {
+				return this.processValid();
+			}
 		}
 		
 		Object target = null;
@@ -208,6 +214,25 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		}
 	}
 	
+	protected Object processValid()  throws SherpaRuntimeException {
+		String userid = request.getParameter("userid");
+		String token = request.getParameter("token");
+		
+		SessionTokenService service = null;
+		Map<String, Object> resp = new HashMap<String, Object>();
+		try {
+			service = applicationContext.getManagedBean(SessionTokenService.class);
+		} catch (NoSuchManagedBeanExcpetion e) {
+			throw new SherpaRuntimeException(e);
+		}
+
+		resp.put("userid", userid);
+		resp.put("token", token);
+		resp.put("status", service.isActive(userid, token));
+		return resp;
+		
+	}
+	
 	protected Object processAuthenication() throws SherpaRuntimeException {
 		String userid = request.getParameter("userid");
 		String password = request.getParameter("password");
@@ -234,6 +259,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			Object obj = method.invoke(target, this.getParams(method));
 			return obj;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new SherpaActionNotFoundException("unable to execute method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"]");
 		} finally {
 			

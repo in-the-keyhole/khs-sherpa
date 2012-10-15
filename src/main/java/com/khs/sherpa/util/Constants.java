@@ -25,6 +25,8 @@ public class Constants {
 	
 	// sherpa command names
 	public final static String AUTHENTICATE_ACTION = "authenticate";
+	public final static String VALID = "valid";
+	
 	public final static String SESSION_ACTION = "sessions";
 	public final static String DEACTIVATE_USER_ACTION = "deactivateUser";
 	
