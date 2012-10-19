@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,6 +35,8 @@ import com.khs.sherpa.util.UrlUtil;
 public class RequestMapper {
 	
 	private HttpServletRequest request;
+	private HttpServletResponse response;
+	
 	private RequestProcessor requestProcessor;
 	
 	private ApplicationContext applicationContext;
@@ -62,6 +65,8 @@ public class RequestMapper {
 		
 		if(type.isAssignableFrom(HttpServletRequest.class)) {
 			return request;
+		} else if(type.isAssignableFrom(HttpServletResponse.class)) {
+			return response;
 		} else {
 			String body = UrlUtil.getRequestBody((HttpServletRequest) request);
 			if(StringUtils.isNotEmpty(body)) {
@@ -96,6 +101,10 @@ public class RequestMapper {
 
 	public void setRequest(HttpServletRequest request) {
 		this.request = request;
+	}
+
+	public void setResponse(HttpServletResponse response) {
+		this.response = response;
 	}
 
 	public void setRequestProcessor(RequestProcessor requestProcessor) {

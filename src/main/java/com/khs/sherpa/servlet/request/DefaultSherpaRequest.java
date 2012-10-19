@@ -64,6 +64,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 	private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
 	private ApplicationContext applicationContext;
 	private HttpServletRequest request;
+	private HttpServletResponse response;
 	private RequestProcessor requestProcessor;
 	
 	public Object getAttribute(String name) {
@@ -76,6 +77,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 	
 	public void doService(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
+		this.response = response;
 		
 		ServletOutputStream output = null;
 		JsonProvider jsonProvider = null;
@@ -130,7 +132,16 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		Set<Method> methods = null;
 		
 		try {
-			this.hasPermission(applicationContext.getType(endpoint), request.getHeader("userid"), request.getHeader("token"));
+			String userid = request.getHeader("userid");
+			if(userid == null) {
+				userid = request.getParameter("userid");
+			}
+			String token = request.getHeader("token");
+			if(token == null) {
+				token = request.getParameter("token");
+			}
+			
+			this.hasPermission(applicationContext.getType(endpoint), userid, token);
 			
 			target = applicationContext.getManagedBean(endpoint);
 			
@@ -167,6 +178,9 @@ public class DefaultSherpaRequest implements SherpaRequest {
 	protected Object processEndpoint(Object target, Method[] methods, String httpMethod) {
 		Method method = MethodUtil.validateHttpMethods(methods, httpMethod);
 		this.hasPermission(method, request.getHeader("userid"), request.getHeader("token"));
+		if(method.getAnnotation(Action.class).contentType() != null) {
+			response.setContentType(method.getAnnotation(Action.class).contentType().type);
+		}
 		return this.invokeMethod(target, method);  
 	}
 	
@@ -270,6 +284,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		RequestMapper map = new RequestMapper();
 		map.setApplicationContext(applicationContext);
 		map.setRequest(request);
+		map.setResponse(response);
 		map.setRequestProcessor(requestProcessor);
 		Class<?>[] types = method.getParameterTypes();
 		Object[] params = null;
