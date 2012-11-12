@@ -177,7 +177,16 @@ public class DefaultSherpaRequest implements SherpaRequest {
 	
 	protected Object processEndpoint(Object target, Method[] methods, String httpMethod) {
 		Method method = MethodUtil.validateHttpMethods(methods, httpMethod);
-		this.hasPermission(method, request.getHeader("userid"), request.getHeader("token"));
+		String userid = request.getHeader("userid");
+		if(userid == null) {
+			userid = request.getParameter("userid");
+		}
+		String token = request.getHeader("token");
+		if(token == null) {
+			token = request.getParameter("token");
+		}
+		
+		this.hasPermission(method, userid, token);
 		if(method.getAnnotation(Action.class).contentType() != null) {
 			response.setContentType(method.getAnnotation(Action.class).contentType().type);
 		}
