@@ -30,6 +30,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.cglib.proxy.Enhancer;
+
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
@@ -155,6 +157,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 								ReflectionUtils.withModifier(Modifier.PUBLIC),
 								Predicates.not(ReflectionUtils.withModifier(Modifier.ABSTRACT)),
 								Predicates.not(SherpaPredicates.withGeneric()),
+								Predicates.and(SherpaPredicates.withAssignableFrom(Enhancer.isEnhanced(target.getClass())? target.getClass().getSuperclass(): target.getClass())),
 								Predicates.or(
 										ReflectionUtils.withName(action),
 										Predicates.and(
@@ -206,8 +209,15 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			return;
 		}
 		
+		Endpoint endpoint = null;
+		if(Enhancer.isEnhanced(target)) {
+			endpoint = target.getSuperclass().getAnnotation(Endpoint.class);
+		} else {
+			endpoint = target.getAnnotation(Endpoint.class);
+		}
+		
 		// make sure its authenicated
-		if(target.getAnnotation(Endpoint.class).authenticated() && !service.isActive(userid, token).equals(SessionStatus.AUTHENTICATED)) {
+		if(endpoint.authenticated() && !service.isActive(userid, token).equals(SessionStatus.AUTHENTICATED)) {
 			throw new SherpaPermissionExcpetion("User status [" + service.isActive(userid, token) + "]");
 		}
 	}
