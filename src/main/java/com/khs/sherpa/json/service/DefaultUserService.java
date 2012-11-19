@@ -1,5 +1,8 @@
 package com.khs.sherpa.json.service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 
 /*
@@ -27,7 +30,7 @@ import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 
 public class DefaultUserService implements UserService {
 
-	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword {
+	public String[] authenticate(String username, String password, HttpServletRequest request, HttpServletResponse response) {
 		// Default always fails authentication
 		throw new SherpaInvalidUsernamePassword("Authentication Error Invalid Credentials");	
 	}

@@ -16,12 +16,15 @@ package com.khs.sherpa.events;
  * limitations under the License.
  */
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.khs.sherpa.context.ApplicationContext;
 
 public interface MethodEvent extends SherpaEvent {
 
-	public void before(ApplicationContext applicationContext);
+	public void before(ApplicationContext applicationContext, HttpServletRequest request, HttpServletResponse response);
 	
-	public void after(ApplicationContext applicationContext);
+	public void after(ApplicationContext applicationContext, HttpServletRequest request, HttpServletResponse response);
 	
 }

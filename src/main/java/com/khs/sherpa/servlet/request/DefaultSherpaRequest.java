@@ -19,6 +19,7 @@ package com.khs.sherpa.servlet.request;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,6 +43,7 @@ import com.khs.sherpa.annotation.Endpoint;
 import com.khs.sherpa.annotation.Param;
 import com.khs.sherpa.context.ApplicationContext;
 import com.khs.sherpa.context.ApplicationContextAware;
+import com.khs.sherpa.events.RequestEvent;
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 import com.khs.sherpa.exception.SherpaActionNotFoundException;
 import com.khs.sherpa.exception.SherpaPermissionExcpetion;
@@ -81,6 +83,11 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		this.request = request;
 		this.response = response;
 		
+		Collection<RequestEvent> events = applicationContext.getManagedBeans(RequestEvent.class);
+		for(RequestEvent event: events) {
+			event.before(applicationContext, request, response);
+		}
+		
 		ServletOutputStream output = null;
 		JsonProvider jsonProvider = null;
 		try {
@@ -107,6 +114,10 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			e.printStackTrace();
 			JsonUtil.error(e.getMessage(), jsonProvider, output, callback);
 			throw e;
+		}
+		
+		for(RequestEvent event: events) {
+			event.after(applicationContext, request, response);
 		}
 	}
 	
@@ -271,7 +282,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		String password = request.getParameter("password");
 		try {
 			Authentication authentication = new Authentication(applicationContext);
-			SessionToken token = authentication.authenticate(userid, password);
+			SessionToken token = authentication.authenticate(userid, password, request, response);
 			
 			boolean hasAdminRole = applicationContext.getManagedBean(SessionTokenService.class)
 				.hasRole(token.getUserid(), token.getToken(), (String) applicationContext.getAttribute(ApplicationContext.SETTINGS_ADMIN_USER));
