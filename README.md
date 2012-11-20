@@ -45,7 +45,7 @@ Using Maven: add this dependency in your 'pom.xml' (available in Maven central r
     <dependency>
    	 <groupId>com.keyholesoftware</groupId>
    	 <artifactId>khs-sherpa</artifactId>
-   	<version>1.1.3</version>
+   	<version>1.2</version>
     </dependency>
    
 Not using Maven: include following jars in lib class path
