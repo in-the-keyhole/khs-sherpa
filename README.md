@@ -45,12 +45,12 @@ Using Maven: add this dependency in your 'pom.xml' (available in Maven central r
     <dependency>
    	 <groupId>com.keyholesoftware</groupId>
    	 <artifactId>khs-sherpa</artifactId>
-   	<version>1.2</version>
+   	<version>1.2.0</version>
     </dependency>
    
 Not using Maven: include following jars in lib class path
 
-    khs-sherpa-1.1.3.jar
+    khs-sherpa-1.2.0.jar
 	gson-2.2.1.jar
 	commons-lang3-3.1.jar
 	
