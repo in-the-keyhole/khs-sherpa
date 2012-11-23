@@ -109,8 +109,8 @@ public class SherpaSettings {
 	public boolean endpointAuthenication() {
 		String value = properties.getProperty("endpoint.authentication");
 		if(value != null) {
-			if (value.equalsIgnoreCase("N") || value.equalsIgnoreCase("NO") || value.equalsIgnoreCase("FALSE")) {
-				return false;
+			if (value.equalsIgnoreCase("Y") || value.equalsIgnoreCase("YES") || value.equalsIgnoreCase("TRUE")) {
+				return true;
 			}	
 		}
 		return Defaults.ENDPOINT_AUTHENTICATION;

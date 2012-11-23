@@ -1,5 +1,8 @@
 package com.khs.sherpa.json.service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.khs.sherpa.exception.SherpaInvalidUsernamePassword;
 
 /*
@@ -28,6 +31,6 @@ public interface UserService {
 	 *  example: {ROLE_USER,ROLE_ADMIN}
 	 * @throws AuthenticationException
 	 */
-	public String[] authenticate(String userid, String password) throws SherpaInvalidUsernamePassword;
+	public String[] authenticate(String username, String password, HttpServletRequest request, HttpServletResponse response);
 
 }

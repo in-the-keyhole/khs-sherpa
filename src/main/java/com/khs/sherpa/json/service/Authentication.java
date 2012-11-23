@@ -1,5 +1,8 @@
 package com.khs.sherpa.json.service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.khs.sherpa.context.ApplicationContext;
 import com.khs.sherpa.exception.NoSuchManagedBeanExcpetion;
 
@@ -27,6 +30,7 @@ public class Authentication {
 	private SessionTokenService tokenService;
 	private ActivityService activityService;
 	
+	
 	public Authentication(ApplicationContext context) throws NoSuchManagedBeanExcpetion {
 		
 		userService = context.getManagedBean(UserService.class);
@@ -34,16 +38,16 @@ public class Authentication {
 		activityService = context.getManagedBean(ActivityService.class);
 	}
 
-	public SessionToken authenticate(String userid, String password) {
-		String[] roles = this.authenticateUser(userid, password);
+	public SessionToken authenticate(String userid, String password, HttpServletRequest request, HttpServletResponse response) {
+		String[] roles = this.authenticateUser(userid, password, request, response);
 		SessionToken token = this.newToken(userid, roles);
 		this.activityService.logActivity(token.getUserid(), "authenticated");
 		tokenService.activate(userid, token);
 		return token;
 	}
 	
-	protected final String[] authenticateUser(String userid, String password) {
-		return userService.authenticate(userid, password);
+	protected final String[] authenticateUser(String userid, String password, HttpServletRequest request, HttpServletResponse response) {
+		return userService.authenticate(userid, password, request, response);
 	}
 	
 	protected final SessionToken newToken(String userid, String[] roles) {
