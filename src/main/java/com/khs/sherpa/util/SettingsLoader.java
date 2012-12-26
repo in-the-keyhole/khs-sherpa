@@ -21,6 +21,8 @@ import static com.khs.sherpa.util.Util.msg;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -43,15 +45,32 @@ public class SettingsLoader {
 	
 	protected Properties properties;
 	
+	public String decodeInputConfigFilePath(String configFile){
+		
+		String path = null;
+		if(configFile !=null){
+			try {
+				path = URLDecoder.decode(configFile, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(SHERPA_NOT_INITIALIZED+"property file sherpa.properties must be defined in classpath");
+			}
+		}
+		return path;
+	}
+	public SettingsLoader (){
+		
+	}
 	public SettingsLoader(String configFile) {
 		try {
-			InputStream in = SherpaServlet.class.getClassLoader().getResourceAsStream(configFile);
-		    if (in != null) {
-		    	properties = new Properties();
-		    	properties.load(in);
-		    	LOGGER.info(msg("sherpa properties loaded"));
+		
+				InputStream in = SherpaServlet.class.getClassLoader().getResourceAsStream(decodeInputConfigFilePath(configFile));
+				if (in != null) {
+					properties = new Properties();
+					properties.load(in);
+					LOGGER.info(msg("sherpa properties loaded"));
+				}
 			}
-		} catch (IOException e) {
+		catch (IOException e) {
 			LOGGER.error("sherpa properties not found, defaults applied...");
          // does'nt exist...
 		}
