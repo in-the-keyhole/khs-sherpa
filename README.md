@@ -24,6 +24,7 @@ HTML5 JQuery Mobile application on GitHub https://github.com/in-the-keyhole/khs-
 Features  
 --------
  * Annotation Based Configuration
+ * Restul URL Support
  * Authentication and Role based permissions
  * JSONP Cross Domain Support 
  * Session Support 
