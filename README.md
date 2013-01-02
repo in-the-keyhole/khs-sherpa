@@ -1,7 +1,7 @@
 khsSherpa [![Build Status](https://secure.travis-ci.org/in-the-keyhole/khs-sherpa.png?branch=master)](http://travis-ci.org/in-the-keyhole/khs-sherpa)
 ==========
 
-Remote java object JSON data framework
+Remote java object restful JSON data framework
 
 About
 -----
@@ -13,17 +13,37 @@ to become JSON end points that can be consumed via HTTP by native mobile devices
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
 also, provides session support for client applications that exist outside of a browser.
 
-Examples
---------
-Example Web application - https://github.com/in-the-keyhole/khs-sherpa-example-webapp
+Additionally, Sherpa easily integrates with the Spring framework (see Spring Configuration section).
 
-Working HTML5 JQuery Mobile - http://sherpa.keyholekc.com
+Example Restful Endpoints
+-------------------------
+Example Sherpa endpoint implementation, invoked with the following 
+restful URL's 
 
-HTML5 JQuery Mobile application on GitHub https://github.com/in-the-keyhole/khs-sherpa-jquery
+http://<host>/<webapp>/sherpa/helloworld
+
+http://<host>/<webapp>/sherpa/add/10/20
+    	
+	@Endpoint(authenticated=false)
+	public class RestfulEndpoint {
+		
+	   @Action(mapping = "/helloworld", method = MethodRequest.GET)
+	   public String helloWorld() {
+		 return "hello world";
+	   }	
+	
+	   // add two numbers method
+	   @Action(mapping = "/add/{x}/{y}", method = MethodRequest.GET)
+	   public Double add(@Param("x") double x, @Param("y") double y) {
+			return new Double(x + y);
+	   }
+	
+     }	
 
 Features  
 --------
  * Annotation Based Configuration
+ * Restul URL Support
  * Authentication and Role based permissions
  * JSONP Cross Domain Support 
  * Session Support 
@@ -34,18 +54,13 @@ Features
 
 Getting Started
 ---------------
-To build it clone then use Maven:
-
-    $ git clone ...
-	$ cd khs-sherpa
-	$ mvn install
 
 Using Maven: add this dependency in your 'pom.xml' (available in Maven central repo)
 
     <dependency>
    	 <groupId>com.keyholesoftware</groupId>
    	 <artifactId>khs-sherpa</artifactId>
-   	<version>1.2.0</version>
+   	<version>1.2.1</version>
     </dependency>
    
 Not using Maven: include following jars in lib class path
@@ -53,20 +68,26 @@ Not using Maven: include following jars in lib class path
     khs-sherpa-1.2.0.jar
 	gson-2.2.1.jar
 	commons-lang3-3.1.jar
+
+To build it, clone then install in local maven repo:
+
+    $ git clone ...
+	$ cd khs-sherpa
+	$ mvn install
 	
 Quick Start 
 ----------
 Configure and create Java server side end point in a WAR project
-
 	
 	1) Register Sherpa Servlet in WEB.XML (see configuring WEB.XML below)
 	
 	2) Create the following java class in a package named com.khs.example.endpoint
 	
 	@Endpoint(authenticated = false)
-	public class TestService {
+	public class TestEndpoint {
 	
 	// hello world  method
+	@Action(mapping = "/helloworld", method = MethodRequest.GET)
 	public Result helloWorld() {
 		return new Result("Hello World");
 	}
@@ -86,9 +107,7 @@ Configure and create Java server side end point in a WAR project
 	   
 	4) Start app server and in a browser enter the following URL.
 
-	http://<server>/<webapp>/sherpa?endpoint=TestService&action=helloWorld	
-
-
+	http://<server>/<webapp>/sherpa/helloworld	
 
 Configuring WEB.XML
 -------------------
@@ -114,56 +133,48 @@ SherpaServlet to the WEB-INF/web.xml as shown below.
 		<url-pattern>/sherpa/*</url-pattern>
 	</servlet-mapping>
 	
-
-Endpoint Example
-----------------
-JSON endpoints are defined by annotation a Java class with the @Endpoint annotation. 
-The java endpoint below has two methods that can be called remotely. 
-
-    @Endpoint(authenticated = false)
-	public class TestService {
-	
-	// hello world  method
-	public Result helloWorld() {
-		return new Result("Hello World");
-	}
-	
-	// add two numbers method
-	public Result add(@Param("x_value") double x, @Param("y_value") double y) {
-		return new Result(x + y);
-	}
-		
-		class Result {	
-			public Result(Object o) {
-			result = o;
-			}
-			public Object result;		
-		}
-	}
-
-The @Param annotation is used to specify request parameters for an endpoint method. 
-
-### Get/Post URL to access the TestService.helloWorld() java method is formatted in this manner 
-
-	http://<server>/<webapp>/sherpa?endpoint=TestService&action=helloWorld
-	     
-### Get/Post URL to access the TestService.add(x,y) java method is formatted in this manner
-
-	http://<server>/<webapp>/sherpa?endpoint=TestService&action=add&x_value=100&y_value=200
-  
 Configuring khsSherpa
 ---------------------
 Define a sherpa.properties file in your webapp classpath. The only required entry is 
 the endpoint.package entry, which tells sherpa where to find Java end points. 
 
-
     ##khsSherpa server properties
 
     #package where endpoints are located
     endpoint.package=com.khs.example.endpoints
+    
+Spring Configuration
+--------------------
+Sherpa is built, so it can be managed by Springs IOC managed container. Simply add the following 
+dependency to your maven POM.XML.
+
+	<dependency>
+		<artifactId>khs-sherpa-spring</artifactId>
+		<groupId>com.keyholesoftware</groupId>
+		<version>1.2.1</version>
+	</dependency>
+
+Sherpa will use the managed bean factory implementation in the dependency and allow you to 
+configure beans or @Autowire endpoints in an application context. 
+
+Here's a restful customer JSON endpoint that returns a Customer for a specified id...     
+
+    @Endpoint(authenticated = false)
+	public class CustomerEndpoint {
+	
+	@Autowired
+	CustomerDao dao;
+	
+	@Action(mapping = "/customer/{id}", method = MethodRequest.GET)
+	public Customer customerForId(@Param("id") Long id) {
+		return dao.findById(id);
+	}
+		
+	}
+
 
 Endpoint and Action Naming Conventions
--------------------------------------
+--------------------------------------
 By default, endpoint names are a classes simple name and action names are method names. 
 Alternative names can be provided by specifying the value attribute of the @Endpoint annotation 
 as shown below. 
@@ -172,6 +183,11 @@ as shown below.
 	public class HelloWorld { 
 	
 Action names specified by applying the @Action annotation to a method implementation, as shown below. 
+
+	@Action(url="/hello",method=GET);  // other method options PUT|REMOVE
+    public String sayHello() { 
+
+Non Restful access
 
 	@Action("hello")
 	public String sayHello() {
@@ -206,8 +222,16 @@ The example below shows how a Vendor lookup id is mapped into the URL.
 Restful URL specifying a Vendor lookup id for the above action is shown below. 	
 	
 	http:<server>/<webapp>/sherpa/findbyid/100
-	
 
+
+Example Implementations
+-----------------------
+Example Web application - https://github.com/in-the-keyhole/khs-sherpa-example-webapp
+
+Working HTML5 JQuery Mobile - http://sherpa.keyholekc.com
+
+HTML5 JQuery Mobile application on GitHub https://github.com/in-the-keyhole/khs-sherpa-jquery
+	
 Test Fixture
 ------------
 A testing jsp, test-fixture.jsp has been created that will allow testing of khsSherpa end points, copy this 

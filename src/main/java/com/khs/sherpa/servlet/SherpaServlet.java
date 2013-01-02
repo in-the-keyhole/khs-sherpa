@@ -52,13 +52,16 @@ public class SherpaServlet extends HttpServlet {
 			sherpaRequest.doService(request, response);
 			
 		} catch (SherpaInvalidUsernamePassword e) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Username or Password!");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
 			LOGGER.info(msg("INFO "+e.getMessage() ));			
 		} catch (SherpaRuntimeException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Sherpa Error "+e.getMessage());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json");
 			LOGGER.error(msg("ERROR "+e.getMessage() ));
 		} catch (Exception e) {
-			throw new SherpaRuntimeException(e);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json");
 		} finally {
 			// do nothing right now
 		}

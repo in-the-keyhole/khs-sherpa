@@ -201,7 +201,11 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		}
 		
 		this.hasPermission(method, userid, token);
-		if(method.getAnnotation(Action.class).contentType() != null) {
+		Action annotation = method.getAnnotation(Action.class);
+		if (annotation == null) {
+			throw new SherpaRuntimeException("Error executing"+target+" @Action annotation required for not endpoint methods"  );
+		}
+		if(annotation.contentType() != null) {
 			response.setContentType(method.getAnnotation(Action.class).contentType().type);
 		}
 		return this.invokeMethod(target, method);  
