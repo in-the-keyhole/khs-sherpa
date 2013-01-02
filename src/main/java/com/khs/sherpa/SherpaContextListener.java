@@ -40,6 +40,7 @@ import com.khs.sherpa.parser.StringParamParser;
 public class SherpaContextListener implements ServletContextListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger("Sherpa");
+	private static final String SPRING_APP_CONTEXT_CLASS_NAME = "com.khs.sherpa.spring.SpringApplicationContext";
 	
 	public static final String SHERPA_CONFIG_LOCATION = "classpath:/sherpa.properties";
 	
@@ -55,9 +56,11 @@ public class SherpaContextListener implements ServletContextListener {
 		
 		ApplicationContext applicationContext = null;
 		
+		// check if sherpa for spring application context is available
+		// if not, then use non-spring app context
 		Class<?> springApplicationContextClass = null;
 		try {
-			springApplicationContextClass = Class.forName("com.khs.sherpa.sping.SpingApplicationContext");
+			springApplicationContextClass = Class.forName(SPRING_APP_CONTEXT_CLASS_NAME);
 		} catch (ClassNotFoundException e1) {
 			springApplicationContextClass = null;
 		}
