@@ -64,18 +64,6 @@
 		</plugin>
 	</plugins>
 	</build>
-
-<<<<<<< HEAD
-<!-- 	<distributionManagement> -->
-<!-- 		<snapshotRepository> -->
-<!-- 			<id>khs-snapshot</id> -->
-<!-- 			<name>Keyhole Software Snapshot</name> -->
-<!-- 			<url>http://maven.keyholekc.com/content/repositories/snapshots/</url> -->
-<!-- 		</snapshotRepository> -->
-<!-- 	</distributionManagement> -->
-
-=======
->>>>>>> branch 'master' of https://github.com/in-the-keyhole/khs-sherpa.git
 	<dependencies>
 		<dependency>
 			<groupId>cglib</groupId>
