@@ -172,6 +172,8 @@ Here's a restful customer JSON endpoint that returns a Customer for a specified 
 		
 	}
 
+Spring authentication is also integrated, check it out here...[https://github.com/in-the-keyhole/khs-sherpa-spring] 
+
 
 Endpoint and Action Naming Conventions
 --------------------------------------
