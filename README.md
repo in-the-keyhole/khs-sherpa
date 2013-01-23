@@ -1,7 +1,7 @@
 khsSherpa [![Build Status](https://secure.travis-ci.org/in-the-keyhole/khs-sherpa.png?branch=master)](http://travis-ci.org/in-the-keyhole/khs-sherpa)
 ==========
 
-Easy creartion of JSON/API Endpoint with java POJO's  
+Easy creation of JSON/API Endpoint with java POJO's  
 
 About
 -----
