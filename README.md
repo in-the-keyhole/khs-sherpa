@@ -1,13 +1,13 @@
 khsSherpa [![Build Status](https://secure.travis-ci.org/in-the-keyhole/khs-sherpa.png?branch=master)](http://travis-ci.org/in-the-keyhole/khs-sherpa)
 ==========
 
-Easy creation of JSON/API Endpoint with java POJO's  
+Easy creation of JSON/API Endpoints with java POJO's  
 
 About
 -----
 Turn Java application servers into a remote JSON data access mechanism for mobile and HTML 5/Java Script applications. 
 
-This lightweight server side framework allows Java classes contained inside a JEE application server
+This lightweight server side framework allows Java classes (POJO's) contained inside a JEE application server
 to become JSON end points that can be consumed via HTTP by native mobile devices or HTML/Javascript clients. 
 
 Many MVC frameworks exist, but khsSherpa is intended to allow access to server side java objects with HTTP/and JSON. It 
