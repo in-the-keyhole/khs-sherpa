@@ -15,10 +15,10 @@ also provides session support for client applications that exist outside of a br
 
 Additionally, khsSherpa easily integrates with the Spring framework (see Spring Configuration section).
 
-Example Restful Endpoints
+Example RESTful Endpoints
 -------------------------
-Example Sherpa endpoint implementation, invoked with the following 
-restful URL's 
+Example khsSherpa endpoint implementation, invoked with the following 
+restful URLs: 
 
 http://<host>/<webapp>/sherpa/helloworld
 
