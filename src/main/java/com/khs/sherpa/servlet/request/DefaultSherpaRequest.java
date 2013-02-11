@@ -233,7 +233,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		
 		// make sure its authenicated
 		if(endpoint.authenticated() && !service.isActive(userid, token).equals(SessionStatus.AUTHENTICATED)) {
-			throw new SherpaPermissionExcpetion("User status [" + service.isActive(userid, token) + "]");
+			throw new SherpaPermissionExcpetion("User status [" + service.isActive(userid, token) + "]", service.isActive(userid, token).toString());
 		}
 	}
 	
@@ -246,7 +246,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		}
 
 		if(method.isAnnotationPresent(DenyAll.class)) {
-			throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+method.getDeclaringClass().getCanonicalName()+"] has `@DenyAll` annotation" );
+			throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+method.getDeclaringClass().getCanonicalName()+"] has `@DenyAll` annotation", "DENY_ALL");
 		}
 		
 		if(method.isAnnotationPresent(RolesAllowed.class)) {
@@ -257,7 +257,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 				}
 			}
 			if(fail) {
-				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+method.getDeclaringClass().getCanonicalName()+"] has `@RolesAllowed` annotation" );
+				throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+method.getDeclaringClass().getCanonicalName()+"] has `@RolesAllowed` annotation", "DENY_ROLE" );
 			}
 		}
 	}

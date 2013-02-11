@@ -20,20 +20,33 @@ public class SherpaPermissionExcpetion extends SherpaRuntimeException {
 
 	private static final long serialVersionUID = 7494012371178202501L;
 
+	private String status;
+	
 	public SherpaPermissionExcpetion() {
 		super();
 	}
 
-	public SherpaPermissionExcpetion(String arg0, Throwable arg1) {
+	public SherpaPermissionExcpetion(String arg0, Throwable arg1, String status) {
 		super(arg0, arg1);
+		this.status = status;
 	}
 
-	public SherpaPermissionExcpetion(String arg0) {
+	public SherpaPermissionExcpetion(String arg0, String status) {
 		super(arg0);
+		this.status = status;
 	}
 
-	public SherpaPermissionExcpetion(Throwable arg0) {
+	public SherpaPermissionExcpetion(Throwable arg0, String status) {
 		super(arg0);
+		this.status = status;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }
