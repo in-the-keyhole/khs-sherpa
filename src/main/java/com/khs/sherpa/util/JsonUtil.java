@@ -44,7 +44,9 @@ public class JsonUtil {
 	
 	public static void map(Object object, JsonProvider provider, OutputStream out) {
 		try {	
-			  out.write(provider.toJson(object).getBytes());			
+			if(object != null) {
+			  out.write(provider.toJson(object).getBytes());
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
