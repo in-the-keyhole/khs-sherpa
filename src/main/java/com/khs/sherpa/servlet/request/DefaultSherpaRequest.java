@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
@@ -65,6 +67,8 @@ import com.khs.sherpa.util.Util;
 
 public class DefaultSherpaRequest implements SherpaRequest {
 
+	private static Logger logger = Logger.getLogger(DefaultSherpaRequest.class.getSimpleName());
+	
 	private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
 	private ApplicationContext applicationContext;
 	private HttpServletRequest request;
@@ -302,13 +306,17 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		}
 	}
 	
-	protected Object invokeMethod(Object target, Method method) {
+	protected Object invokeMethod(Object target, Method method){
 		try {
 			Object obj = method.invoke(target, this.getParams(method));
 			return obj;
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new SherpaActionNotFoundException("unable to execute method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"]");
+	    	if(e.getCause() != null && e.getCause().getClass().isAssignableFrom(SherpaRuntimeException.class)) {
+	    		logger.throwing(target.getClass().getName(), method.getName(), e.getCause());
+	    		throw new SherpaRuntimeException(e.getCause().getMessage());
+	    	}
+	    	logger.throwing(target.getClass().getName(), method.getName(), e);
+			throw new SherpaRuntimeException("unable to execute method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"]", e);
 		} finally {
 			
 		}
