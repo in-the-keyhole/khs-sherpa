@@ -61,6 +61,7 @@ public class SherpaContextListener implements ServletContextListener {
 		Class<?> springApplicationContextClass = null;
 		try {
 			springApplicationContextClass = Class.forName(SPRING_APP_CONTEXT_CLASS_NAME);
+			LOGGER.info("USING SHERPA SPRING APPLICATION CONTEXT");
 		} catch (ClassNotFoundException e1) {
 			springApplicationContextClass = null;
 		}
