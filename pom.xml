@@ -30,7 +30,6 @@
 		<developerConnection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</developerConnection>
 		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>	
 	</scm>
-
 <!-- 	<scm> -->
 <!-- 		<url>https://github.com/in-the-keyhole/khs-sherpa</url> -->
 <!-- 		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection> -->
