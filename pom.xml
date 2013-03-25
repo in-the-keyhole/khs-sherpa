@@ -25,17 +25,17 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-<!-- 	<scm> -->
-<!-- 		<connection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</connection> -->
-<!-- 		<developerConnection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</developerConnection> -->
-<!-- 		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>	 -->
-<!-- 	</scm> -->
-
 	<scm>
-		<url>https://github.com/in-the-keyhole/khs-sherpa</url>
-		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection>
-		<developerConnection>scm:git:git@github.com:in-the-keyhole/khs-sherpa.git</developerConnection>
+		<connection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</connection>
+		<developerConnection>scm:git:file://localhost/users/dpitt/git/khs-sherpa</developerConnection>
+		<url>scm:git:file://localhost/users/dpitt/git/khs-sherpa</url>	
 	</scm>
+
+<!-- 	<scm> -->
+<!-- 		<url>https://github.com/in-the-keyhole/khs-sherpa</url> -->
+<!-- 		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection> -->
+<!-- 		<developerConnection>scm:git:git@github.com:in-the-keyhole/khs-sherpa.git</developerConnection> -->
+<!-- 	</scm> -->
 
 	<ciManagement>
 		<system>tranvis-ci.org</system>
