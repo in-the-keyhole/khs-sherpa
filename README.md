@@ -48,10 +48,11 @@ Features
  * Authentication and Role-based Permissions
  * JSONP Cross Domain Support 
  * Session Support 
- * Pluggable User Activity Logging
+ * Plug-gable User Activity Logging
  * Type Mapping
  * XSS prevention support
  * Works with any JEE application server
+ * Plug-gable JSON Serialization
 
 Getting Started
 ---------------
@@ -411,6 +412,24 @@ interface and registering in the sherpa.properties file as shown below:
 
 	activity.service.impl = <<qualified class name that implements com.khs.sherpa.service.ActivityService>>
  
+JSON Serialization
+------------------
+
+By default Sherpa uses the googles GSON open source JSON serialization framework, however Sherpa is designed to allow 
+alternative serialization frameworks to be used. The example below illustrates shows how the Jackson serialization 
+framework can provide serialization support, with an entry in sherpa.properties.
+
+	## Jackson JSON Serialization Provider
+	json.provider=com.khs.sherpa.json.service.JacksonJsonProvider
+
+Serialization providers other than Jackson or GSON can be created by implementing the following interface. 
+
+	public interface JsonProvider {
+
+	    public String toJson(Object object);
+	
+	    public <T> T toObject(String json, Class<T> type);
+	}
 
 Session Management Commands
 ---------------------------
