@@ -452,10 +452,6 @@ These actions must be invoked using the userid, passwords, and token for a user 
   	http://<server>/<webapp>/sherpa?action=deactivate&deactivate=jdoe@keyholesoftware.com&adminuserid=dpitt@keyholesoftware.com&adminpassword=password
   	
 
-
--------
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/LfournierKHS/khs-sherpa/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-  	
   	
   	
   
