@@ -15,61 +15,62 @@ package com.khs.sherpa.json.service;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.io.Serializable;
 
-public class SessionToken {
+public class SessionToken implements Serializable {
 
-	private String userid;
-	private String token;
-	private long timeout;
-	private boolean active;
-	private long lastActive;
-	private String[] roles;
-	
-	public long getTimeout() {
-		return timeout;
-	}
+    private String userid;
+    private String token;
+    private long timeout;
+    private boolean active;
+    private long lastActive;
+    private String[] roles;
 
-	public String getToken() {
-		return token;
-	}
+    public long getTimeout() {
+        return timeout;
+    }
 
-	public String getUserid() {
-		return userid;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public boolean isActive() {
-		return active;
-	}
+    public String getUserid() {
+        return userid;
+    }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	public long getLastActive() {
-		return lastActive;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
-	public void setLastActive(long lastActive) {
-		this.lastActive = lastActive;
-	}
+    public long getLastActive() {
+        return lastActive;
+    }
 
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
+    public void setLastActive(long lastActive) {
+        this.lastActive = lastActive;
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
 
-	public void setUserid(String userid) {
-		this.userid = userid;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public String[] getRoles() {
-		return roles;
-	}
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
 
-	public void setRoles(String[] roles) {
-		this.roles = roles;
-	}
+    public String[] getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String[] roles) {
+        this.roles = roles;
+    }
 }
