@@ -182,12 +182,21 @@ public class SherpaSettings {
 		}
 		return endpoint;
 	}
-	
+
+	public Class<?> applicationContext() {
+		String applicationContextName = properties.getProperty("application.context");
+		if (applicationContextName == null) {
+			return null;
+		} else {
+			return getInstanceClass(applicationContextName);
+		}
+	}
+
 	public Class<?> userService() {
 		String userClazzName = properties.getProperty("user.service");
 		if (userClazzName == null) {
 			try {
-				return Class.forName("com.khs.sherpa.sping.SpringAuthentication");
+				return Class.forName("com.khs.sherpa.spring.SpringAuthentication");
 			} catch (ClassNotFoundException e1) {
 				return DefaultUserService.class;
 			}

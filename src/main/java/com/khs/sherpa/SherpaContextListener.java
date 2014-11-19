@@ -40,7 +40,6 @@ import com.khs.sherpa.parser.StringParamParser;
 public class SherpaContextListener implements ServletContextListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger("Sherpa");
-	private static final String SPRING_APP_CONTEXT_CLASS_NAME = "com.khs.sherpa.spring.SpringApplicationContext";
 	
 	public static final String SHERPA_CONFIG_LOCATION = "classpath:/sherpa.properties";
 	
@@ -58,17 +57,11 @@ public class SherpaContextListener implements ServletContextListener {
 		
 		// check if sherpa for spring application context is available
 		// if not, then use non-spring app context
-		Class<?> springApplicationContextClass = null;
-		try {
-			springApplicationContextClass = Class.forName(SPRING_APP_CONTEXT_CLASS_NAME);
-			LOGGER.info("USING SHERPA SPRING APPLICATION CONTEXT");
-		} catch (ClassNotFoundException e1) {
-			springApplicationContextClass = null;
-		}
+		Class<?> applicationContextClass = settings.applicationContext();
 		
-		if(springApplicationContextClass != null) {
+		if(applicationContextClass != null) {
 			try {
-				applicationContext = (ApplicationContext) springApplicationContextClass.getDeclaredConstructor(ServletContext.class).newInstance(servletContextEvent.getServletContext());
+				applicationContext = (ApplicationContext) applicationContextClass.getDeclaredConstructor(ServletContext.class).newInstance(servletContextEvent.getServletContext());
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 				throw new SherpaRuntimeException(e);
@@ -109,7 +102,7 @@ public class SherpaContextListener implements ServletContextListener {
 		applicationContext.setAttribute(SherpaSettings.SETTINGS_SERVER_URL, settings.serverUrl());
 		applicationContext.setAttribute(SherpaSettings.SETTINGS_SERVER_TOKEN, settings.serverToken());
 		
-		if(InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
+		if (InitManageBeanFactory.class.isAssignableFrom(managedBeanFactory.getClass())) {
 			((InitManageBeanFactory)managedBeanFactory).init(settings, servletContextEvent.getServletContext());
 			((InitManageBeanFactory)managedBeanFactory).loadManagedBeans(settings.endpoint());
 		}
