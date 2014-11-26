@@ -31,8 +31,8 @@
 
 	<scm>
 		<url>https://github.com/in-the-keyhole/khs-sherpa</url>
-		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection>
-		<developerConnection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</developerConnection>
+		<connection>scm:git:ssh://github.com/in-the-keyhole/khs-sherpa.git</connection>
+		<developerConnection>scm:git:ssh://github.com/in-the-keyhole/khs-sherpa.git</developerConnection>
 	</scm>
 
 	<ciManagement>
