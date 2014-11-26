@@ -26,15 +26,10 @@
 		</license>
 	</licenses>
 	<scm>
+		<url>https://github.com/in-the-keyhole/khs-sherpa</url>
 		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection>
 		<developerConnection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</developerConnection>
-		<url>https://github.com/in-the-keyhole/khs-sherpa</url>	
 	</scm>
-<!-- 	<scm> -->
-<!-- 		<url>https://github.com/in-the-keyhole/khs-sherpa</url> -->
-<!-- 		<connection>scm:git:https://github.com/in-the-keyhole/khs-sherpa.git</connection> -->
-<!-- 		<developerConnection>scm:git:git@github.com:in-the-keyhole/khs-sherpa.git</developerConnection> -->
-<!-- 	</scm> -->
 
 	<ciManagement>
 		<system>tranvis-ci.org</system>
