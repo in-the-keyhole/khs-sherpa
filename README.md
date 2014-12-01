@@ -20,9 +20,11 @@ Example RESTful Endpoints
 Example khsSherpa endpoint implementation invoked with the following 
 RESTful URLs: 
 
-http://<host>/<webapp>/sherpa/helloworld
+	http://<host>/<webapp>/sherpa/helloworld
 
-http://<host>/<webapp>/sherpa/add/10/20
+	http://<host>/<webapp>/sherpa/add/10/20
+	
+Here's the enpoint definition
     	
 	@Endpoint(authenticated=false)
 	public class RestfulEndpoint {
