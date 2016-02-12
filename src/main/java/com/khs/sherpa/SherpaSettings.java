@@ -205,6 +205,17 @@ public class SherpaSettings {
 			return getInstanceClass(userClazzName);
 		}
 	}
+
+//	TODO Use this inside DefaultSherpaRequest$getEndpointClass instead of manual reflection
+	public Class<?> springEnhancer() {
+		String userClassName = properties.getProperty("spring.enhancer");
+//		try {
+//			return Class.forName("org.springframework.cglib.proxy.Enhancer");
+//		} catch (ClassNotFoundException e1) {
+//			return null;
+//		}
+		return getInstanceClass("org.springframework.cglib.proxy.Enhancer");
+	}
 	
 	public Class<?> tokenService() {
 		String tokenClazzName = properties.getProperty("token.service");

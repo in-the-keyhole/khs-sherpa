@@ -17,6 +17,7 @@ package com.khs.sherpa.servlet.request;
  */
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -172,7 +173,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 								ReflectionUtils.withModifier(Modifier.PUBLIC),
 								Predicates.not(ReflectionUtils.withModifier(Modifier.ABSTRACT)),
 								Predicates.not(SherpaPredicates.withGeneric()),
-								Predicates.and(SherpaPredicates.withAssignableFrom(Enhancer.isEnhanced(target.getClass())? target.getClass().getSuperclass(): target.getClass())),
+								Predicates.and(SherpaPredicates.withAssignableFrom(getEndpointClass(target.getClass()))),
 								Predicates.or(
 										ReflectionUtils.withName(action),
 										Predicates.and(
@@ -228,17 +229,49 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			return;
 		}
 		
-		Endpoint endpoint = null;
-		if(Enhancer.isEnhanced(target)) {
-			endpoint = target.getSuperclass().getAnnotation(Endpoint.class);
-		} else {
-			endpoint = target.getAnnotation(Endpoint.class);
-		}
-		
+		Endpoint endpoint = getEndpointClass(target).getAnnotation(Endpoint.class);
+
 		// make sure its authenicated
 		if(endpoint.authenticated() && !service.isActive(userid, token).equals(SessionStatus.AUTHENTICATED)) {
 			throw new SherpaPermissionExcpetion("User status [" + service.isActive(userid, token) + "]", service.isActive(userid, token).toString());
 		}
+	}
+
+	private Class<?> getEndpointClass(Class target) {
+		Class<?> springEnhancer = null;
+		Method isEnhanced = null;
+		boolean springEnhanced = false;
+		try {
+			springEnhancer = Class.forName("org.springframework.cglib.proxy.Enhancer");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (springEnhancer != null) {
+			try {
+				isEnhanced = springEnhancer.getDeclaredMethod("isEnhanced", Class.class);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
+		if (isEnhanced != null) {
+			try {
+				springEnhanced = (Boolean) isEnhanced.invoke("isEnhanced", target);
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+
+		Class<?> endpoint = null;
+		if(Enhancer.isEnhanced(target)) {
+			endpoint = target.getSuperclass();
+		} else if (springEnhanced) { //org.springframework.cglib.proxy.Enhancer.isEnhanced()
+			endpoint = target.getSuperclass();
+		} else {
+			endpoint = target;
+		}
+		return endpoint;
 	}
 	
 	protected void hasPermission(Method method, String userid, String token) {
