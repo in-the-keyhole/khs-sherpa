@@ -24,6 +24,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.khs.sherpa.context.ApplicationContext;
+import com.khs.sherpa.servlet.request.SherpaRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +47,11 @@ public class SherpaServlet extends HttpServlet {
 
 	private void doService(HttpServletRequest request, HttpServletResponse response) throws RuntimeException, IOException {
 		try {
-			
-			DefaultSherpaRequest sherpaRequest = new DefaultSherpaRequest();
-			sherpaRequest.setApplicationContext(GenericApplicationContext.getApplicationContext(getServletContext()));
+
+			ApplicationContext applicationContext = GenericApplicationContext.getApplicationContext(getServletContext());
+
+			SherpaRequest sherpaRequest = applicationContext.getManagedBean(DefaultSherpaRequest.class);
+			sherpaRequest.setApplicationContext(applicationContext);
 
 			sherpaRequest.doService(request, response);
 			

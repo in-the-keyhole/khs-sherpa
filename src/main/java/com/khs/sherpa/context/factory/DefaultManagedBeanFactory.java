@@ -137,7 +137,8 @@ public class DefaultManagedBeanFactory implements ManagedBeanFactory, InitManage
 		this.loadManagedBean(settings.tokenService());
 		this.loadManagedBean(settings.activityService());
 		this.loadManagedBean(settings.jsonProvider());
-		
+		this.loadManagedBean(settings.sherpaRequestService());
+
 		this.loadManagedBean(StringParamParser.class);
 		this.loadManagedBean(IntegerParamParser.class);
 		this.loadManagedBean(DoubleParamPaser.class);

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.khs.sherpa.servlet.request.DefaultSherpaRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,17 +207,19 @@ public class SherpaSettings {
 		}
 	}
 
-//	TODO Use this inside DefaultSherpaRequest$getEndpointClass instead of manual reflection
-	public Class<?> springEnhancer() {
-		String userClassName = properties.getProperty("spring.enhancer");
-//		try {
-//			return Class.forName("org.springframework.cglib.proxy.Enhancer");
-//		} catch (ClassNotFoundException e1) {
-//			return null;
-//		}
-		return getInstanceClass("org.springframework.cglib.proxy.Enhancer");
+	public Class<?> sherpaRequestService() {
+		String tokenClazzName = properties.getProperty("request.service");
+		if (tokenClazzName == null) {
+			try {
+				return Class.forName("com.khs.sherpa.spring.DefaultSpringSherpaRequest");
+			} catch (ClassNotFoundException e) {
+				return DefaultSherpaRequest.class;
+			}
+		} else {
+			return getInstanceClass(tokenClazzName);
+		}
 	}
-	
+
 	public Class<?> tokenService() {
 		String tokenClazzName = properties.getProperty("token.service");
 		if (tokenClazzName == null) {
