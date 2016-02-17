@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.security.DenyAll;
@@ -68,13 +67,13 @@ import com.khs.sherpa.util.Util;
 public class DefaultSherpaRequest implements SherpaRequest {
 
 	private static Logger logger = Logger.getLogger(DefaultSherpaRequest.class.getSimpleName());
-	
+
 	private Map<String, Object> attributes = new LinkedHashMap<String, Object>();
 	private ApplicationContext applicationContext;
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private RequestProcessor requestProcessor;
-	
+
 	public Object getAttribute(String name) {
 		return attributes.get(name);
 	}
@@ -82,16 +81,16 @@ public class DefaultSherpaRequest implements SherpaRequest {
 	public void setAttribute(String name, Object object) {
 		attributes.put(name, object);
 	}
-	
+
 	public void doService(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
-		
+
 		Collection<RequestEvent> events = applicationContext.getManagedBeans(RequestEvent.class);
 		for(RequestEvent event: events) {
 			event.before(applicationContext, request, response);
 		}
-		
+
 		ServletOutputStream output = null;
 		JsonProvider jsonProvider = null;
 		try {
@@ -100,18 +99,18 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		String callback = null;
 		if ((Boolean)applicationContext.getAttribute(ApplicationContext.SETTINGS_JSONP)) {
 			callback = request.getParameter("callback");
 		}
-		
+
 		// set the correct Content type
 		response.setContentType("application/json");
 		if(callback != null) {
 			response.setContentType("text/javascript");
 		}
-		
+
 		try {
 			JsonUtil.map(this.proccess(), jsonProvider, output, callback);
 		} catch (RuntimeException e) {
@@ -119,12 +118,12 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			JsonUtil.error(e.getMessage(), jsonProvider, output, callback);
 			throw e;
 		}
-		
+
 		for(RequestEvent event: events) {
 			event.after(applicationContext, request, response);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected Object proccess() throws SherpaRuntimeException {
 		if(!isRestful()) {
@@ -132,11 +131,11 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		} else {
 			requestProcessor = new RestfulRequestProcessor(applicationContext);
 		}
-		
+
 		String endpoint = requestProcessor.getEndpoint(request);
 		String action = requestProcessor.getAction(request);
 		String httpMethod = request.getMethod();
-		
+
 		if(StringUtils.isEmpty(endpoint)) {
 			if(action.equals(Constants.AUTHENTICATE_ACTION)) {
 				return this.processAuthenication();
@@ -144,10 +143,10 @@ public class DefaultSherpaRequest implements SherpaRequest {
 				return this.processValid();
 			}
 		}
-		
+
 		Object target = null;
 		Set<Method> methods = null;
-		
+
 		try {
 			String userid = request.getHeader("userid");
 			if(userid == null) {
@@ -157,22 +156,22 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			if(token == null) {
 				token = request.getParameter("token");
 			}
-			
+
 			this.hasPermission(applicationContext.getType(endpoint), userid, token);
-			
+
 			target = applicationContext.getManagedBean(endpoint);
-			
+
 			if(ApplicationContextAware.class.isAssignableFrom(target.getClass())) {
 				((ApplicationContextAware)target).setApplicationContext(applicationContext);
 			}
-			
-			methods = Reflections.getAllMethods(applicationContext.getType(endpoint), 
+
+			methods = Reflections.getAllMethods(applicationContext.getType(endpoint),
 						Predicates.and(
 								Predicates.not(SherpaPredicates.withAssignableFrom(Object.class)),
 								ReflectionUtils.withModifier(Modifier.PUBLIC),
 								Predicates.not(ReflectionUtils.withModifier(Modifier.ABSTRACT)),
 								Predicates.not(SherpaPredicates.withGeneric()),
-								Predicates.and(SherpaPredicates.withAssignableFrom(Enhancer.isEnhanced(target.getClass())? target.getClass().getSuperclass(): target.getClass())),
+								Predicates.and(SherpaPredicates.withAssignableFrom(isEnhanced(target.getClass())? target.getClass().getSuperclass(): target.getClass())),
 								Predicates.or(
 										ReflectionUtils.withName(action),
 										Predicates.and(
@@ -181,18 +180,18 @@ public class DefaultSherpaRequest implements SherpaRequest {
 											)
 									))
 						);
-			
+
 			if(methods.size() == 0) {
 				throw new SherpaActionNotFoundException(action);
 			}
-			
+
 		} catch (NoSuchManagedBeanExcpetion e) {
 			throw new SherpaRuntimeException(e);
 		}
-		
+
 		return this.processEndpoint(target, methods.toArray(new Method[] {}), httpMethod);
 	}
-	
+
 	protected Object processEndpoint(Object target, Method[] methods, String httpMethod) {
 		Method method = MethodUtil.validateHttpMethods(methods, httpMethod);
 		String userid = request.getHeader("userid");
@@ -203,7 +202,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		if(token == null) {
 			token = request.getParameter("token");
 		}
-		
+
 		this.hasPermission(method, userid, token);
 		Action annotation = method.getAnnotation(Action.class);
 		if (annotation == null) {
@@ -212,9 +211,9 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		if(annotation.contentType() != null) {
 			response.setContentType(method.getAnnotation(Action.class).contentType().type);
 		}
-		return this.invokeMethod(target, method);  
+		return this.invokeMethod(target, method);
 	}
-	
+
 	protected void hasPermission(Class<?> target, String userid, String token) {
 		SessionTokenService service = null;
 		try {
@@ -222,25 +221,25 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		} catch (NoSuchManagedBeanExcpetion e) {
 			throw new SherpaRuntimeException(e);
 		}
-		
+
 		// make sure Endpoint Authentication is turned on
 		if((Boolean)applicationContext.getAttribute(ApplicationContext.SETTINGS_ENDPOINT_AUTH) == false) {
 			return;
 		}
-		
+
 		Endpoint endpoint = null;
-		if(Enhancer.isEnhanced(target)) {
+		if(isEnhanced(target)) {
 			endpoint = target.getSuperclass().getAnnotation(Endpoint.class);
 		} else {
 			endpoint = target.getAnnotation(Endpoint.class);
 		}
-		
+
 		// make sure its authenicated
 		if(endpoint.authenticated() && !service.isActive(userid, token).equals(SessionStatus.AUTHENTICATED)) {
 			throw new SherpaPermissionExcpetion("User status [" + service.isActive(userid, token) + "]", service.isActive(userid, token).toString());
 		}
 	}
-	
+
 	protected void hasPermission(Method method, String userid, String token) {
 		SessionTokenService service = null;
 		try {
@@ -252,7 +251,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		if(method.isAnnotationPresent(DenyAll.class)) {
 			throw new SherpaPermissionExcpetion("method ["+method.getName()+"] in class ["+method.getDeclaringClass().getCanonicalName()+"] has `@DenyAll` annotation", "DENY_ALL");
 		}
-		
+
 		if(method.isAnnotationPresent(RolesAllowed.class)) {
 			boolean fail = true;
 			for(String role: method.getAnnotation(RolesAllowed.class).value()) {
@@ -265,11 +264,11 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			}
 		}
 	}
-	
+
 	protected Object processValid()  throws SherpaRuntimeException {
 		String userid = request.getParameter("userid");
 		String token = request.getParameter("token");
-		
+
 		SessionTokenService service = null;
 		Map<String, Object> resp = new HashMap<String, Object>();
 		try {
@@ -282,19 +281,19 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		resp.put("token", token);
 		resp.put("status", service.isActive(userid, token));
 		return resp;
-		
+
 	}
-	
+
 	protected Object processAuthenication() throws SherpaRuntimeException {
 		String userid = request.getParameter("userid");
 		String password = request.getParameter("password");
 		try {
 			Authentication authentication = new Authentication(applicationContext);
 			SessionToken token = authentication.authenticate(userid, password, request, response);
-			
+
 			boolean hasAdminRole = applicationContext.getManagedBean(SessionTokenService.class)
 				.hasRole(token.getUserid(), token.getToken(), (String) applicationContext.getAttribute(ApplicationContext.SETTINGS_ADMIN_USER));
-			
+
 			// load the sherpa admin user
 			if(hasAdminRole) {
 				String[] roles = token.getRoles();
@@ -305,7 +304,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 			throw new SherpaRuntimeException(e);
 		}
 	}
-	
+
 	protected Object invokeMethod(Object target, Method method){
 		try {
 			Object obj = method.invoke(target, this.getParams(method));
@@ -318,10 +317,14 @@ public class DefaultSherpaRequest implements SherpaRequest {
 	    	logger.throwing(target.getClass().getName(), method.getName(), e);
 			throw new SherpaRuntimeException("unable to execute method ["+method.getName()+"] in class ["+target.getClass().getCanonicalName()+"]", e);
 		} finally {
-			
+
 		}
 	}
-	
+
+	protected boolean isEnhanced(Class clazz) {
+		return Enhancer.isEnhanced(clazz);
+	}
+
 	private Object[] getParams(Method method) {
 		RequestMapper map = new RequestMapper();
 		map.setApplicationContext(applicationContext);
@@ -334,7 +337,7 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		if(types.length > 0) {
 			params = new Object[types.length];
 		}
-		
+
 		Annotation[][] parameters = method.getParameterAnnotations();
 		for(int i=0; i<parameters.length; i++) {
 			Class<?> type = types[i];
@@ -346,13 +349,13 @@ public class DefaultSherpaRequest implements SherpaRequest {
 						break;
 					}
 				}
-				
+
 			}
-			params[i] = map.map(method.getClass().getName(),method.getName(),type, annotation);	
+			params[i] = map.map(method.getClass().getName(),method.getName(),type, annotation);
 		}
 		return params;
 	}
-	
+
 	private boolean isRestful() {
 		String path = request.getContextPath();
 		if(path.equals("/")) {
@@ -362,10 +365,10 @@ public class DefaultSherpaRequest implements SherpaRequest {
 		}
 		return !path.equals(request.getRequestURI());
 	}
-	
+
 	@Action(disabled = true)
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
-	
+
 }

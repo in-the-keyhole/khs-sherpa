@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.khs.sherpa.servlet.request.DefaultSherpaRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,7 +206,20 @@ public class SherpaSettings {
 			return getInstanceClass(userClazzName);
 		}
 	}
-	
+
+	public Class<?> sherpaRequestService() {
+		String tokenClazzName = properties.getProperty("request.service");
+		if (tokenClazzName == null) {
+			try {
+				return Class.forName("com.khs.sherpa.spring.DefaultSpringSherpaRequest");
+			} catch (ClassNotFoundException e) {
+				return DefaultSherpaRequest.class;
+			}
+		} else {
+			return getInstanceClass(tokenClazzName);
+		}
+	}
+
 	public Class<?> tokenService() {
 		String tokenClazzName = properties.getProperty("token.service");
 		if (tokenClazzName == null) {
