@@ -69,7 +69,14 @@ public class UrlUtil {
 				}
 			}
 		}
-		return stringBuilder.toString();
+
+        if (!stringBuilder.toString().isEmpty())
+            return stringBuilder.toString();
+
+        if (request.getParameterMap().keySet().size() > 0)
+            return request.getParameterMap().keySet().toArray()[0].toString();
+
+        return null;
 	}
 //	
 //	public static String getParamValue(HttpServletRequest request, String param) {
