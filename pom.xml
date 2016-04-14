@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.keyholesoftware</groupId>
 	<artifactId>khs-sherpa</artifactId>
-	<version>1.3.3-SNAPSHOT</version>
+	<version>1.3.4-SNAPSHOT</version>
 	<name>khs-sherpa</name>
 	<packaging>jar</packaging>
 	<description>JSON remote data end point service via HTTP</description>
