@@ -70,7 +70,7 @@ public class UrlUtil {
 			}
 		}
 
-		if (StringUtils.isEmpty(stringBuilder)) {
+		if (!StringUtils.isEmpty(stringBuilder)) {
 			return stringBuilder.toString();
 		}
 
